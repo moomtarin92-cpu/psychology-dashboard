@@ -1444,16 +1444,14 @@ code {
    =========================================================== */
 
 // ✅ YOUR APPS SCRIPT URL — pre-filled from your details
-const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbyGYycTul8-sKeocx2kY6mccuzJ0NhP0geVRe5LjBIUJeol83GHHlTZH091zmWEsZDcTw/exec';
-
+const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbyzUwbU3IieSy_0En3fzbPUXV9lWweCuvJDFSx1LjhiNl6bD7XlAowl5_o7MrRBc7Aw/exec";
 const APP = {
-  apiUrl: localStorage.getItem('psychcare_api_url') || DEFAULT_API_URL,
+  apiUrl: "https://script.google.com/macros/s/AKfycbyzUwbU3IieSy_0En3fzbPUXV9lWweCuvJDFSx1LjhiNl6bD7XlAowl5_o7MrRBc7Aw/exec",
   patients: [],
   sessions: [],
   currentPatientId: null,
   charts: {},
 };
-
 // Save the default URL immediately if nothing was stored
 if (!localStorage.getItem('psychcare_api_url') && DEFAULT_API_URL) {
   localStorage.setItem('psychcare_api_url', DEFAULT_API_URL);
