@@ -2337,12 +2337,18 @@ function generateReportFor() {
    SAVE PATIENT
    ============================================================ */
 async function savePatient() {
-  const name   = document.getElementById('pf_name').value.trim();
-  const age    = document.getElementById('pf_age').value.trim();
-  const gender = document.getElementById('pf_gender').value;
-  const phone  = document.getElementById('pf_phone').value.trim();
-  const errBox = document.getElementById('patientFormError');
+  const name     = document.getElementById('pf_name').value.trim();
+  const age      = document.getElementById('pf_age').value.trim();
+  const gender   = document.getElementById('pf_gender').value;
+  const phone    = document.getElementById('pf_phone').value.trim();
+  const location = document.getElementById('pf_location').value;
+  const errBox   = document.getElementById('patientFormError');
 
+  if (!location) {
+    errBox.style.display = 'flex';
+    errBox.textContent = '❌ Please select a Data Source / Location.';
+    return;
+  }
   if (!name || !age || !gender || !phone) {
     errBox.style.display = 'flex';
     errBox.textContent = '❌ Please fill in all required fields: Name, Age, Gender, Phone.';
@@ -2350,13 +2356,17 @@ async function savePatient() {
   }
   errBox.style.display = 'none';
 
+  // Persist last used location so topbar/hero update immediately
+  localStorage.setItem('psychcare_last_location', location);
+  updateLocationUI(location);
+
   const btn = document.getElementById('btnSavePatient');
   btn.disabled = true;
   btn.textContent = '⏳ Saving...';
 
   const params = {
     action:     'addPatient',
-    name, age, gender, phone,
+    name, age, gender, phone, location,
     email:      document.getElementById('pf_email').value.trim(),
     occupation: document.getElementById('pf_occupation').value.trim(),
     address:    document.getElementById('pf_address').value.trim(),
@@ -2376,6 +2386,10 @@ async function savePatient() {
     closeModal('modalPatient');
     clearPatientForm();
     btn.disabled = false; btn.textContent = '💾 Save Patient';
+    // Re-render if on patients page
+    if (document.getElementById('page-patients').classList.contains('active')) {
+      renderPatientsTable(APP.patients);
+    }
     return;
   }
 
@@ -2386,10 +2400,9 @@ async function savePatient() {
       toast(`✅ Patient ${result.patient_id} saved!`, 'success');
       closeModal('modalPatient');
       clearPatientForm();
-      // Refresh local cache
+      // Refresh local cache and re-render
       APP.patients = [];
       await fetchPatients(true);
-      // Re-render if on patients page
       if (document.getElementById('page-patients').classList.contains('active')) {
         renderPatientsTable(APP.patients);
       }
@@ -2408,7 +2421,7 @@ async function savePatient() {
 }
 
 function clearPatientForm() {
-  ['pf_name','pf_age','pf_gender','pf_phone','pf_email','pf_occupation',
+  ['pf_location','pf_name','pf_age','pf_gender','pf_phone','pf_email','pf_occupation',
    'pf_address','pf_complaint','pf_referral','pf_emergency'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
@@ -2420,8 +2433,8 @@ function clearPatientForm() {
    SAVE SESSION
    ============================================================ */
 async function saveSession() {
-  const date = document.getElementById('sf_date').value;
-  const mood = document.getElementById('sf_mood').value;
+  const date   = document.getElementById('sf_date').value;
+  const mood   = document.getElementById('sf_mood').value;
   const errBox = document.getElementById('sessionFormError');
 
   if (!date) {
@@ -2430,6 +2443,10 @@ async function saveSession() {
     return;
   }
   errBox.style.display = 'none';
+
+  // Inherit location from the patient record — no UI input needed
+  const patient  = APP.patients.find(p => p.patient_id === APP.currentPatientId);
+  const location = patient ? (patient.location || '') : '';
 
   const btn = document.getElementById('btnSaveSession');
   btn.disabled = true;
@@ -2440,6 +2457,7 @@ async function saveSession() {
     patient_id:   APP.currentPatientId,
     session_date: date,
     mood_score:   mood,
+    location,
     subjective:   document.getElementById('sf_subjective').value.trim(),
     objective:    document.getElementById('sf_objective').value.trim(),
     assessment:   document.getElementById('sf_assessment').value.trim(),
@@ -2451,9 +2469,9 @@ async function saveSession() {
     const num = existing.length + 1;
     const newS = {
       ...params,
-      session_id: params.patient_id + '-S' + String(num).padStart(3,'0'),
+      session_id:     params.patient_id + '-S' + String(num).padStart(3,'0'),
       session_number: String(num),
-      timestamp: new Date().toISOString(),
+      timestamp:      new Date().toISOString(),
     };
     delete newS.action;
     DEMO_SESSIONS.push(newS);
@@ -2623,15 +2641,21 @@ async function generateReport() {
   }
 
   document.getElementById('reportOutput').style.display = 'block';
+
+  const reportHospital  = patient.location || localStorage.getItem('psychcare_last_location') || 'Ad-Din Akij Medical College Hospital';
+  const reportGenerated = new Date().toLocaleString('en-GB', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
+
   document.getElementById('reportBody').innerHTML = `
     <div class="report-top">
       <div>
-        <div class="report-clinic-name">PsychCare Clinic</div>
-        <div class="report-clinic-sub">Patient Progress Report</div>
+        <div class="report-clinic-name">${esc(reportHospital)}</div>
+        <div class="report-clinic-sub" style="font-size:.82rem;color:#374151;margin-top:3px;">Department of Psychology</div>
+        <div class="report-clinic-sub" style="margin-top:2px;">Moom Tarin Nahar &nbsp;·&nbsp; Student Counselor</div>
+        <div class="report-clinic-sub" style="margin-top:6px;font-style:italic;">Patient Progress Report — Confidential</div>
       </div>
       <div class="report-date-block">
-        <div>Generated: ${new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})}</div>
-        <div style="margin-top:4px;">Confidential — Clinical Use Only</div>
+        <div>Generated: ${reportGenerated}</div>
+        <div style="margin-top:4px;color:#ef4444;font-weight:600;">⚠ Clinical Use Only</div>
       </div>
     </div>
 
@@ -2694,9 +2718,17 @@ async function generateReport() {
       <div class="report-remarks-box">${esc(remarks)}</div>
     </div>` : ''}
 
-    <div class="report-footer">
-      <span>PsychCare Patient Management System</span>
-      <span>${patient.patient_id} — ${new Date().toISOString().slice(0,10)}</span>
+    <div class="report-footer" style="margin-top:36px;padding-top:20px;border-top:1px solid #e5e7eb;">
+      <div>
+        <div style="height:42px;border-bottom:1.5px solid #374151;width:180px;margin-bottom:5px;"></div>
+        <div style="font-size:.82rem;font-weight:600;color:#111827;">Moom Tarin Nahar</div>
+        <div style="font-size:.74rem;color:#6b7280;">Student Counselor &nbsp;·&nbsp; Dept. of Psychology</div>
+        <div style="font-size:.72rem;color:#9ca3af;margin-top:2px;">${esc(reportHospital)}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:.75rem;color:#9ca3af;">PsychCare Patient Management System</div>
+        <div style="font-size:.73rem;color:#9ca3af;margin-top:3px;">${patient.patient_id} &nbsp;·&nbsp; ${new Date().toISOString().slice(0,10)}</div>
+      </div>
     </div>
   `;
 
@@ -2913,17 +2945,35 @@ function esc(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-function renderLocBadge(loc) {
-  if (!loc) return '<span style="color:var(--text-dim);font-size:.8rem;">—</span>';
-  const isKuet = loc.toLowerCase().includes('kuet') || loc.toLowerCase().includes('engineering');
-  if (isKuet) return `<span class="loc-badge kuet">🎓 KUET</span>`;
-  return `<span class="loc-badge addin">🏥 Ad-Din</span>`;
-}
-
 function fmtDate(ts) {
   if (!ts) return '—';
   try { return new Date(ts).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }); }
   catch { return String(ts); }
+}
+
+/**
+ * Returns a coloured location badge HTML string.
+ * Blue   → Ad-Din Akij Medical College Hospital
+ * Purple → Khulna University of Engineering & Technology (KUET)
+ */
+function renderLocBadge(loc) {
+  if (!loc) return '<span style="color:var(--text-dim);font-size:.8rem;">—</span>';
+  const isKuet = /kuet|engineering/i.test(loc);
+  return isKuet
+    ? `<span class="loc-badge kuet">🎓 KUET</span>`
+    : `<span class="loc-badge addin">🏥 Ad-Din</span>`;
+}
+
+/**
+ * Updates every dynamic location element in the topbar and hero section.
+ * Called on DOMContentLoaded (restores last saved location) and after each patient save.
+ */
+function updateLocationUI(loc) {
+  const display  = loc || 'Ad-Din Akij Medical College Hospital';
+  const heroEl   = document.getElementById('heroHospitalName');
+  const topbarEl = document.getElementById('topbarHospital');
+  if (heroEl)   heroEl.textContent   = display;
+  if (topbarEl) topbarEl.textContent = display;
 }
 
 /* ============================================================
@@ -2932,8 +2982,15 @@ function fmtDate(ts) {
 document.addEventListener('DOMContentLoaded', () => {
   console.log('[PsychCare] App initializing...');
   console.log('[PsychCare] API URL:', APP.apiUrl || '(none — demo mode)');
+
+  // Restore saved API URL into settings input
   const urlInput = document.getElementById('setting_url');
   if (urlInput) urlInput.value = APP.apiUrl || '';
+
+  // Restore last used location into topbar + hero
+  const savedLoc = localStorage.getItem('psychcare_last_location') || '';
+  updateLocationUI(savedLoc);
+
   updateStatusUI();
   navigate('dashboard');
 });
