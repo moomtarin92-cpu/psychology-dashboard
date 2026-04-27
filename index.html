@@ -1911,9 +1911,28 @@ function renderDashCharts(sessions) {
    =========================================================== */
 async function loadPatients() {
   const tbody = document.getElementById('patientsBody');
-  tbody.innerHTML = `<tr><td colspan="7"><div class="loader"><div class="spinner"></div></div></td></tr>`;
-  await fetchPatients(true);
-  renderPatientsTable(APP.patients);
+
+  // loading spinner
+  tbody.innerHTML = `<tr><td colspan="7">
+    <div class="loader"><div class="spinner"></div></div>
+  </td></tr>`;
+
+  try {
+    const data = await apiCall({ action: 'getPatients' });
+
+    console.log("Loaded patients:", data);
+
+    APP.patients = data;
+
+    renderPatientsTable(APP.patients);
+
+  } catch (err) {
+    console.error(err);
+
+    tbody.innerHTML = `<tr><td colspan="7">
+      ❌ Failed to load patients
+    </td></tr>`;
+  }
 }
 
 function renderPatientsTable(list) {
