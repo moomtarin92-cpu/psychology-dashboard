@@ -1561,13 +1561,12 @@ tbody tr.highlight td { background: rgba(45,212,191,0.05); }
    CONFIGURATION & STATE
    ============================================================ */
 const APP = {
-  apiUrl: localStorage.getItem('psychcare_api_url') || '',
+  apiUrl: "https://script.google.com/macros/s/AKfycbzDW86q4wudVVk63EbsCyxdaELVNtnTBetetOWyv7fvbIOOyArHfvlxvfdgN2gY5aXX7g/exec",
   patients: [],
   sessions: [],
   currentPatientId: null,
   charts: {},
 };
-
 const APPS_SCRIPT_CODE = `// ============================================================
 // PsychCare - Google Apps Script Backend
 // Paste this in Extensions > Apps Script in your Google Sheet
