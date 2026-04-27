@@ -42,14 +42,17 @@
   --shadow-sm:    0 1px 4px rgba(15,21,35,0.06), 0 1px 2px rgba(15,21,35,0.03);
   --shadow:       0 4px 16px rgba(15,21,35,0.09);
   --shadow-lg:    0 16px 48px rgba(15,21,35,0.14);
-  --radius-sm:    8px;
-  --radius:       12px;
-  --radius-lg:    16px;
+  --shadow-glass: 0 8px 32px rgba(79,110,247,0.12), 0 2px 8px rgba(15,21,35,0.06);
+  --radius-sm:    10px;
+  --radius:       14px;
+  --radius-lg:    20px;
   --sidebar-w:    260px;
   --topbar-h:     64px;
-  --transition:   0.17s ease;
+  --transition:   0.22s ease;
   --font:         'DM Sans', system-ui, sans-serif;
   --font-display: 'DM Serif Display', Georgia, serif;
+  --glass-bg:     rgba(255,255,255,0.72);
+  --glass-border: rgba(255,255,255,0.55);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -251,14 +254,17 @@ body {
 .clock-ampm { font-size: 0.65rem; color: var(--text-dim); font-weight: 600; text-transform: uppercase; align-self: flex-end; }
 
 /* ============================================================
-   CARDS
+   CARDS — GLASSMORPHISM
    ============================================================ */
 .card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius);
-  padding: 24px;
-  box-shadow: var(--shadow-sm);
+  padding: 26px;
+  box-shadow: var(--shadow-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: box-shadow var(--transition), transform var(--transition);
 }
 .card-title {
   font-size: 0.75rem;
@@ -277,16 +283,18 @@ body {
   margin-bottom: 24px;
 }
 .stat-card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius);
-  padding: 22px 24px;
+  padding: 22px 26px;
   position: relative;
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   transition: box-shadow var(--transition), transform var(--transition);
 }
-.stat-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+.stat-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
 .stat-card::before {
   content: '';
   position: absolute;
@@ -831,38 +839,169 @@ code {
 .back-link:hover { color: var(--accent); }
 
 /* ============================================================
-   DASHBOARD WELCOME STRIP
+   DASHBOARD HERO SECTION — PREMIUM GRADIENT
    ============================================================ */
 .welcome-strip {
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+  background: linear-gradient(135deg, #2a4bca 0%, #4f6ef7 35%, #7c4fd4 70%, #8b5cf6 100%);
+  background-size: 300% 300%;
+  animation: heroGradient 8s ease infinite;
   border-radius: var(--radius-lg);
-  padding: 28px 32px;
-  margin-bottom: 24px;
+  padding: 36px 40px;
+  margin-bottom: 28px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  box-shadow: 0 8px 28px rgba(79,110,247,0.3);
+  gap: 24px;
+  box-shadow: 0 12px 40px rgba(79,110,247,0.35), 0 2px 8px rgba(79,110,247,0.15);
   overflow: hidden;
   position: relative;
 }
-.welcome-strip::after {
-  content: '🧠';
+@keyframes heroGradient {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.welcome-strip::before {
+  content: '';
   position: absolute;
-  right: -10px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 7rem;
-  opacity: 0.06;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 85% 20%, rgba(255,255,255,0.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 10% 80%, rgba(139,92,246,0.25) 0%, transparent 50%);
   pointer-events: none;
 }
-.welcome-text h2 { font-family: var(--font-display); font-size: 1.6rem; color: #fff; font-weight: 400; margin-bottom: 4px; }
-.welcome-text p  { font-size: 0.84rem; color: rgba(255,255,255,0.7); }
+.welcome-strip::after {
+  content: '✦';
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 8rem;
+  opacity: 0.04;
+  pointer-events: none;
+  animation: heroFloat 6s ease-in-out infinite;
+}
+@keyframes heroFloat {
+  0%, 100% { transform: translateY(-50%) rotate(0deg); }
+  50%       { transform: translateY(-54%) rotate(12deg); }
+}
 
-/* Inline clock on dashboard strip */
-.strip-clock { text-align: right; flex-shrink: 0; }
-.strip-clock .big-time { font-family: var(--font-display); font-size: 2.6rem; color: #fff; line-height: 1; font-weight: 400; }
-.strip-clock .small-meta { font-size: 0.72rem; color: rgba(255,255,255,0.65); margin-top: 3px; text-align: right; }
+/* Hero content blocks */
+.hero-main { flex: 1; z-index: 1; }
+.hero-hospital {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hero-hospital::before {
+  content: '🏥';
+  font-size: 0.85rem;
+}
+.hero-dept {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.5);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+}
+.hero-welcome { font-family: var(--font-display); font-size: 1.9rem; color: #fff; font-weight: 400; margin-bottom: 4px; line-height: 1.15; }
+.hero-date { font-size: 0.84rem; color: rgba(255,255,255,0.65); }
+
+.hero-counselor {
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius);
+  padding: 12px 18px;
+  backdrop-filter: blur(8px);
+  flex-shrink: 0;
+}
+.hero-avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  border: 2px solid rgba(255,255,255,0.4);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
+.hero-counselor-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.3;
+}
+.hero-counselor-title {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.6);
+}
+
+/* Strip clock in hero */
+.strip-clock { text-align: right; flex-shrink: 0; z-index: 1; }
+.strip-clock .big-time { font-family: var(--font-display); font-size: 2.8rem; color: #fff; line-height: 1; font-weight: 400; text-shadow: 0 2px 12px rgba(0,0,0,0.15); }
+.strip-clock .small-meta { font-size: 0.72rem; color: rgba(255,255,255,0.65); margin-top: 4px; text-align: right; }
+
+/* ============================================================
+   TOPBAR IDENTITY BLOCK
+   ============================================================ */
+.topbar-identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px 6px 8px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: background var(--transition);
+}
+.topbar-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(79,110,247,0.3);
+}
+.topbar-identity-info { display: flex; flex-direction: column; gap: 1px; }
+.topbar-identity-name { font-size: 0.8rem; font-weight: 600; color: var(--text); line-height: 1.2; }
+.topbar-identity-hospital { font-size: 0.67rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+
+/* Location badge styles */
+.loc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.loc-badge.addin {
+  background: rgba(79,110,247,0.1);
+  color: var(--accent);
+  border: 1px solid rgba(79,110,247,0.2);
+}
+.loc-badge.kuet {
+  background: rgba(139,92,246,0.1);
+  color: var(--accent2);
+  border: 1px solid rgba(139,92,246,0.2);
+}
 
 /* ============================================================
    RESPONSIVE
@@ -881,9 +1020,11 @@ code {
   .report-top { flex-direction: column; gap: 10px; }
   .topbar { padding: 0 18px; }
   .stat-grid { grid-template-columns: 1fr 1fr; }
-  .welcome-strip { flex-direction: column; align-items: flex-start; }
+  .welcome-strip { flex-direction: column; align-items: flex-start; padding: 24px 22px; }
   .strip-clock .big-time { font-size: 2rem; }
+  .hero-counselor { width: 100%; }
   .clock-widget { display: none; }
+  .topbar-identity-hospital { max-width: 100px; }
 }
 @media (max-width: 480px) {
   .stat-grid { grid-template-columns: 1fr 1fr; }
@@ -935,6 +1076,14 @@ code {
     <div class="modal-body">
       <div id="patientFormError" class="error-banner" style="display:none;"></div>
       <div class="form-grid">
+        <div class="form-group full" style="margin-bottom:4px;">
+          <label>Data Source / Location *</label>
+          <select id="pf_location">
+            <option value="">Select location</option>
+            <option value="Ad-Din Akij Medical College Hospital">Ad-Din Akij Medical College Hospital</option>
+            <option value="Khulna University of Engineering &amp; Technology">Khulna University of Engineering &amp; Technology (KUET)</option>
+          </select>
+        </div>
         <div class="form-group">
           <label>Full Name *</label>
           <input type="text" id="pf_name" placeholder="e.g. Rafiqul Islam" />
@@ -1112,6 +1261,14 @@ code {
           </div>
           <span class="clock-ampm" id="topbarClockAmpm">AM</span>
         </div>
+        <!-- Counselor Identity Block -->
+        <div class="topbar-identity">
+          <div class="topbar-avatar">MN</div>
+          <div class="topbar-identity-info">
+            <div class="topbar-identity-name">Moom Tarin Nahar</div>
+            <div class="topbar-identity-hospital" id="topbarHospital">Ad-Din Akij Medical College Hospital</div>
+          </div>
+        </div>
         <button class="btn btn-primary btn-sm" onclick="openModal('modalPatient')">+ New Patient</button>
       </div>
     </div>
@@ -1128,17 +1285,26 @@ code {
         </span>
       </div>
 
-      <!-- Welcome strip with large clock -->
+      <!-- Premium Hero Section -->
       <div class="welcome-strip">
-        <div class="welcome-text">
-          <h2>Welcome back 👋</h2>
-          <p id="dashDate">Loading date...</p>
+        <div class="hero-main">
+          <div class="hero-hospital" id="heroHospitalName">Ad-Din Akij Medical College Hospital</div>
+          <div class="hero-dept">Department of Psychology</div>
+          <div class="hero-welcome">Welcome back 👋</div>
+          <div class="hero-date" id="dashDate">Loading date...</div>
+        </div>
+        <div class="hero-counselor">
+          <div class="hero-avatar">MN</div>
+          <div>
+            <div class="hero-counselor-name">Moom Tarin Nahar</div>
+            <div class="hero-counselor-title">Student Counselor</div>
+          </div>
         </div>
         <div class="strip-clock">
           <div class="big-time" id="dashClockTime">00:00</div>
           <div class="small-meta" id="dashClockMeta">— · —</div>
         </div>
-        <button class="btn btn-sm" style="background:rgba(255,255,255,0.18);color:#fff;border-color:rgba(255,255,255,0.3);flex-shrink:0;" onclick="refreshDashboard()">↻ Refresh</button>
+        <button class="btn btn-sm" style="background:rgba(255,255,255,0.16);color:#fff;border-color:rgba(255,255,255,0.28);flex-shrink:0;z-index:1;backdrop-filter:blur(4px);" onclick="refreshDashboard()">↻ Refresh</button>
       </div>
 
       <div class="stat-grid">
@@ -1192,12 +1358,13 @@ code {
                 <th>Name</th>
                 <th>Gender</th>
                 <th>Phone</th>
+                <th>Location</th>
                 <th>Registered</th>
                 <th></th>
               </tr>
             </thead>
             <tbody id="dash_recentBody">
-              <tr><td colspan="6"><div class="loader"><div class="spinner"></div></div></td></tr>
+              <tr><td colspan="7"><div class="loader"><div class="spinner"></div></div></td></tr>
             </tbody>
           </table>
         </div>
@@ -1243,12 +1410,13 @@ code {
                 <th>Age</th>
                 <th>Gender</th>
                 <th>Phone</th>
+                <th>Location</th>
                 <th>Registered</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody id="patientsBody">
-              <tr><td colspan="7"><div class="loader"><div class="spinner"></div></div></td></tr>
+              <tr><td colspan="8"><div class="loader"><div class="spinner"></div></div></td></tr>
             </tbody>
           </table>
         </div>
@@ -1934,6 +2102,7 @@ function renderRecentPatients(patients) {
       <td><strong>${esc(p.name)}</strong></td>
       <td><span class="badge badge-${(p.gender||'').toLowerCase()}">${p.gender||'—'}</span></td>
       <td>${esc(p.phone)}</td>
+      <td>${renderLocBadge(p.location)}</td>
       <td>${fmtDate(p.timestamp)}</td>
       <td><button class="btn btn-ghost btn-sm" onclick="navigate('profile',{patientId:'${p.patient_id}'})">View →</button></td>
     </tr>
@@ -1975,7 +2144,7 @@ async function loadPatients() {
 function renderPatientsTable(list) {
   const tbody = document.getElementById('patientsBody');
   if (!Array.isArray(list) || !list.length) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">👥</div><p>No patients found.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">👥</div><p>No patients found.</p></div></td></tr>`;
     return;
   }
   tbody.innerHTML = list.map(p => `
@@ -1985,6 +2154,7 @@ function renderPatientsTable(list) {
       <td>${p.age||'—'}</td>
       <td><span class="badge badge-${(p.gender||'').toLowerCase()}">${p.gender||'—'}</span></td>
       <td>${esc(p.phone)}</td>
+      <td>${renderLocBadge(p.location)}</td>
       <td>${fmtDate(p.timestamp)}</td>
       <td>
         <button class="btn btn-secondary btn-sm"
@@ -2741,6 +2911,13 @@ function makePieChart(id, counts) {
 function esc(str) {
   if (!str) return '';
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderLocBadge(loc) {
+  if (!loc) return '<span style="color:var(--text-dim);font-size:.8rem;">—</span>';
+  const isKuet = loc.toLowerCase().includes('kuet') || loc.toLowerCase().includes('engineering');
+  if (isKuet) return `<span class="loc-badge kuet">🎓 KUET</span>`;
+  return `<span class="loc-badge addin">🏥 Ad-Din</span>`;
 }
 
 function fmtDate(ts) {
