@@ -1,0 +1,2696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PsychCare — Patient Management System</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<!-- jsPDF for PDF export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+/* ============================================================
+   DESIGN TOKENS & RESET
+   ============================================================ */
+:root {
+  --bg:            #0d1117;
+  --bg2:           #161b22;
+  --bg3:           #21262d;
+  --border:        #30363d;
+  --border-light:  #3a404a;
+  --text:          #e6edf3;
+  --text-muted:    #8b949e;
+  --text-dim:      #6e7681;
+  --accent:        #2dd4bf;
+  --accent-glow:   rgba(45,212,191,0.15);
+  --accent2:       #818cf8;
+  --accent2-glow:  rgba(129,140,248,0.15);
+  --accent3:       #fb923c;
+  --danger:        #f85149;
+  --success:       #3fb950;
+  --warn:          #d29922;
+  --card-shadow:   0 4px 24px rgba(0,0,0,0.4);
+  --radius:        12px;
+  --radius-sm:     8px;
+  --radius-lg:     16px;
+  --sidebar-w:     260px;
+  --transition:    0.22s cubic-bezier(0.4,0,0.2,1);
+  --font:          'DM Sans', sans-serif;
+  --font-display:  'DM Serif Display', serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 1rem;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0;
+  height: 100vh;
+  z-index: 100;
+  transition: transform var(--transition);
+  overflow-y: auto;
+}
+
+.sidebar-brand {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-brand .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sidebar-brand .logo-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.sidebar-brand .logo-text {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.sidebar-brand .logo-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 12px;
+}
+.nav-section-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding: 12px 8px 6px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background var(--transition), color var(--transition);
+  position: relative;
+  margin-bottom: 2px;
+}
+.nav-item:hover { background: var(--bg3); color: var(--text); }
+.nav-item.active {
+  background: var(--accent-glow);
+  color: var(--accent);
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 20%; bottom: 20%;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+.nav-icon { font-size: 1.1rem; width: 22px; text-align: center; }
+
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid var(--border);
+}
+.api-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  flex-shrink: 0;
+}
+.status-dot.connected { background: var(--success); box-shadow: 0 0 6px var(--success); }
+.status-dot.error { background: var(--danger); }
+
+/* MAIN CONTENT */
+.main-content {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* TOP BAR */
+.topbar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.topbar-left { display: flex; align-items: center; gap: 16px; }
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: 4px;
+}
+.hamburger span {
+  display: block;
+  width: 22px; height: 2px;
+  background: var(--text-muted);
+  border-radius: 2px;
+  transition: var(--transition);
+}
+.page-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+
+/* PAGE CONTAINER */
+.page-container {
+  flex: 1;
+  padding: 28px;
+  max-width: 1400px;
+  width: 100%;
+}
+
+/* OVERLAY */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 90;
+  backdrop-filter: blur(2px);
+}
+.overlay.active { display: block; }
+
+/* ============================================================
+   PAGES
+   ============================================================ */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--card-shadow);
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.stat-card:hover {
+  border-color: var(--border-light);
+  box-shadow: var(--card-shadow);
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.stat-card.c1::before { background: linear-gradient(90deg, var(--accent), transparent); }
+.stat-card.c2::before { background: linear-gradient(90deg, var(--accent2), transparent); }
+.stat-card.c3::before { background: linear-gradient(90deg, var(--accent3), transparent); }
+.stat-card.c4::before { background: linear-gradient(90deg, var(--success), transparent); }
+
+.stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.stat-sub { font-size: 0.78rem; color: var(--text-dim); }
+.stat-icon {
+  position: absolute;
+  right: 20px; top: 20px;
+  font-size: 1.8rem;
+  opacity: 0.12;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--transition);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #0d1117;
+  border-color: var(--accent);
+}
+.btn-primary:hover { background: #14b8a6; filter: brightness(1.1); }
+.btn-secondary {
+  background: var(--bg3);
+  color: var(--text);
+  border-color: var(--border);
+}
+.btn-secondary:hover { border-color: var(--border-light); background: #2a3140; }
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border-color: transparent;
+}
+.btn-ghost:hover { background: var(--bg3); color: var(--text); }
+.btn-danger {
+  background: rgba(248,81,73,0.1);
+  color: var(--danger);
+  border-color: rgba(248,81,73,0.3);
+}
+.btn-danger:hover { background: rgba(248,81,73,0.2); }
+.btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+.btn-lg { padding: 12px 24px; font-size: 1rem; }
+
+/* ============================================================
+   FORMS
+   ============================================================ */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+.form-group { display: flex; flex-direction: column; gap: 7px; }
+.form-group.full { grid-column: 1 / -1; }
+label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+input, select, textarea {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 0.9rem;
+  padding: 11px 14px;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  width: 100%;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+select option { background: var(--bg3); }
+textarea { resize: vertical; min-height: 90px; }
+input::placeholder, textarea::placeholder { color: var(--text-dim); }
+
+/* Mood slider */
+.mood-slider-wrap { display: flex; align-items: center; gap: 14px; }
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--danger) 0%, var(--warn) 50%, var(--success) 100%);
+  border: none;
+  box-shadow: none;
+  flex: 1;
+  padding: 0;
+}
+input[type="range"]:focus { box-shadow: none; }
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  cursor: pointer;
+}
+.mood-value {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  min-width: 36px;
+  text-align: center;
+  color: var(--accent);
+}
+
+/* ============================================================
+   TABLE
+   ============================================================ */
+.table-wrap { overflow-x: auto; border-radius: var(--radius-sm); }
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+thead tr {
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+}
+th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+td {
+  padding: 13px 16px;
+  font-size: 0.88rem;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* ============================================================
+   BADGES
+   ============================================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.badge-male { background: rgba(129,140,248,0.15); color: var(--accent2); }
+.badge-female { background: rgba(251,146,60,0.15); color: var(--accent3); }
+.badge-other { background: rgba(45,212,191,0.15); color: var(--accent); }
+.badge-active { background: rgba(63,185,80,0.15); color: var(--success); }
+.badge-inactive { background: rgba(110,118,129,0.15); color: var(--text-dim); }
+
+/* ============================================================
+   PATIENT ID TAG
+   ============================================================ */
+.pid-tag {
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  background: var(--accent-glow);
+  padding: 3px 8px;
+  border-radius: 5px;
+  letter-spacing: 0.04em;
+}
+
+/* ============================================================
+   SEARCH BAR
+   ============================================================ */
+.search-wrap {
+  position: relative;
+  max-width: 340px;
+}
+.search-wrap .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-dim);
+  font-size: 1rem;
+  pointer-events: none;
+}
+.search-wrap input {
+  padding-left: 38px;
+}
+
+/* ============================================================
+   SECTION HEADER
+   ============================================================ */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--text);
+}
+.section-subtitle {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition);
+}
+.modal-backdrop.active {
+  opacity: 1;
+  pointer-events: all;
+}
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+  transform: translateY(20px);
+  transition: transform var(--transition);
+}
+.modal-backdrop.active .modal { transform: translateY(0); }
+.modal-header {
+  padding: 24px 28px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.modal-title { font-family: var(--font-display); font-size: 1.3rem; }
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 2px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.modal-close:hover { color: var(--text); }
+.modal-body { padding: 24px 28px; }
+.modal-footer {
+  padding: 18px 28px 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ============================================================
+   PROFILE PAGE
+   ============================================================ */
+.profile-hero {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+.profile-avatar {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  color: #0d1117;
+  flex-shrink: 0;
+}
+.profile-info h2 {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  margin-bottom: 6px;
+}
+.profile-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 0.83rem;
+  color: var(--text-muted);
+}
+.profile-meta span { display: flex; align-items: center; gap: 5px; }
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.info-item label { font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); display: block; margin-bottom: 4px; }
+.info-item span { font-size: 0.9rem; color: var(--text); }
+
+/* Session cards */
+.session-list { display: flex; flex-direction: column; gap: 14px; }
+.session-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  cursor: pointer;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.session-card:hover {
+  border-color: var(--border-light);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+.session-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.session-num {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.session-date { font-size: 0.82rem; color: var(--text-muted); }
+.mood-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.mood-bar {
+  height: 6px;
+  border-radius: 6px;
+  flex: 1;
+  background: var(--bg);
+  overflow: hidden;
+}
+.mood-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.5s ease;
+}
+.session-soap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+.soap-item label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  display: block;
+  margin-bottom: 2px;
+}
+.soap-item p {
+  font-size: 0.83rem;
+  color: var(--text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ============================================================
+   CHARTS
+   ============================================================ */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.chart-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+}
+.chart-card-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 18px;
+}
+.chart-wrap { position: relative; height: 220px; }
+
+/* ============================================================
+   ANALYTICS INSIGHTS
+   ============================================================ */
+.insight-list { display: flex; flex-direction: column; gap: 10px; }
+.insight-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  font-size: 0.88rem;
+}
+.insight-item .rank {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  min-width: 20px;
+}
+.insight-item .name { flex: 1; padding: 0 12px; }
+.insight-item .count {
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-glow);
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-size: 0.8rem;
+}
+
+/* ============================================================
+   REPORT PAGE
+   ============================================================ */
+.report-container {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 36px 40px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+.report-header-block {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid var(--border);
+}
+.report-org {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: var(--accent);
+}
+.report-org-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+.report-date-info {
+  text-align: right;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+.report-section {
+  margin-bottom: 28px;
+}
+.report-section-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--accent);
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.report-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+.report-info-item label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  display: block;
+  margin-bottom: 3px;
+}
+.report-info-item span { font-size: 0.9rem; color: var(--text); }
+.report-session-row {
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+.report-session-row .rs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.report-session-row .rs-num {
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+.report-remarks-box {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  min-height: 100px;
+}
+
+/* ============================================================
+   LOADING STATES
+   ============================================================ */
+.loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  flex-direction: column;
+  gap: 14px;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+.empty-icon { font-size: 3rem; opacity: 0.3; }
+.empty-state p { font-size: 0.9rem; max-width: 320px; }
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 13px 18px;
+  font-size: 0.86rem;
+  color: var(--text);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideIn 0.3s ease;
+  pointer-events: all;
+  max-width: 340px;
+}
+.toast.success { border-left: 3px solid var(--success); }
+.toast.error { border-left: 3px solid var(--danger); }
+.toast.info { border-left: 3px solid var(--accent); }
+@keyframes slideIn { from { transform: translateX(110%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes fadeOut { to { opacity: 0; transform: translateX(110%); } }
+.toast.out { animation: fadeOut 0.3s ease forwards; }
+
+/* ============================================================
+   FILTER BAR
+   ============================================================ */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 16px 20px;
+  background: var(--bg3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.filter-bar label { font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; }
+.filter-bar input, .filter-bar select {
+  padding: 7px 12px;
+  font-size: 0.84rem;
+}
+
+/* ============================================================
+   BREADCRUMB / BACK
+   ============================================================ */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  margin-bottom: 18px;
+  transition: color var(--transition);
+}
+.back-link:hover { color: var(--accent); }
+
+/* ============================================================
+   CONFIG BANNER
+   ============================================================ */
+.config-banner {
+  background: rgba(210,153,34,0.12);
+  border: 1px solid rgba(210,153,34,0.3);
+  border-radius: var(--radius-sm);
+  padding: 14px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.86rem;
+  color: var(--warn);
+}
+.config-banner code {
+  background: rgba(255,255,255,0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.84em;
+  color: var(--text);
+}
+
+/* ============================================================
+   SETTINGS PAGE
+   ============================================================ */
+.settings-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  max-width: 600px;
+  margin-bottom: 20px;
+}
+.settings-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  margin-bottom: 18px;
+}
+
+/* ============================================================
+   MOBILE RESPONSIVE
+   ============================================================ */
+@media (max-width: 860px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 40px rgba(0,0,0,0.5);
+  }
+  .main-content {
+    margin-left: 0;
+  }
+  .hamburger { display: flex; }
+  .page-container { padding: 16px; }
+  .chart-grid { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+  .profile-hero { flex-direction: column; }
+  .session-soap { grid-template-columns: 1fr; }
+  .report-container { padding: 20px; }
+  .report-header-block { flex-direction: column; gap: 12px; }
+  .report-date-info { text-align: left; }
+  .topbar { padding: 0 16px; }
+}
+
+@media (max-width: 520px) {
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  table { font-size: 0.82rem; }
+  td, th { padding: 10px 10px; }
+}
+
+/* ============================================================
+   PRINT STYLES
+   ============================================================ */
+@media print {
+  .sidebar, .topbar, .btn, .back-link, .filter-bar { display: none !important; }
+  .main-content { margin-left: 0 !important; }
+  body { background: #fff !important; color: #000 !important; }
+  .report-container { border: none; box-shadow: none; color: #000; background: #fff; }
+}
+
+/* ============================================================
+   UTILITY
+   ============================================================ */
+.mb-0 { margin-bottom: 0 !important; }
+.mb-8 { margin-bottom: 8px !important; }
+.mb-16 { margin-bottom: 16px !important; }
+.mb-24 { margin-bottom: 24px !important; }
+.mt-20 { margin-top: 20px !important; }
+.text-muted { color: var(--text-muted); }
+.text-accent { color: var(--accent); }
+.flex { display: flex; }
+.gap-10 { gap: 10px; }
+.align-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.w-full { width: 100%; }
+
+/* Highlight row */
+tbody tr.highlight td { background: rgba(45,212,191,0.05); }
+</style>
+</head>
+<body>
+
+<!-- OVERLAY for mobile -->
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- MODAL: Add Patient -->
+<div class="modal-backdrop" id="modalAddPatient">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Add New Patient</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-top:3px;">Patient ID will be auto-generated</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modalAddPatient')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" id="p_name" placeholder="Enter full name" />
+        </div>
+        <div class="form-group">
+          <label>Age *</label>
+          <input type="number" id="p_age" placeholder="Age in years" min="1" max="120" />
+        </div>
+        <div class="form-group">
+          <label>Gender *</label>
+          <select id="p_gender">
+            <option value="">Select gender</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Phone *</label>
+          <input type="tel" id="p_phone" placeholder="+880 1700 000000" />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="p_email" placeholder="patient@example.com" />
+        </div>
+        <div class="form-group">
+          <label>Occupation</label>
+          <input type="text" id="p_occupation" placeholder="Job or student" />
+        </div>
+        <div class="form-group full">
+          <label>Address</label>
+          <input type="text" id="p_address" placeholder="Home address" />
+        </div>
+        <div class="form-group full">
+          <label>Chief Complaint / Main Problem</label>
+          <textarea id="p_complaint" placeholder="Briefly describe the patient's main concern..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Referral Source</label>
+          <input type="text" id="p_referral" placeholder="e.g. Self, Doctor, Family" />
+        </div>
+        <div class="form-group">
+          <label>Emergency Contact</label>
+          <input type="text" id="p_emergency" placeholder="Name & Phone" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalAddPatient')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePatient()">
+        <span>💾</span> Save Patient
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add Session -->
+<div class="modal-backdrop" id="modalAddSession">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Add Session</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-top:3px;" id="sessionModalSub">Session for patient</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modalAddSession')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Session Date *</label>
+          <input type="date" id="s_date" />
+        </div>
+        <div class="form-group">
+          <label>Mood Score (1–10) *</label>
+          <div class="mood-slider-wrap">
+            <input type="range" id="s_mood" min="1" max="10" value="5" oninput="document.getElementById('moodDisplay').textContent=this.value" />
+            <div class="mood-value" id="moodDisplay">5</div>
+          </div>
+        </div>
+        <div class="form-group full">
+          <label>Subjective (Patient's words)</label>
+          <textarea id="s_subjective" placeholder="What the patient reports: feelings, symptoms, experiences..."></textarea>
+        </div>
+        <div class="form-group full">
+          <label>Objective (Clinician observations)</label>
+          <textarea id="s_objective" placeholder="Observable behaviours, mental status, appearance..."></textarea>
+        </div>
+        <div class="form-group full">
+          <label>Assessment (Clinical impression)</label>
+          <textarea id="s_assessment" placeholder="Diagnosis, interpretation, clinical formulation..."></textarea>
+        </div>
+        <div class="form-group full">
+          <label>Plan (Next steps)</label>
+          <textarea id="s_plan" placeholder="Interventions, homework, next appointment..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalAddSession')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSession()">
+        <span>💾</span> Save Session
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">
+        <div class="logo-icon">🧠</div>
+        <div>
+          <div class="logo-text">PsychCare</div>
+          <div class="logo-sub">Patient Management</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <div class="nav-item active" onclick="navigate('dashboard')">
+        <span class="nav-icon">📊</span> Dashboard
+      </div>
+      <div class="nav-item" onclick="navigate('patients')">
+        <span class="nav-icon">👥</span> Patients
+      </div>
+      <div class="nav-item" onclick="navigate('analytics')">
+        <span class="nav-icon">📈</span> Analytics
+      </div>
+      <div class="nav-section-label">Reports</div>
+      <div class="nav-item" onclick="navigate('reports')">
+        <span class="nav-icon">📄</span> Report Generator
+      </div>
+      <div class="nav-section-label">System</div>
+      <div class="nav-item" onclick="navigate('settings')">
+        <span class="nav-icon">⚙️</span> Settings / API Config
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="api-status">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusLabel">Not configured</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="hamburger" onclick="toggleSidebar()">
+          <span></span><span></span><span></span>
+        </div>
+        <div class="page-title" id="topbarTitle">Dashboard</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" onclick="openModal('modalAddPatient')">
+          + New Patient
+        </button>
+      </div>
+    </div>
+
+    <!-- PAGE: DASHBOARD -->
+    <div class="page active page-container" id="page-dashboard">
+
+      <div id="configBanner" class="config-banner" style="display:none;">
+        ⚠️ <div>
+          <strong>API not configured.</strong> Go to <strong>Settings</strong> and enter your Google Apps Script URL to connect to Google Sheets. Data shown below is demo data.
+          <br/><small>Need help? See the setup instructions in Settings → API Config.</small>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div>
+          <div class="section-title">Welcome back 👋</div>
+          <div class="section-subtitle" id="dashboardDate"></div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="refreshDashboard()">↻ Refresh</button>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card c1">
+          <div class="stat-label">Total Patients</div>
+          <div class="stat-value" id="d_totalPatients">—</div>
+          <div class="stat-sub">Registered in system</div>
+          <div class="stat-icon">👥</div>
+        </div>
+        <div class="stat-card c2">
+          <div class="stat-label">Total Sessions</div>
+          <div class="stat-value" id="d_totalSessions">—</div>
+          <div class="stat-sub">Across all patients</div>
+          <div class="stat-icon">📋</div>
+        </div>
+        <div class="stat-card c3">
+          <div class="stat-label">Today's Sessions</div>
+          <div class="stat-value" id="d_todaySessions">—</div>
+          <div class="stat-sub" id="d_todayDate">—</div>
+          <div class="stat-icon">📅</div>
+        </div>
+        <div class="stat-card c4">
+          <div class="stat-label">Avg Mood Score</div>
+          <div class="stat-value" id="d_avgMood">—</div>
+          <div class="stat-sub">Last 30 sessions</div>
+          <div class="stat-icon">😊</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+        <div class="card">
+          <div class="chart-card-title">Sessions Over Time</div>
+          <div class="chart-wrap"><canvas id="dashSessionChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="chart-card-title">Average Mood Trend</div>
+          <div class="chart-wrap"><canvas id="dashMoodChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-header mb-16">
+          <div class="chart-card-title mb-0">Recent Patients</div>
+          <button class="btn btn-ghost btn-sm" onclick="navigate('patients')">View all →</button>
+        </div>
+        <div class="table-wrap">
+          <table id="recentPatientsTable">
+            <thead>
+              <tr><th>Patient ID</th><th>Name</th><th>Gender</th><th>Phone</th><th>Added</th><th></th></tr>
+            </thead>
+            <tbody id="recentPatientsBody">
+              <tr><td colspan="6"><div class="loader"><div class="spinner"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- PAGE: PATIENTS -->
+    <div class="page page-container" id="page-patients">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Patient Registry</div>
+          <div class="section-subtitle">Manage and view all patient records</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modalAddPatient')">+ Add Patient</button>
+      </div>
+
+      <div class="card mb-16" style="padding:16px 20px;">
+        <div class="flex gap-10 align-center" style="flex-wrap:wrap;">
+          <div class="search-wrap" style="flex:1;min-width:200px;">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="patientSearch" placeholder="Search by name or phone..." oninput="filterPatients()" />
+          </div>
+          <select id="genderFilter" onchange="filterPatients()" style="max-width:160px;">
+            <option value="">All Genders</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+          <button class="btn btn-secondary btn-sm" onclick="loadPatients()">↻ Refresh</button>
+        </div>
+      </div>
+
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Patient ID</th>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Phone</th>
+                <th>Registered</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="patientsTableBody">
+              <tr><td colspan="7"><div class="loader"><div class="spinner"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: PATIENT PROFILE -->
+    <div class="page page-container" id="page-profile">
+      <div class="back-link" onclick="navigate('patients')">← Back to Patients</div>
+
+      <div id="profileContent">
+        <div class="loader"><div class="spinner"></div><span>Loading patient profile...</span></div>
+      </div>
+
+      <!-- Sticky action buttons for mobile -->
+      <div id="profileActions" style="display:none;position:sticky;bottom:20px;display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;">
+        <button class="btn btn-primary" onclick="openAddSession()">+ Add Session</button>
+        <button class="btn btn-secondary" onclick="generateReportFor()">📄 Generate Report</button>
+      </div>
+    </div>
+
+    <!-- PAGE: ANALYTICS -->
+    <div class="page page-container" id="page-analytics">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Analytics Dashboard</div>
+          <div class="section-subtitle">Comprehensive insights across all patients and sessions</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="loadAnalytics()">↻ Refresh</button>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-bar mb-24">
+        <label>Date Range:</label>
+        <input type="date" id="af_from" style="max-width:160px;" />
+        <input type="date" id="af_to" style="max-width:160px;" />
+        <label>Patient:</label>
+        <select id="af_patient" style="max-width:200px;">
+          <option value="">All Patients</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="applyAnalyticsFilters()">Apply</button>
+        <button class="btn btn-ghost btn-sm" onclick="resetAnalyticsFilters()">Reset</button>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="stat-grid mb-24">
+        <div class="stat-card c1">
+          <div class="stat-label">Total Patients</div>
+          <div class="stat-value" id="a_totalPatients">—</div>
+          <div class="stat-icon">👥</div>
+        </div>
+        <div class="stat-card c2">
+          <div class="stat-label">Total Sessions</div>
+          <div class="stat-value" id="a_totalSessions">—</div>
+          <div class="stat-icon">📋</div>
+        </div>
+        <div class="stat-card c3">
+          <div class="stat-label">Avg Sessions/Patient</div>
+          <div class="stat-value" id="a_avgSessions">—</div>
+          <div class="stat-icon">📊</div>
+        </div>
+        <div class="stat-card c4">
+          <div class="stat-label">Active (30 days)</div>
+          <div class="stat-value" id="a_active">—</div>
+          <div class="stat-icon">✅</div>
+        </div>
+      </div>
+
+      <!-- Charts Row 1 -->
+      <div class="chart-grid mb-16">
+        <div class="chart-card">
+          <div class="chart-card-title">Sessions Over Time</div>
+          <div class="chart-wrap"><canvas id="aSessionsChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">Overall Mood Trend</div>
+          <div class="chart-wrap"><canvas id="aMoodChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Charts Row 2 -->
+      <div class="chart-grid mb-16">
+        <div class="chart-card">
+          <div class="chart-card-title">Patient Growth (Monthly)</div>
+          <div class="chart-wrap"><canvas id="aGrowthChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">Sessions by Gender</div>
+          <div class="chart-wrap"><canvas id="aGenderChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Insights -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="card">
+          <div class="chart-card-title">Top 5 Patients by Sessions</div>
+          <div id="insightTop5" class="insight-list">
+            <div class="loader"><div class="spinner"></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="chart-card-title">Patients Needing Attention</div>
+          <div class="section-subtitle mb-16" style="font-size:0.78rem;">Low avg mood score (&lt; 5)</div>
+          <div id="insightLowMood" class="insight-list">
+            <div class="loader"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- PAGE: REPORTS -->
+    <div class="page page-container" id="page-reports">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Report Generator</div>
+          <div class="section-subtitle">Generate professional patient reports for clinical use</div>
+        </div>
+      </div>
+
+      <div class="card mb-24" style="max-width:600px;">
+        <h3 style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:16px;">Select Patient</h3>
+        <div class="flex gap-10 align-center" style="flex-wrap:wrap;">
+          <select id="r_patient" style="flex:1;min-width:200px;">
+            <option value="">— Select a patient —</option>
+          </select>
+          <button class="btn btn-primary" onclick="generateReport()">Generate Report</button>
+        </div>
+        <div id="reportRemarks" style="margin-top:16px;display:none;">
+          <div class="form-group">
+            <label>Therapist Remarks</label>
+            <textarea id="r_remarks" rows="3" placeholder="Clinical observations, summary of treatment, recommendations..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div id="reportOutput" style="display:none;">
+        <div class="flex gap-10 mb-24" style="flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="window.print()">🖨️ Print Report</button>
+          <button class="btn btn-secondary" onclick="downloadPDF()">⬇️ Download PDF</button>
+        </div>
+        <div class="report-container" id="reportBody">
+          <!-- Report rendered here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: SETTINGS -->
+    <div class="page page-container" id="page-settings">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Settings & API Configuration</div>
+          <div class="section-subtitle">Connect your Google Sheets backend via Apps Script</div>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h3>Google Apps Script URL</h3>
+        <div class="form-group mb-16">
+          <label>Apps Script Web App URL</label>
+          <input type="url" id="setting_apiUrl" placeholder="https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec" />
+        </div>
+        <button class="btn btn-primary" onclick="saveApiUrl()">Save & Test Connection</button>
+        <div id="apiTestResult" style="margin-top:12px;font-size:0.84rem;"></div>
+      </div>
+
+      <div class="settings-card">
+        <h3>📋 Google Apps Script Setup Guide</h3>
+        <div style="font-size:0.86rem;color:var(--text-muted);line-height:1.9;">
+          <p style="margin-bottom:10px;"><strong style="color:var(--text);">Step 1:</strong> Open <a href="https://sheets.google.com" target="_blank" style="color:var(--accent);">Google Sheets</a> and create a new spreadsheet.</p>
+          <p style="margin-bottom:10px;"><strong style="color:var(--text);">Step 2:</strong> Create two sheets named exactly: <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-family:monospace;">Patients</code> and <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;font-family:monospace;">Sessions</code></p>
+          <p style="margin-bottom:10px;"><strong style="color:var(--text);">Step 3:</strong> Go to <strong>Extensions → Apps Script</strong>, paste the code below, and save.</p>
+          <p style="margin-bottom:10px;"><strong style="color:var(--text);">Step 4:</strong> Click <strong>Deploy → New Deployment → Web App</strong>. Set access to <strong>"Anyone"</strong>. Copy the URL and paste it above.</p>
+        </div>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-top:16px;font-family:monospace;font-size:0.78rem;color:var(--text-muted);overflow-x:auto;white-space:pre;line-height:1.8;max-height:400px;overflow-y:auto;" id="appsScriptCode"></div>
+        <button class="btn btn-secondary btn-sm mt-20" onclick="copyAppsScript()">📋 Copy Apps Script Code</button>
+      </div>
+
+      <div class="settings-card">
+        <h3>Data Management</h3>
+        <div style="font-size:0.86rem;color:var(--text-muted);margin-bottom:16px;">
+          The app uses localStorage to cache your API URL. All patient and session data lives in your Google Sheets.
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="clearCache()">Clear Local Cache</button>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /app-shell -->
+
+<script>
+/* ============================================================
+   CONFIGURATION & STATE
+   ============================================================ */
+const APP = {
+  apiUrl: localStorage.getItem('psychcare_api_url') || '',
+  patients: [],
+  sessions: [],
+  currentPatientId: null,
+  charts: {},
+};
+
+const APPS_SCRIPT_CODE = `// ============================================================
+// PsychCare - Google Apps Script Backend
+// Paste this in Extensions > Apps Script in your Google Sheet
+// ============================================================
+
+const SPREADSHEET_ID = SpreadsheetApp.getActiveSpreadsheet().getId();
+
+// Header rows for each sheet
+const PATIENT_HEADERS = [
+  'patient_id','name','age','gender','phone','email',
+  'occupation','address','complaint','referral','emergency','timestamp'
+];
+const SESSION_HEADERS = [
+  'session_id','patient_id','session_number','session_date',
+  'subjective','objective','assessment','plan','mood_score','timestamp'
+];
+
+function doGet(e) {
+  const action = e.parameter.action;
+  try {
+    if (action === 'getPatients') return jsonResponse(getPatients());
+    if (action === 'getSessions') return jsonResponse(getSessions(e.parameter.patient_id));
+    if (action === 'getAllSessions') return jsonResponse(getAllSessions());
+    if (action === 'ping') return jsonResponse({status:'ok',message:'PsychCare API is live'});
+    return jsonResponse({error:'Unknown action'});
+  } catch(err) {
+    return jsonResponse({error: err.message});
+  }
+}
+
+function doPost(e) {
+  const data = JSON.parse(e.postData.contents);
+  const action = data.action;
+  try {
+    if (action === 'addPatient') return jsonResponse(addPatient(data));
+    if (action === 'addSession') return jsonResponse(addSession(data));
+    return jsonResponse({error:'Unknown action'});
+  } catch(err) {
+    return jsonResponse({error: err.message});
+  }
+}
+
+function jsonResponse(data) {
+  return ContentService
+    .createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function getSheet(name) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sheet = ss.getSheetByName(name);
+  if (!sheet) {
+    sheet = ss.insertSheet(name);
+    if (name === 'Patients') sheet.appendRow(PATIENT_HEADERS);
+    if (name === 'Sessions') sheet.appendRow(SESSION_HEADERS);
+  }
+  return sheet;
+}
+
+function sheetToObjects(sheet, headers) {
+  const data = sheet.getDataRange().getValues();
+  if (data.length <= 1) return [];
+  return data.slice(1).map(row => {
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = row[i] !== undefined ? String(row[i]) : '');
+    return obj;
+  });
+}
+
+function getNextPatientId() {
+  const sheet = getSheet('Patients');
+  const rows = sheet.getDataRange().getValues();
+  const count = rows.length; // includes header
+  return 'PSY-' + String(count).padStart(4, '0');
+}
+
+function getNextSessionNumber(patientId) {
+  const sessions = getAllSessions();
+  const patSessions = sessions.filter(s => s.patient_id === patientId);
+  return patSessions.length + 1;
+}
+
+function getPatients() {
+  return sheetToObjects(getSheet('Patients'), PATIENT_HEADERS);
+}
+
+function getAllSessions() {
+  return sheetToObjects(getSheet('Sessions'), SESSION_HEADERS);
+}
+
+function getSessions(patientId) {
+  const all = getAllSessions();
+  return patientId ? all.filter(s => s.patient_id === patientId) : all;
+}
+
+function addPatient(data) {
+  const sheet = getSheet('Patients');
+  const pid = getNextPatientId();
+  const ts = new Date().toISOString();
+  sheet.appendRow([
+    pid, data.name, data.age, data.gender, data.phone,
+    data.email || '', data.occupation || '', data.address || '',
+    data.complaint || '', data.referral || '', data.emergency || '', ts
+  ]);
+  return {success: true, patient_id: pid};
+}
+
+function addSession(data) {
+  const sheet = getSheet('Sessions');
+  const sessionNum = getNextSessionNumber(data.patient_id);
+  const sessionId = data.patient_id + '-S' + String(sessionNum).padStart(3,'0');
+  const ts = new Date().toISOString();
+  sheet.appendRow([
+    sessionId, data.patient_id, sessionNum, data.session_date,
+    data.subjective || '', data.objective || '',
+    data.assessment || '', data.plan || '',
+    data.mood_score, ts
+  ]);
+  return {success: true, session_id: sessionId, session_number: sessionNum};
+}`;
+
+/* ============================================================
+   CHART DEFAULTS
+   ============================================================ */
+Chart.defaults.color = '#8b949e';
+Chart.defaults.borderColor = '#30363d';
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.font.size = 12;
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+const PAGE_TITLES = {
+  dashboard: 'Dashboard',
+  patients: 'Patients',
+  profile: 'Patient Profile',
+  analytics: 'Analytics',
+  reports: 'Report Generator',
+  settings: 'Settings',
+};
+
+function navigate(page, opts = {}) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  const el = document.getElementById('page-' + page);
+  if (el) el.classList.add('active');
+
+  const navEl = document.querySelector(`.nav-item[onclick="navigate('${page}')"]`);
+  if (navEl) navEl.classList.add('active');
+
+  document.getElementById('topbarTitle').textContent = PAGE_TITLES[page] || page;
+
+  closeSidebar();
+
+  // Page-specific init
+  if (page === 'dashboard') refreshDashboard();
+  if (page === 'patients') loadPatients();
+  if (page === 'analytics') loadAnalytics();
+  if (page === 'reports') populateReportPatientSelector();
+  if (page === 'settings') initSettings();
+  if (page === 'profile' && opts.patientId) loadProfile(opts.patientId);
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('overlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('active');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('active');
+}
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+function openModal(id) {
+  document.getElementById(id).classList.add('active');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+function toast(msg, type = 'info') {
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 320); }, 3200);
+}
+
+/* ============================================================
+   API HELPERS
+   ============================================================ */
+async function apiGet(action, params = {}) {
+  if (!APP.apiUrl) throw new Error('API URL not configured');
+  const url = new URL(APP.apiUrl);
+  url.searchParams.set('action', action);
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
+async function apiPost(body) {
+  if (!APP.apiUrl) throw new Error('API URL not configured');
+  const res = await fetch(APP.apiUrl, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
+/* ============================================================
+   DEMO DATA (when no API configured)
+   ============================================================ */
+const DEMO_PATIENTS = [
+  { patient_id: 'PSY-0001', name: 'Rafiqul Islam', age: '34', gender: 'Male', phone: '01711111111', email: 'rafiq@example.com', occupation: 'Teacher', address: 'Khulna', complaint: 'Anxiety and stress related to work', referral: 'Self', emergency: 'Wife 01800000001', timestamp: '2024-11-15T08:30:00Z' },
+  { patient_id: 'PSY-0002', name: 'Fatema Begum', age: '28', gender: 'Female', phone: '01722222222', email: 'fatema@example.com', occupation: 'Homemaker', address: 'Dhaka', complaint: 'Post-partum depression', referral: 'Doctor', emergency: 'Husband 01800000002', timestamp: '2024-11-20T09:00:00Z' },
+  { patient_id: 'PSY-0003', name: 'Sakib Hossain', age: '22', gender: 'Male', phone: '01733333333', email: 'sakib@example.com', occupation: 'Student', address: 'Rajshahi', complaint: 'Social anxiety, academic pressure', referral: 'University counselor', emergency: 'Mother 01800000003', timestamp: '2024-12-01T10:00:00Z' },
+  { patient_id: 'PSY-0004', name: 'Nasrin Akter', age: '45', gender: 'Female', phone: '01744444444', email: '', occupation: 'Businesswoman', address: 'Chittagong', complaint: 'Grief and loss, insomnia', referral: 'Family', emergency: 'Son 01800000004', timestamp: '2024-12-10T11:00:00Z' },
+  { patient_id: 'PSY-0005', name: 'Arif Chowdhury', age: '39', gender: 'Male', phone: '01755555555', email: '', occupation: 'Engineer', address: 'Sylhet', complaint: 'PTSD from road accident', referral: 'Self', emergency: 'Wife 01800000005', timestamp: '2025-01-05T08:00:00Z' },
+];
+
+const DEMO_SESSIONS = [
+  { session_id: 'PSY-0001-S001', patient_id: 'PSY-0001', session_number: '1', session_date: '2024-11-22', subjective: 'Reports feeling overwhelmed at work and struggling to sleep', objective: 'Anxious appearance, fidgety, eye contact maintained', assessment: 'Generalised Anxiety Disorder features', plan: 'CBT introduction, breathing exercises', mood_score: '4', timestamp: '2024-11-22T09:00:00Z' },
+  { session_id: 'PSY-0001-S002', patient_id: 'PSY-0001', session_number: '2', session_date: '2024-12-05', subjective: 'Sleep slightly improved, still stressed at work', objective: 'Less fidgety, more engaged', assessment: 'Mild improvement noted', plan: 'Continue CBT, add journaling', mood_score: '5', timestamp: '2024-12-05T09:00:00Z' },
+  { session_id: 'PSY-0001-S003', patient_id: 'PSY-0001', session_number: '3', session_date: '2024-12-19', subjective: 'Feeling better, managing stress more', objective: 'Calm, positive affect', assessment: 'Good progress', plan: 'Maintain strategies, monthly check-in', mood_score: '7', timestamp: '2024-12-19T09:00:00Z' },
+  { session_id: 'PSY-0002-S001', patient_id: 'PSY-0002', session_number: '1', session_date: '2024-11-25', subjective: 'Feels disconnected from her baby, guilt', objective: 'Tearful throughout session', assessment: 'Post-partum depression confirmed', plan: 'Psychoeducation, support network activation', mood_score: '3', timestamp: '2024-11-25T10:00:00Z' },
+  { session_id: 'PSY-0002-S002', patient_id: 'PSY-0002', session_number: '2', session_date: '2024-12-09', subjective: 'Bonding slightly improved, still low energy', objective: 'More eye contact, smiles occasionally', assessment: 'Gradual improvement', plan: 'Continue support, involve husband', mood_score: '4', timestamp: '2024-12-09T10:00:00Z' },
+  { session_id: 'PSY-0002-S003', patient_id: 'PSY-0002', session_number: '3', session_date: '2024-12-23', subjective: 'Good week, enjoyed time with baby', objective: 'Positive affect, animated', assessment: 'Significant improvement', plan: 'Booster session in 1 month', mood_score: '7', timestamp: '2024-12-23T10:00:00Z' },
+  { session_id: 'PSY-0003-S001', patient_id: 'PSY-0003', session_number: '1', session_date: '2024-12-05', subjective: 'Cannot attend group events, avoids cafeteria', objective: 'Shy, quiet voice initially', assessment: 'Social anxiety disorder', plan: 'Exposure hierarchy plan, relaxation', mood_score: '4', timestamp: '2024-12-05T11:00:00Z' },
+  { session_id: 'PSY-0003-S002', patient_id: 'PSY-0003', session_number: '2', session_date: '2024-12-19', subjective: 'Attended one study group successfully', objective: 'Noticeably more confident', assessment: 'Positive progress with exposure', plan: 'Gradually increase social exposure', mood_score: '6', timestamp: '2024-12-19T11:00:00Z' },
+  { session_id: 'PSY-0004-S001', patient_id: 'PSY-0004', session_number: '1', session_date: '2024-12-15', subjective: 'Lost mother 3 months ago, cannot sleep or concentrate', objective: 'Sad, tearful, poor grooming', assessment: 'Complicated grief', plan: 'Grief counseling, sleep hygiene', mood_score: '2', timestamp: '2024-12-15T14:00:00Z' },
+  { session_id: 'PSY-0005-S001', patient_id: 'PSY-0005', session_number: '1', session_date: '2025-01-10', subjective: 'Nightmares about accident, avoids driving', objective: 'Hypervigilant, startles easily', assessment: 'PTSD presentation', plan: 'Trauma-focused CBT, psychoeducation', mood_score: '3', timestamp: '2025-01-10T09:00:00Z' },
+  { session_id: 'PSY-0005-S002', patient_id: 'PSY-0005', session_number: '2', session_date: '2025-01-24', subjective: 'Fewer nightmares this week', objective: 'Less hypervigilant', assessment: 'Early improvement', plan: 'EMDR introduction', mood_score: '5', timestamp: '2025-01-24T09:00:00Z' },
+];
+
+function useDemoData() {
+  APP.patients = DEMO_PATIENTS;
+  APP.sessions = DEMO_SESSIONS;
+}
+
+/* ============================================================
+   DATA LOADING
+   ============================================================ */
+async function fetchPatients() {
+  if (!APP.apiUrl) { useDemoData(); return APP.patients; }
+  try {
+    const data = await apiGet('getPatients');
+    APP.patients = Array.isArray(data) ? data : (data.data || []);
+    return APP.patients;
+  } catch(e) {
+    toast('Could not load patients: ' + e.message, 'error');
+    useDemoData();
+    return APP.patients;
+  }
+}
+
+async function fetchAllSessions() {
+  if (!APP.apiUrl) { useDemoData(); return APP.sessions; }
+  try {
+    const data = await apiGet('getAllSessions');
+    APP.sessions = Array.isArray(data) ? data : (data.data || []);
+    return APP.sessions;
+  } catch(e) {
+    APP.sessions = [];
+    return [];
+  }
+}
+
+async function fetchSessionsForPatient(patientId) {
+  if (!APP.apiUrl) {
+    return DEMO_SESSIONS.filter(s => s.patient_id === patientId);
+  }
+  try {
+    const data = await apiGet('getSessions', { patient_id: patientId });
+    return Array.isArray(data) ? data : (data.data || []);
+  } catch(e) {
+    toast('Could not load sessions', 'error');
+    return [];
+  }
+}
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+async function refreshDashboard() {
+  const today = new Date();
+  document.getElementById('dashboardDate').textContent = today.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  document.getElementById('d_todayDate').textContent = today.toLocaleDateString();
+
+  if (!APP.apiUrl) {
+    document.getElementById('configBanner').style.display = 'flex';
+  }
+
+  const [patients, sessions] = await Promise.all([fetchPatients(), fetchAllSessions()]);
+
+  const todayStr = today.toISOString().slice(0, 10);
+  const todaySessions = sessions.filter(s => s.session_date === todayStr);
+  const moodScores = sessions.map(s => parseFloat(s.mood_score)).filter(n => !isNaN(n));
+  const avgMood = moodScores.length ? (moodScores.reduce((a,b) => a+b, 0) / moodScores.length).toFixed(1) : '—';
+
+  document.getElementById('d_totalPatients').textContent = patients.length;
+  document.getElementById('d_totalSessions').textContent = sessions.length;
+  document.getElementById('d_todaySessions').textContent = todaySessions.length;
+  document.getElementById('d_avgMood').textContent = avgMood;
+
+  renderDashboardCharts(sessions);
+  renderRecentPatients(patients.slice(-5).reverse());
+}
+
+function renderRecentPatients(patients) {
+  const tbody = document.getElementById('recentPatientsBody');
+  if (!patients.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">👤</div><p>No patients yet. Add your first patient.</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = patients.map(p => `
+    <tr>
+      <td><span class="pid-tag">${p.patient_id}</span></td>
+      <td>${escHtml(p.name)}</td>
+      <td><span class="badge badge-${p.gender?.toLowerCase()}">${p.gender || '—'}</span></td>
+      <td>${escHtml(p.phone)}</td>
+      <td>${formatDate(p.timestamp)}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="navigate('profile',{patientId:'${p.patient_id}'})">View →</button></td>
+    </tr>
+  `).join('');
+}
+
+function renderDashboardCharts(sessions) {
+  // Sessions over time
+  const sessionsByMonth = groupByMonth(sessions, 'session_date');
+  renderLineChart('dashSessionChart', sessionsByMonth, 'Sessions', '#2dd4bf');
+
+  // Mood trend
+  const moodByMonth = groupMoodByMonth(sessions);
+  renderLineChart('dashMoodChart', moodByMonth, 'Avg Mood', '#818cf8');
+}
+
+/* ============================================================
+   PATIENTS PAGE
+   ============================================================ */
+async function loadPatients() {
+  const tbody = document.getElementById('patientsTableBody');
+  tbody.innerHTML = `<tr><td colspan="7"><div class="loader"><div class="spinner"></div></div></td></tr>`;
+  await fetchPatients();
+  renderPatientsTable(APP.patients);
+}
+
+function renderPatientsTable(patients) {
+  const tbody = document.getElementById('patientsTableBody');
+  if (!patients.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">👥</div><p>No patients found. Try a different search or add a new patient.</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = patients.map(p => `
+    <tr>
+      <td><span class="pid-tag">${p.patient_id}</span></td>
+      <td><strong>${escHtml(p.name)}</strong></td>
+      <td>${p.age || '—'}</td>
+      <td><span class="badge badge-${p.gender?.toLowerCase()}">${p.gender || '—'}</span></td>
+      <td>${escHtml(p.phone)}</td>
+      <td>${formatDate(p.timestamp)}</td>
+      <td>
+        <button class="btn btn-secondary btn-sm" onclick="navigate('profile',{patientId:'${p.patient_id}'})">
+          View Profile
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterPatients() {
+  const q = document.getElementById('patientSearch').value.toLowerCase();
+  const gender = document.getElementById('genderFilter').value;
+  const filtered = APP.patients.filter(p => {
+    const matchQ = p.name?.toLowerCase().includes(q) || p.phone?.includes(q);
+    const matchG = !gender || p.gender === gender;
+    return matchQ && matchG;
+  });
+  renderPatientsTable(filtered);
+}
+
+/* ============================================================
+   PATIENT PROFILE
+   ============================================================ */
+async function loadProfile(patientId) {
+  APP.currentPatientId = patientId;
+  const container = document.getElementById('profileContent');
+  container.innerHTML = `<div class="loader"><div class="spinner"></div><span>Loading...</span></div>`;
+
+  if (!APP.patients.length) await fetchPatients();
+  const patient = APP.patients.find(p => p.patient_id === patientId);
+
+  if (!patient) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><p>Patient not found.</p></div>`;
+    return;
+  }
+
+  const sessions = await fetchSessionsForPatient(patientId);
+  sessions.sort((a, b) => new Date(a.session_date) - new Date(b.session_date));
+
+  const initials = patient.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  const sessionCount = sessions.length;
+  const avgMood = sessions.length ? (sessions.reduce((s,x) => s + parseFloat(x.mood_score || 0), 0) / sessions.length).toFixed(1) : '—';
+
+  container.innerHTML = `
+    <div class="profile-hero">
+      <div class="profile-avatar">${initials}</div>
+      <div class="profile-info" style="flex:1;">
+        <h2>${escHtml(patient.name)}</h2>
+        <div class="profile-meta">
+          <span class="pid-tag">${patient.patient_id}</span>
+          <span>🎂 ${patient.age || '—'} yrs</span>
+          <span class="badge badge-${patient.gender?.toLowerCase()}">${patient.gender || '—'}</span>
+          <span>📞 ${escHtml(patient.phone)}</span>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:20px;flex-wrap:wrap;">
+          <div><div style="font-size:0.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;">Sessions</div><div style="font-size:1.3rem;font-family:var(--font-display);color:var(--accent);">${sessionCount}</div></div>
+          <div><div style="font-size:0.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;">Avg Mood</div><div style="font-size:1.3rem;font-family:var(--font-display);color:var(--accent2);">${avgMood}</div></div>
+          <div><div style="font-size:0.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;">Since</div><div style="font-size:1.3rem;font-family:var(--font-display);">${formatDate(patient.timestamp)}</div></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
+        <button class="btn btn-primary" onclick="openAddSession()">+ Add Session</button>
+        <button class="btn btn-secondary btn-sm" onclick="generateReportFor()">📄 Report</button>
+      </div>
+    </div>
+
+    <!-- Basic Info -->
+    <div class="card mb-16">
+      <div class="chart-card-title">Basic Information</div>
+      <div class="info-grid">
+        <div class="info-item"><label>Phone</label><span>${escHtml(patient.phone)}</span></div>
+        <div class="info-item"><label>Email</label><span>${escHtml(patient.email || '—')}</span></div>
+        <div class="info-item"><label>Occupation</label><span>${escHtml(patient.occupation || '—')}</span></div>
+        <div class="info-item"><label>Address</label><span>${escHtml(patient.address || '—')}</span></div>
+        <div class="info-item"><label>Referral</label><span>${escHtml(patient.referral || '—')}</span></div>
+        <div class="info-item"><label>Emergency Contact</label><span>${escHtml(patient.emergency || '—')}</span></div>
+      </div>
+    </div>
+
+    <!-- Chief Complaint -->
+    ${patient.complaint ? `<div class="card mb-16"><div class="chart-card-title">Chief Complaint</div><p style="font-size:0.9rem;color:var(--text-muted);">${escHtml(patient.complaint)}</p></div>` : ''}
+
+    <!-- Mood Chart -->
+    ${sessions.length > 1 ? `<div class="card mb-16"><div class="chart-card-title">Mood Score Trend</div><div class="chart-wrap"><canvas id="profileMoodChart"></canvas></div></div>` : ''}
+
+    <!-- Sessions -->
+    <div class="card" style="padding:22px;">
+      <div class="section-header mb-16">
+        <div class="chart-card-title mb-0">Session History (${sessions.length})</div>
+        <button class="btn btn-primary btn-sm" onclick="openAddSession()">+ Session</button>
+      </div>
+      ${sessions.length === 0
+        ? `<div class="empty-state"><div class="empty-icon">📋</div><p>No sessions yet. Add the first session for this patient.</p></div>`
+        : `<div class="session-list">${sessions.slice().reverse().map(s => renderSessionCard(s)).join('')}</div>`
+      }
+    </div>
+  `;
+
+  document.getElementById('profileActions').style.display = 'flex';
+
+  if (sessions.length > 1) {
+    setTimeout(() => {
+      const ctx = document.getElementById('profileMoodChart');
+      if (!ctx) return;
+      if (APP.charts.profileMood) APP.charts.profileMood.destroy();
+      APP.charts.profileMood = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: sessions.map(s => s.session_date),
+          datasets: [{
+            label: 'Mood Score',
+            data: sessions.map(s => parseFloat(s.mood_score)),
+            borderColor: '#818cf8',
+            backgroundColor: 'rgba(129,140,248,0.1)',
+            tension: 0.4,
+            fill: true,
+            pointRadius: 5,
+            pointBackgroundColor: '#818cf8',
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { min: 0, max: 10, grid: { color: '#30363d' }, ticks: { color: '#8b949e' } },
+            x: { grid: { color: '#30363d' }, ticks: { color: '#8b949e' } }
+          }
+        }
+      });
+    }, 100);
+  }
+}
+
+function renderSessionCard(s) {
+  const mood = parseFloat(s.mood_score) || 0;
+  const moodColor = mood >= 7 ? '#3fb950' : mood >= 4 ? '#d29922' : '#f85149';
+  return `
+    <div class="session-card">
+      <div class="session-card-header">
+        <span class="session-num">Session #${s.session_number}</span>
+        <span class="session-date">📅 ${s.session_date}</span>
+      </div>
+      <div class="mood-bar-wrap">
+        <span style="font-size:0.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;">Mood</span>
+        <div class="mood-bar">
+          <div class="mood-bar-fill" style="width:${mood*10}%;background:${moodColor};"></div>
+        </div>
+        <span style="font-weight:700;color:${moodColor};font-size:0.9rem;">${mood}/10</span>
+      </div>
+      <div class="session-soap">
+        ${s.subjective ? `<div class="soap-item"><label>Subjective</label><p>${escHtml(s.subjective)}</p></div>` : ''}
+        ${s.objective ? `<div class="soap-item"><label>Objective</label><p>${escHtml(s.objective)}</p></div>` : ''}
+        ${s.assessment ? `<div class="soap-item"><label>Assessment</label><p>${escHtml(s.assessment)}</p></div>` : ''}
+        ${s.plan ? `<div class="soap-item"><label>Plan</label><p>${escHtml(s.plan)}</p></div>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function openAddSession() {
+  if (!APP.currentPatientId) { toast('No patient selected', 'error'); return; }
+  const patient = APP.patients.find(p => p.patient_id === APP.currentPatientId);
+  document.getElementById('sessionModalSub').textContent = `Patient: ${patient?.name || APP.currentPatientId}`;
+  document.getElementById('s_date').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('s_mood').value = 5;
+  document.getElementById('moodDisplay').textContent = '5';
+  openModal('modalAddSession');
+}
+
+function generateReportFor() {
+  if (!APP.currentPatientId) return;
+  navigate('reports');
+  setTimeout(() => {
+    const sel = document.getElementById('r_patient');
+    if (sel) sel.value = APP.currentPatientId;
+    generateReport();
+  }, 300);
+}
+
+/* ============================================================
+   ANALYTICS
+   ============================================================ */
+async function loadAnalytics() {
+  const [patients, sessions] = await Promise.all([fetchPatients(), fetchAllSessions()]);
+
+  // Populate patient filter
+  const sel = document.getElementById('af_patient');
+  sel.innerHTML = '<option value="">All Patients</option>' + patients.map(p =>
+    `<option value="${p.patient_id}">${escHtml(p.name)}</option>`
+  ).join('');
+
+  computeAndRenderAnalytics(patients, sessions);
+}
+
+function computeAndRenderAnalytics(patients, sessions) {
+  // Active patients in last 30 days
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 30);
+  const activeIds = new Set(sessions.filter(s => new Date(s.session_date) >= cutoff).map(s => s.patient_id));
+
+  const avgSessions = patients.length ? (sessions.length / patients.length).toFixed(1) : '—';
+
+  document.getElementById('a_totalPatients').textContent = patients.length;
+  document.getElementById('a_totalSessions').textContent = sessions.length;
+  document.getElementById('a_avgSessions').textContent = avgSessions;
+  document.getElementById('a_active').textContent = activeIds.size;
+
+  // Charts
+  const sessionsByMonth = groupByMonth(sessions, 'session_date');
+  renderLineChart('aSessionsChart', sessionsByMonth, 'Sessions', '#2dd4bf');
+
+  const moodByMonth = groupMoodByMonth(sessions);
+  renderLineChart('aMoodChart', moodByMonth, 'Avg Mood', '#818cf8');
+
+  const growthByMonth = groupByMonth(patients, 'timestamp');
+  renderBarChart('aGrowthChart', growthByMonth, 'New Patients', '#fb923c');
+
+  // Gender distribution
+  const genderCount = { Male: 0, Female: 0, Other: 0 };
+  patients.forEach(p => { if (genderCount[p.gender] !== undefined) genderCount[p.gender]++; else genderCount.Other++; });
+  renderPieChart('aGenderChart', genderCount);
+
+  // Top 5 patients
+  const sessionCounts = {};
+  sessions.forEach(s => { sessionCounts[s.patient_id] = (sessionCounts[s.patient_id] || 0) + 1; });
+  const top5 = Object.entries(sessionCounts).sort((a,b) => b[1]-a[1]).slice(0,5);
+  document.getElementById('insightTop5').innerHTML = top5.length ? top5.map(([pid, count], i) => {
+    const p = patients.find(x => x.patient_id === pid);
+    return `<div class="insight-item"><span class="rank">#${i+1}</span><span class="name">${p ? escHtml(p.name) : pid}</span><span class="count">${count} sessions</span></div>`;
+  }).join('') : '<div class="text-muted" style="font-size:0.86rem;">No session data available</div>';
+
+  // Low mood
+  const moodMap = {};
+  const moodCnt = {};
+  sessions.forEach(s => {
+    const m = parseFloat(s.mood_score);
+    if (!isNaN(m)) {
+      moodMap[s.patient_id] = (moodMap[s.patient_id] || 0) + m;
+      moodCnt[s.patient_id] = (moodCnt[s.patient_id] || 0) + 1;
+    }
+  });
+  const lowMood = Object.entries(moodMap)
+    .map(([pid, total]) => ({ pid, avg: total / moodCnt[pid] }))
+    .filter(x => x.avg < 5)
+    .sort((a,b) => a.avg - b.avg)
+    .slice(0, 5);
+  document.getElementById('insightLowMood').innerHTML = lowMood.length ? lowMood.map(x => {
+    const p = patients.find(pt => pt.patient_id === x.pid);
+    return `<div class="insight-item"><span class="name">${p ? escHtml(p.name) : x.pid}</span><span class="count" style="background:rgba(248,81,73,0.1);color:var(--danger);">Avg ${x.avg.toFixed(1)}</span></div>`;
+  }).join('') : '<div class="text-muted" style="font-size:0.86rem;padding:8px 0;">No patients with low mood score</div>';
+}
+
+function applyAnalyticsFilters() {
+  const from = document.getElementById('af_from').value;
+  const to = document.getElementById('af_to').value;
+  const patientId = document.getElementById('af_patient').value;
+  let patients = [...APP.patients];
+  let sessions = [...APP.sessions];
+  if (patientId) {
+    sessions = sessions.filter(s => s.patient_id === patientId);
+    patients = patients.filter(p => p.patient_id === patientId);
+  }
+  if (from) sessions = sessions.filter(s => s.session_date >= from);
+  if (to) sessions = sessions.filter(s => s.session_date <= to);
+  computeAndRenderAnalytics(patients, sessions);
+}
+
+function resetAnalyticsFilters() {
+  document.getElementById('af_from').value = '';
+  document.getElementById('af_to').value = '';
+  document.getElementById('af_patient').value = '';
+  computeAndRenderAnalytics(APP.patients, APP.sessions);
+}
+
+/* ============================================================
+   CHART HELPERS
+   ============================================================ */
+function groupByMonth(items, dateField) {
+  const map = {};
+  items.forEach(item => {
+    const d = item[dateField];
+    if (!d) return;
+    const key = d.slice(0, 7); // YYYY-MM
+    map[key] = (map[key] || 0) + 1;
+  });
+  const sorted = Object.keys(map).sort();
+  return { labels: sorted.map(k => { const [y,m] = k.split('-'); return new Date(y,m-1).toLocaleString('default',{month:'short',year:'2-digit'}); }), data: sorted.map(k => map[k]) };
+}
+
+function groupMoodByMonth(sessions) {
+  const map = {};
+  const cnt = {};
+  sessions.forEach(s => {
+    const key = s.session_date?.slice(0, 7);
+    if (!key) return;
+    const m = parseFloat(s.mood_score);
+    if (!isNaN(m)) { map[key] = (map[key] || 0) + m; cnt[key] = (cnt[key] || 0) + 1; }
+  });
+  const sorted = Object.keys(map).sort();
+  return { labels: sorted.map(k => { const [y,m] = k.split('-'); return new Date(y,m-1).toLocaleString('default',{month:'short',year:'2-digit'}); }), data: sorted.map(k => (map[k]/cnt[k]).toFixed(1)) };
+}
+
+function renderLineChart(canvasId, {labels, data}, label, color) {
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+  if (APP.charts[canvasId]) APP.charts[canvasId].destroy();
+  APP.charts[canvasId] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label,
+        data,
+        borderColor: color,
+        backgroundColor: color + '22',
+        tension: 0.4,
+        fill: true,
+        pointRadius: 4,
+        pointBackgroundColor: color,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { grid: { color: '#30363d' }, ticks: { color: '#8b949e' } },
+        x: { grid: { color: '#30363d' }, ticks: { color: '#8b949e' } }
+      }
+    }
+  });
+}
+
+function renderBarChart(canvasId, {labels, data}, label, color) {
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+  if (APP.charts[canvasId]) APP.charts[canvasId].destroy();
+  APP.charts[canvasId] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ label, data, backgroundColor: color + 'aa', borderColor: color, borderRadius: 5 }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { grid: { color: '#30363d' }, ticks: { color: '#8b949e' } },
+        x: { grid: { color: '#30363d' }, ticks: { color: '#8b949e' } }
+      }
+    }
+  });
+}
+
+function renderPieChart(canvasId, genderCount) {
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+  if (APP.charts[canvasId]) APP.charts[canvasId].destroy();
+  APP.charts[canvasId] = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(genderCount),
+      datasets: [{
+        data: Object.values(genderCount),
+        backgroundColor: ['#818cf8cc', '#fb923ccc', '#2dd4bfcc'],
+        borderColor: '#21262d',
+        borderWidth: 3,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { color: '#8b949e' } } }
+    }
+  });
+}
+
+/* ============================================================
+   SAVE PATIENT
+   ============================================================ */
+async function savePatient() {
+  const name = document.getElementById('p_name').value.trim();
+  const age = document.getElementById('p_age').value.trim();
+  const gender = document.getElementById('p_gender').value;
+  const phone = document.getElementById('p_phone').value.trim();
+
+  if (!name || !age || !gender || !phone) {
+    toast('Please fill all required fields (Name, Age, Gender, Phone)', 'error');
+    return;
+  }
+
+  const payload = {
+    action: 'addPatient',
+    name, age, gender, phone,
+    email: document.getElementById('p_email').value.trim(),
+    occupation: document.getElementById('p_occupation').value.trim(),
+    address: document.getElementById('p_address').value.trim(),
+    complaint: document.getElementById('p_complaint').value.trim(),
+    referral: document.getElementById('p_referral').value.trim(),
+    emergency: document.getElementById('p_emergency').value.trim(),
+  };
+
+  if (!APP.apiUrl) {
+    // Demo mode: fake save
+    const fakeId = 'PSY-' + String(DEMO_PATIENTS.length + 1).padStart(4, '0');
+    const newP = { ...payload, patient_id: fakeId, timestamp: new Date().toISOString() };
+    delete newP.action;
+    DEMO_PATIENTS.push(newP);
+    APP.patients.push(newP);
+    toast(`Patient ${fakeId} added (demo mode)`, 'success');
+    closeModal('modalAddPatient');
+    clearPatientForm();
+    return;
+  }
+
+  try {
+    const res = await apiPost(payload);
+    if (res.success) {
+      toast(`Patient ${res.patient_id} saved successfully!`, 'success');
+      closeModal('modalAddPatient');
+      clearPatientForm();
+      await fetchPatients();
+    } else {
+      toast(res.error || 'Failed to save patient', 'error');
+    }
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+  }
+}
+
+function clearPatientForm() {
+  ['p_name','p_age','p_gender','p_phone','p_email','p_occupation','p_address','p_complaint','p_referral','p_emergency'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+}
+
+/* ============================================================
+   SAVE SESSION
+   ============================================================ */
+async function saveSession() {
+  const date = document.getElementById('s_date').value;
+  const mood = document.getElementById('s_mood').value;
+  if (!date) { toast('Please select a session date', 'error'); return; }
+
+  const payload = {
+    action: 'addSession',
+    patient_id: APP.currentPatientId,
+    session_date: date,
+    mood_score: mood,
+    subjective: document.getElementById('s_subjective').value.trim(),
+    objective: document.getElementById('s_objective').value.trim(),
+    assessment: document.getElementById('s_assessment').value.trim(),
+    plan: document.getElementById('s_plan').value.trim(),
+  };
+
+  if (!APP.apiUrl) {
+    // Demo mode
+    const existing = DEMO_SESSIONS.filter(s => s.patient_id === APP.currentPatientId);
+    const num = existing.length + 1;
+    const newS = { ...payload, session_id: payload.patient_id + '-S' + String(num).padStart(3,'0'), session_number: String(num), timestamp: new Date().toISOString() };
+    delete newS.action;
+    DEMO_SESSIONS.push(newS);
+    APP.sessions.push(newS);
+    toast(`Session #${num} added (demo mode)`, 'success');
+    closeModal('modalAddSession');
+    loadProfile(APP.currentPatientId);
+    return;
+  }
+
+  try {
+    const res = await apiPost(payload);
+    if (res.success) {
+      toast(`Session #${res.session_number} saved!`, 'success');
+      closeModal('modalAddSession');
+      loadProfile(APP.currentPatientId);
+    } else {
+      toast(res.error || 'Failed to save session', 'error');
+    }
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+  }
+}
+
+/* ============================================================
+   REPORT GENERATOR
+   ============================================================ */
+function populateReportPatientSelector() {
+  if (!APP.patients.length) fetchPatients().then(populateSelectors);
+  else populateSelectors();
+}
+
+function populateSelectors() {
+  ['r_patient'].forEach(selId => {
+    const sel = document.getElementById(selId);
+    if (!sel) return;
+    sel.innerHTML = '<option value="">— Select a patient —</option>' + APP.patients.map(p =>
+      `<option value="${p.patient_id}">${escHtml(p.name)} (${p.patient_id})</option>`
+    ).join('');
+  });
+}
+
+async function generateReport() {
+  const patientId = document.getElementById('r_patient').value;
+  if (!patientId) { toast('Please select a patient', 'error'); return; }
+
+  document.getElementById('reportRemarks').style.display = 'block';
+
+  if (!APP.patients.length) await fetchPatients();
+  const patient = APP.patients.find(p => p.patient_id === patientId);
+  const sessions = (await fetchSessionsForPatient(patientId)).sort((a,b) => new Date(a.session_date)-new Date(b.session_date));
+  const remarks = document.getElementById('r_remarks').value.trim();
+
+  const avgMood = sessions.length ? (sessions.reduce((s,x) => s + parseFloat(x.mood_score || 0), 0) / sessions.length).toFixed(1) : '—';
+  const firstSession = sessions[0]?.session_date || '—';
+  const lastSession = sessions[sessions.length-1]?.session_date || '—';
+
+  // Trend: compare first 3 vs last 3
+  let trendText = '—';
+  if (sessions.length >= 2) {
+    const firstMoods = sessions.slice(0, Math.ceil(sessions.length/2)).map(s => parseFloat(s.mood_score)).filter(n=>!isNaN(n));
+    const lastMoods = sessions.slice(-Math.ceil(sessions.length/2)).map(s => parseFloat(s.mood_score)).filter(n=>!isNaN(n));
+    const fAvg = firstMoods.reduce((a,b)=>a+b,0)/firstMoods.length;
+    const lAvg = lastMoods.reduce((a,b)=>a+b,0)/lastMoods.length;
+    const diff = lAvg - fAvg;
+    trendText = diff > 0.5 ? `📈 Improving (+${diff.toFixed(1)} mood points)` : diff < -0.5 ? `📉 Declining (${diff.toFixed(1)} mood points)` : '↔️ Stable';
+  }
+
+  document.getElementById('reportOutput').style.display = 'block';
+  document.getElementById('reportBody').innerHTML = `
+    <div class="report-header-block">
+      <div>
+        <div class="report-org">PsychCare Clinic</div>
+        <div class="report-org-sub">Psychology & Counseling Services</div>
+      </div>
+      <div class="report-date-info">
+        <div><strong>Report Generated</strong></div>
+        <div>${new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})}</div>
+        <div style="margin-top:4px;color:var(--text-dim);">Confidential Patient Record</div>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">1. Patient Summary</div>
+      <div class="report-info-grid">
+        <div class="report-info-item"><label>Patient ID</label><span>${patient.patient_id}</span></div>
+        <div class="report-info-item"><label>Full Name</label><span>${escHtml(patient.name)}</span></div>
+        <div class="report-info-item"><label>Age</label><span>${patient.age || '—'} years</span></div>
+        <div class="report-info-item"><label>Gender</label><span>${patient.gender || '—'}</span></div>
+        <div class="report-info-item"><label>Phone</label><span>${escHtml(patient.phone)}</span></div>
+        <div class="report-info-item"><label>Email</label><span>${escHtml(patient.email || '—')}</span></div>
+        <div class="report-info-item"><label>Occupation</label><span>${escHtml(patient.occupation || '—')}</span></div>
+        <div class="report-info-item"><label>Referral Source</label><span>${escHtml(patient.referral || '—')}</span></div>
+      </div>
+      ${patient.complaint ? `<div style="margin-top:16px;"><div class="report-info-item"><label>Chief Complaint</label><span style="display:block;margin-top:4px;">${escHtml(patient.complaint)}</span></div></div>` : ''}
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">2. Session Summary</div>
+      <div class="report-info-grid" style="margin-bottom:16px;">
+        <div class="report-info-item"><label>Total Sessions</label><span>${sessions.length}</span></div>
+        <div class="report-info-item"><label>First Session</label><span>${firstSession}</span></div>
+        <div class="report-info-item"><label>Last Session</label><span>${lastSession}</span></div>
+        <div class="report-info-item"><label>Average Mood Score</label><span>${avgMood}/10</span></div>
+      </div>
+      ${sessions.map(s => `
+        <div class="report-session-row">
+          <div class="rs-header">
+            <span class="rs-num">Session #${s.session_number}</span>
+            <span style="font-size:0.82rem;color:var(--text-muted);">${s.session_date} — Mood: ${s.mood_score}/10</span>
+          </div>
+          ${s.subjective ? `<p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:3px;"><strong>S:</strong> ${escHtml(s.subjective)}</p>` : ''}
+          ${s.assessment ? `<p style="font-size:0.82rem;color:var(--text-muted);"><strong>A:</strong> ${escHtml(s.assessment)}</p>` : ''}
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">3. Progress Tracking</div>
+      <div class="report-info-grid" style="margin-bottom:16px;">
+        <div class="report-info-item"><label>Trend</label><span>${trendText}</span></div>
+        <div class="report-info-item"><label>Average Mood</label><span>${avgMood}/10</span></div>
+      </div>
+      ${sessions.length > 1 ? `<div style="height:200px;"><canvas id="reportMoodChart"></canvas></div>` : ''}
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">4. Therapist Remarks & Recommendations</div>
+      <div class="report-remarks-box">${remarks ? escHtml(remarks) : '<em style="color:var(--text-dim);">No remarks recorded.</em>'}</div>
+    </div>
+
+    <div style="margin-top:32px;padding-top:16px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:0.78rem;color:var(--text-dim);">
+      <span>PsychCare Patient Management System</span>
+      <span>${patient.patient_id} — ${new Date().toISOString().slice(0,10)}</span>
+    </div>
+  `;
+
+  if (sessions.length > 1) {
+    setTimeout(() => {
+      const ctx = document.getElementById('reportMoodChart');
+      if (!ctx) return;
+      if (APP.charts.reportMood) APP.charts.reportMood.destroy();
+      APP.charts.reportMood = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: sessions.map(s => 'S#' + s.session_number),
+          datasets: [{
+            label: 'Mood',
+            data: sessions.map(s => parseFloat(s.mood_score)),
+            borderColor: '#2dd4bf',
+            backgroundColor: 'rgba(45,212,191,0.1)',
+            tension: 0.4,
+            fill: true,
+            pointRadius: 5,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { min: 0, max: 10, grid: { color: '#30363d' }, ticks: { color: '#8b949e' } },
+            x: { grid: { color: '#30363d' }, ticks: { color: '#8b949e' } }
+          }
+        }
+      });
+    }, 100);
+  }
+
+  document.getElementById('reportOutput').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function downloadPDF() {
+  const { jsPDF } = window.jspdf;
+  toast('Generating PDF...', 'info');
+  const el = document.getElementById('reportBody');
+  try {
+    const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#161b22', useCORS: true });
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const pdfW = pdf.internal.pageSize.getWidth();
+    const pdfH = (canvas.height * pdfW) / canvas.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
+    pdf.save(`PsychCare_Report_${document.getElementById('r_patient').value}_${new Date().toISOString().slice(0,10)}.pdf`);
+    toast('PDF downloaded!', 'success');
+  } catch(e) {
+    toast('PDF error: ' + e.message, 'error');
+  }
+}
+
+/* ============================================================
+   SETTINGS
+   ============================================================ */
+function initSettings() {
+  document.getElementById('setting_apiUrl').value = APP.apiUrl;
+  document.getElementById('appsScriptCode').textContent = APPS_SCRIPT_CODE;
+  updateApiStatus();
+}
+
+function saveApiUrl() {
+  const url = document.getElementById('setting_apiUrl').value.trim();
+  APP.apiUrl = url;
+  localStorage.setItem('psychcare_api_url', url);
+  if (url) {
+    testConnection(url);
+  } else {
+    document.getElementById('apiTestResult').innerHTML = '<span style="color:var(--text-dim);">URL cleared. Running in demo mode.</span>';
+    updateApiStatus();
+  }
+}
+
+async function testConnection(url) {
+  const result = document.getElementById('apiTestResult');
+  result.innerHTML = '<span style="color:var(--text-muted);">Testing connection...</span>';
+  try {
+    const res = await fetch(url + '?action=ping');
+    const data = await res.json();
+    if (data.status === 'ok') {
+      result.innerHTML = `<span style="color:var(--success);">✅ Connected! ${data.message}</span>`;
+      document.getElementById('statusDot').className = 'status-dot connected';
+      document.getElementById('statusLabel').textContent = 'Connected';
+      toast('API connected successfully!', 'success');
+    } else {
+      result.innerHTML = `<span style="color:var(--warn);">⚠️ Received response but unexpected format. Check your script.</span>`;
+    }
+  } catch(e) {
+    result.innerHTML = `<span style="color:var(--danger);">❌ Connection failed: ${e.message}</span>`;
+    document.getElementById('statusDot').className = 'status-dot error';
+    document.getElementById('statusLabel').textContent = 'Connection error';
+  }
+}
+
+function updateApiStatus() {
+  const dot = document.getElementById('statusDot');
+  const label = document.getElementById('statusLabel');
+  if (APP.apiUrl) {
+    dot.className = 'status-dot connected';
+    label.textContent = 'API configured';
+  } else {
+    dot.className = 'status-dot';
+    label.textContent = 'Demo mode';
+  }
+}
+
+function copyAppsScript() {
+  navigator.clipboard.writeText(APPS_SCRIPT_CODE).then(() => toast('Apps Script code copied!', 'success')).catch(() => toast('Copy failed. Please manually select and copy.', 'error'));
+}
+
+function clearCache() {
+  localStorage.removeItem('psychcare_api_url');
+  APP.apiUrl = '';
+  APP.patients = [];
+  APP.sessions = [];
+  document.getElementById('setting_apiUrl').value = '';
+  updateApiStatus();
+  toast('Cache cleared', 'info');
+}
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+function escHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function formatDate(ts) {
+  if (!ts) return '—';
+  try {
+    return new Date(ts).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+  } catch { return ts; }
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  updateApiStatus();
+  navigate('dashboard');
+});
+
+// Close modal on backdrop click
+document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+  backdrop.addEventListener('click', (e) => {
+    if (e.target === backdrop) backdrop.classList.remove('active');
+  });
+});
+</script>
+</body>
+</html>
