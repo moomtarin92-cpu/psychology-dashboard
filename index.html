@@ -7,48 +7,49 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
-/* ==========================================================
-   DESIGN TOKENS – LIGHT MODE ONLY
-   ========================================================== */
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
 :root {
-  --bg:           #f5f7fa;
+  --bg:           #f0f2f7;
   --bg2:          #ffffff;
-  --bg3:          #f0f2f5;
-  --bg4:          #e8ebf0;
-  --border:       #e1e5eb;
-  --border-md:    #d0d5dd;
-  --text:         #111827;
-  --text-muted:   #6b7280;
-  --text-dim:     #9ca3af;
-  --accent:       #0ea5e9;
-  --accent-bg:    rgba(14,165,233,0.08);
-  --accent2:      #6366f1;
-  --accent2-bg:   rgba(99,102,241,0.08);
+  --bg3:          #f5f6fa;
+  --bg4:          #eceef5;
+  --border:       #e4e7f0;
+  --border-md:    #d0d5e8;
+  --text:         #0f1523;
+  --text-muted:   #5a6282;
+  --text-dim:     #9aa0be;
+  --accent:       #4f6ef7;
+  --accent-bg:    rgba(79,110,247,0.08);
+  --accent-dark:  #3a58e0;
+  --accent2:      #8b5cf6;
+  --accent2-bg:   rgba(139,92,246,0.08);
   --accent3:      #f59e0b;
   --accent3-bg:   rgba(245,158,11,0.08);
   --success:      #10b981;
-  --success-bg:   rgba(16,185,129,0.08);
+  --success-bg:   rgba(16,185,129,0.09);
   --danger:       #ef4444;
   --danger-bg:    rgba(239,68,68,0.08);
   --warn:         #f59e0b;
-  --warn-bg:      rgba(245,158,11,0.1);
-  --shadow-sm:    0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow:       0 4px 12px rgba(0,0,0,0.08);
-  --shadow-lg:    0 12px 40px rgba(0,0,0,0.12);
-  --radius-sm:    6px;
-  --radius:       10px;
-  --radius-lg:    14px;
-  --sidebar-w:    256px;
-  --topbar-h:     60px;
-  --transition:   0.18s ease;
-  --font:         'Inter', system-ui, sans-serif;
-  --font-display: 'Playfair Display', serif;
+  --warn-bg:      rgba(245,158,11,0.09);
+  --shadow-sm:    0 1px 4px rgba(15,21,35,0.06), 0 1px 2px rgba(15,21,35,0.03);
+  --shadow:       0 4px 16px rgba(15,21,35,0.09);
+  --shadow-lg:    0 16px 48px rgba(15,21,35,0.14);
+  --radius-sm:    8px;
+  --radius:       12px;
+  --radius-lg:    16px;
+  --sidebar-w:    260px;
+  --topbar-h:     64px;
+  --transition:   0.17s ease;
+  --font:         'DM Sans', system-ui, sans-serif;
+  --font-display: 'DM Serif Display', Georgia, serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -66,16 +67,15 @@ body {
 ::-webkit-scrollbar-track { background: var(--bg3); }
 ::-webkit-scrollbar-thumb { background: var(--border-md); border-radius: 4px; }
 
-/* ==========================================================
+/* ============================================================
    LAYOUT
-   ========================================================== */
+   ============================================================ */
 .app-shell { display: flex; min-height: 100vh; }
 
 /* SIDEBAR */
 .sidebar {
   width: var(--sidebar-w);
-  background: var(--bg2);
-  border-right: 1px solid var(--border);
+  background: var(--text);
   position: fixed;
   top: 0; left: 0;
   height: 100vh;
@@ -86,96 +86,88 @@ body {
   transition: transform var(--transition);
 }
 .sidebar-brand {
-  padding: 20px 18px;
-  border-bottom: 1px solid var(--border);
+  padding: 22px 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
 }
 .brand-icon {
-  width: 38px; height: 38px;
+  width: 40px; height: 40px;
   background: linear-gradient(135deg, var(--accent), var(--accent2));
-  border-radius: 10px;
+  border-radius: 11px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
+  font-size: 19px;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(14,165,233,0.3);
+  box-shadow: 0 4px 14px rgba(79,110,247,0.45);
 }
 .brand-name {
   font-family: var(--font-display);
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--text);
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: #fff;
   line-height: 1.1;
 }
 .brand-sub {
-  font-size: 0.68rem;
-  color: var(--text-dim);
-  letter-spacing: 0.05em;
+  font-size: 0.67rem;
+  color: rgba(255,255,255,0.38);
+  letter-spacing: 0.07em;
   text-transform: uppercase;
+  margin-top: 1px;
 }
-.sidebar-nav { flex: 1; padding: 14px 10px; }
+.sidebar-nav { flex: 1; padding: 16px 12px; }
 .nav-group-label {
-  font-size: 0.64rem;
-  letter-spacing: 0.1em;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text-dim);
-  padding: 10px 8px 5px;
+  color: rgba(255,255,255,0.28);
+  padding: 12px 8px 5px;
   font-weight: 600;
 }
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 9px 11px;
+  gap: 10px;
+  padding: 9px 12px;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  color: var(--text-muted);
+  color: rgba(255,255,255,0.55);
   font-size: 0.875rem;
   font-weight: 500;
   transition: all var(--transition);
-  margin-bottom: 1px;
-  position: relative;
+  margin-bottom: 2px;
 }
-.nav-item:hover { background: var(--bg3); color: var(--text); }
+.nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
 .nav-item.active {
-  background: var(--accent-bg);
-  color: var(--accent);
-  font-weight: 600;
-}
-.nav-item.active::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 25%; bottom: 25%;
-  width: 3px;
   background: var(--accent);
-  border-radius: 2px;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 3px 10px rgba(79,110,247,0.4);
 }
 .nav-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
 
 .sidebar-footer {
-  padding: 14px 16px;
-  border-top: 1px solid var(--border);
-  background: var(--bg3);
+  padding: 16px 18px;
+  border-top: 1px solid rgba(255,255,255,0.08);
 }
 .api-status-pill {
   display: flex;
   align-items: center;
-  gap: 7px;
-  font-size: 0.76rem;
-  color: var(--text-muted);
+  gap: 8px;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.4);
 }
 .status-dot {
-  width: 8px; height: 8px;
+  width: 7px; height: 7px;
   border-radius: 50%;
-  background: var(--border-md);
+  background: rgba(255,255,255,0.2);
   flex-shrink: 0;
   transition: all 0.3s;
 }
-.status-dot.ok { background: var(--success); box-shadow: 0 0 0 3px var(--success-bg); }
+.status-dot.ok { background: var(--success); box-shadow: 0 0 0 3px rgba(16,185,129,0.25); }
 .status-dot.err { background: var(--danger); }
 .status-dot.loading { background: var(--warn); animation: pulse 1s infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
 
 /* MAIN */
 .main-content {
@@ -189,7 +181,7 @@ body {
   height: var(--topbar-h);
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
-  padding: 0 24px;
+  padding: 0 28px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -204,7 +196,7 @@ body {
   flex-direction: column;
   gap: 4px;
   cursor: pointer;
-  padding: 6px;
+  padding: 7px;
   border-radius: var(--radius-sm);
 }
 .hamburger span {
@@ -216,11 +208,11 @@ body {
 }
 .hamburger:hover span { background: var(--text); }
 .topbar-title { font-size: 1rem; font-weight: 600; color: var(--text); }
-.topbar-right { display: flex; align-items: center; gap: 10px; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
 .overlay {
   display: none;
   position: fixed; inset: 0;
-  background: rgba(0,0,0,0.3);
+  background: rgba(0,0,0,0.38);
   z-index: 90;
   backdrop-filter: blur(2px);
 }
@@ -228,107 +220,134 @@ body {
 
 .page { display: none; }
 .page.active { display: block; }
-.page-container { flex: 1; padding: 24px 28px; max-width: 1360px; width: 100%; }
+.page-container { flex: 1; padding: 28px 32px; max-width: 1400px; width: 100%; }
 
-/* ==========================================================
+/* ============================================================
+   CLOCK WIDGET
+   ============================================================ */
+.clock-widget {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 14px;
+}
+.clock-time {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 400;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+.clock-meta {
+  display: flex;
+  flex-direction: column;
+}
+.clock-date { font-size: 0.7rem; color: var(--text-muted); font-weight: 500; }
+.clock-day  { font-size: 0.63rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
+.clock-ampm { font-size: 0.65rem; color: var(--text-dim); font-weight: 600; text-transform: uppercase; align-self: flex-end; }
+
+/* ============================================================
    CARDS
-   ========================================================== */
+   ============================================================ */
 .card {
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 22px;
+  padding: 24px;
   box-shadow: var(--shadow-sm);
 }
 .card-title {
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.75rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--text-muted);
-  margin-bottom: 16px;
+  letter-spacing: 0.09em;
+  color: var(--text-dim);
+  margin-bottom: 18px;
 }
 
 /* STAT CARDS */
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 14px;
-  margin-bottom: 22px;
+  margin-bottom: 24px;
 }
 .stat-card {
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 20px 22px;
+  padding: 22px 24px;
   position: relative;
   overflow: hidden;
   box-shadow: var(--shadow-sm);
-  transition: box-shadow var(--transition);
+  transition: box-shadow var(--transition), transform var(--transition);
 }
-.stat-card:hover { box-shadow: var(--shadow); }
-.stat-card::after {
+.stat-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+.stat-card::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 3px;
-  border-radius: var(--radius) var(--radius) 0 0;
 }
-.stat-card.c1::after { background: var(--accent); }
-.stat-card.c2::after { background: var(--accent2); }
-.stat-card.c3::after { background: var(--accent3); }
-.stat-card.c4::after { background: var(--success); }
+.stat-card.c1::before { background: linear-gradient(90deg, var(--accent), #7c9fff); }
+.stat-card.c2::before { background: linear-gradient(90deg, var(--accent2), #c084fc); }
+.stat-card.c3::before { background: linear-gradient(90deg, var(--accent3), #fbbf24); }
+.stat-card.c4::before { background: linear-gradient(90deg, var(--success), #34d399); }
 .stat-label {
-  font-size: 0.73rem;
-  font-weight: 600;
+  font-size: 0.71rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.09em;
   color: var(--text-dim);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 .stat-value {
   font-family: var(--font-display);
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: 2.1rem;
+  font-weight: 400;
   color: var(--text);
   line-height: 1;
   margin-bottom: 5px;
 }
-.stat-sub { font-size: 0.75rem; color: var(--text-dim); }
+.stat-sub { font-size: 0.74rem; color: var(--text-dim); }
 .stat-icon {
   position: absolute;
-  right: 18px; top: 18px;
-  font-size: 1.6rem;
-  opacity: 0.08;
+  right: 20px; top: 20px;
+  font-size: 1.5rem;
+  opacity: 0.07;
 }
 
-/* ==========================================================
+/* ============================================================
    BUTTONS
-   ========================================================== */
+   ============================================================ */
 .btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 16px;
+  padding: 9px 18px;
   border-radius: var(--radius-sm);
   font-family: var(--font);
-  font-size: 0.86rem;
-  font-weight: 500;
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
-  border: 1px solid transparent;
+  border: 1.5px solid transparent;
   transition: all var(--transition);
   text-decoration: none;
   white-space: nowrap;
   line-height: 1.4;
 }
-.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-primary {
   background: var(--accent);
   color: #fff;
   border-color: var(--accent);
-  box-shadow: 0 1px 4px rgba(14,165,233,0.25);
+  box-shadow: 0 2px 8px rgba(79,110,247,0.3);
 }
-.btn-primary:hover:not(:disabled) { background: #0284c7; border-color: #0284c7; }
+.btn-primary:hover:not(:disabled) { background: var(--accent-dark); border-color: var(--accent-dark); box-shadow: 0 4px 14px rgba(79,110,247,0.4); }
 .btn-secondary {
   background: var(--bg2);
   color: var(--text);
@@ -344,54 +363,56 @@ body {
 .btn-danger {
   background: var(--danger-bg);
   color: var(--danger);
-  border-color: rgba(239,68,68,0.25);
+  border-color: rgba(239,68,68,0.2);
 }
-.btn-danger:hover:not(:disabled) { background: rgba(239,68,68,0.15); }
+.btn-danger:hover:not(:disabled) { background: rgba(239,68,68,0.14); }
 .btn-success {
   background: var(--success);
   color: #fff;
   border-color: var(--success);
 }
-.btn-sm { padding: 5px 11px; font-size: 0.8rem; }
-.btn-lg { padding: 11px 22px; font-size: 0.95rem; }
+.btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+.btn-lg { padding: 12px 24px; font-size: 0.95rem; }
 
-/* ==========================================================
+/* ============================================================
    FORMS
-   ========================================================== */
+   ============================================================ */
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 16px;
+  gap: 18px;
 }
-.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
 .form-group.full { grid-column: 1 / -1; }
 label {
   font-size: 0.78rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-muted);
+  letter-spacing: 0.02em;
 }
 input, select, textarea {
-  background: var(--bg2);
+  background: var(--bg3);
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text);
   font-family: var(--font);
   font-size: 0.88rem;
-  padding: 9px 12px;
-  transition: border-color var(--transition), box-shadow var(--transition);
+  padding: 10px 13px;
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
   width: 100%;
 }
 input:focus, select:focus, textarea:focus {
   outline: none;
+  background: var(--bg2);
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(14,165,233,0.12);
+  box-shadow: 0 0 0 3px rgba(79,110,247,0.12);
 }
 input::placeholder, textarea::placeholder { color: var(--text-dim); }
 select option { background: var(--bg2); color: var(--text); }
-textarea { resize: vertical; min-height: 80px; }
+textarea { resize: vertical; min-height: 82px; }
 
 /* Mood Slider */
-.mood-wrap { display: flex; align-items: center; gap: 12px; }
+.mood-wrap { display: flex; align-items: center; gap: 13px; }
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -415,79 +436,80 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .mood-num {
   font-family: var(--font-display);
-  font-size: 1.3rem;
-  font-weight: 700;
+  font-size: 1.35rem;
+  font-weight: 400;
   min-width: 30px;
   text-align: center;
   color: var(--accent);
 }
 
-/* ==========================================================
+/* ============================================================
    TABLE
-   ========================================================== */
+   ============================================================ */
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
 thead tr { background: var(--bg3); border-bottom: 2px solid var(--border); }
 th {
-  padding: 10px 14px;
+  padding: 11px 15px;
   text-align: left;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.09em;
   color: var(--text-dim);
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
 }
 td {
-  padding: 11px 14px;
-  font-size: 0.86rem;
+  padding: 12px 15px;
+  font-size: 0.87rem;
   color: var(--text);
   border-bottom: 1px solid var(--border);
 }
 tbody tr:last-child td { border-bottom: none; }
 tbody tr:hover td { background: var(--bg3); }
 
-/* ==========================================================
+/* ============================================================
    BADGES & TAGS
-   ========================================================== */
+   ============================================================ */
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 2px 9px;
+  padding: 3px 10px;
   border-radius: 100px;
-  font-size: 0.71rem;
-  font-weight: 600;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
 }
 .badge-male   { background: var(--accent2-bg); color: var(--accent2); }
 .badge-female { background: var(--accent3-bg); color: var(--accent3); }
 .badge-other  { background: var(--accent-bg);  color: var(--accent); }
 .pid-tag {
-  font-size: 0.76rem;
-  font-weight: 600;
+  font-size: 0.74rem;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--accent);
   background: var(--accent-bg);
-  padding: 2px 8px;
-  border-radius: 5px;
+  padding: 3px 9px;
+  border-radius: 6px;
   letter-spacing: 0.04em;
-  border: 1px solid rgba(14,165,233,0.2);
+  border: 1px solid rgba(79,110,247,0.18);
 }
 
-/* ==========================================================
+/* ============================================================
    SECTION HEADER
-   ========================================================== */
+   ============================================================ */
 .section-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 18px;
+  margin-bottom: 22px;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
 }
 .section-title {
   font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 400;
   color: var(--text);
 }
 .section-sub {
@@ -496,13 +518,13 @@ tbody tr:hover td { background: var(--bg3); }
   margin-top: 2px;
 }
 
-/* ==========================================================
+/* ============================================================
    MODAL
-   ========================================================== */
+   ============================================================ */
 .modal-backdrop {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,0.4);
-  backdrop-filter: blur(3px);
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
   z-index: 200;
   display: flex;
   align-items: center;
@@ -518,181 +540,174 @@ tbody tr:hover td { background: var(--bg3); }
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   width: 100%;
-  max-width: 620px;
-  max-height: 90vh;
+  max-width: 640px;
+  max-height: 92vh;
   overflow-y: auto;
   box-shadow: var(--shadow-lg);
-  transform: translateY(16px) scale(0.98);
-  transition: transform var(--transition);
+  transform: translateY(20px) scale(0.97);
+  transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
 }
 .modal-backdrop.active .modal { transform: translateY(0) scale(1); }
 .modal-header {
-  padding: 22px 26px 16px;
+  padding: 24px 28px 18px;
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
 }
-.modal-title { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; }
-.modal-subtitle { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+.modal-title { font-family: var(--font-display); font-size: 1.3rem; font-weight: 400; }
+.modal-subtitle { font-size: 0.78rem; color: var(--text-muted); margin-top: 3px; }
 .modal-close {
-  background: none; border: none;
+  background: var(--bg3); border: 1px solid var(--border);
   color: var(--text-muted);
-  font-size: 1.2rem;
+  font-size: 1rem;
   cursor: pointer;
-  padding: 2px 4px;
+  padding: 4px 8px;
   line-height: 1;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition);
 }
-.modal-close:hover { background: var(--bg3); color: var(--text); }
-.modal-body { padding: 22px 26px; }
-.modal-footer { padding: 16px 26px 22px; display: flex; justify-content: flex-end; gap: 8px; }
+.modal-close:hover { background: var(--bg4); color: var(--text); }
+.modal-body { padding: 24px 28px; }
+.modal-footer { padding: 18px 28px 24px; display: flex; justify-content: flex-end; gap: 9px; border-top: 1px solid var(--border); }
 
-/* ==========================================================
+/* ============================================================
    PROFILE
-   ========================================================== */
+   ============================================================ */
 .profile-hero {
-  background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
-  border-radius: var(--radius);
-  padding: 28px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+  border-radius: var(--radius-lg);
+  padding: 32px;
   display: flex;
   align-items: flex-start;
-  gap: 22px;
-  margin-bottom: 18px;
+  gap: 24px;
+  margin-bottom: 20px;
   color: #fff;
+  box-shadow: 0 8px 32px rgba(79,110,247,0.35);
 }
 .profile-avatar {
-  width: 68px; height: 68px;
+  width: 72px; height: 72px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.22);
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-display);
-  font-size: 1.7rem;
-  font-weight: 700;
+  font-size: 1.8rem;
+  font-weight: 400;
   flex-shrink: 0;
   border: 2px solid rgba(255,255,255,0.4);
   color: #fff;
 }
-.profile-hero h2 { font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 6px; color: #fff; }
-.profile-meta { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.83rem; color: rgba(255,255,255,0.8); }
-.profile-stats { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 12px; }
+.profile-hero h2 { font-family: var(--font-display); font-size: 1.6rem; font-weight: 400; margin-bottom: 7px; color: #fff; }
+.profile-meta { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.83rem; color: rgba(255,255,255,0.78); }
+.profile-stats { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 14px; }
 .profile-stat-item { text-align: center; }
-.profile-stat-item .val { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: #fff; line-height: 1; }
-.profile-stat-item .lbl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.07em; color: rgba(255,255,255,0.7); margin-top: 3px; }
+.profile-stat-item .val { font-family: var(--font-display); font-size: 1.45rem; font-weight: 400; color: #fff; line-height: 1; }
+.profile-stat-item .lbl { font-size: 0.67rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.65); margin-top: 3px; }
 
-.info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
-.info-item label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-dim); display: block; margin-bottom: 3px; font-weight: 600; }
+.info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.info-item label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); display: block; margin-bottom: 3px; font-weight: 700; }
 .info-item span { font-size: 0.88rem; color: var(--text); }
 
-/* Session cards */
-.session-list { display: flex; flex-direction: column; gap: 12px; }
+.session-list { display: flex; flex-direction: column; gap: 13px; }
 .session-card {
   background: var(--bg3);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 16px 18px;
+  padding: 18px 20px;
   transition: box-shadow var(--transition), border-color var(--transition);
 }
 .session-card:hover { box-shadow: var(--shadow); border-color: var(--border-md); }
-.session-card-top {
-  display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
-}
+.session-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 11px; }
 .session-num-badge {
-  font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
-  background: var(--accent2-bg); color: var(--accent2); padding: 2px 8px; border-radius: 100px;
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+  background: var(--accent2-bg); color: var(--accent2); padding: 3px 10px; border-radius: 100px;
 }
 .session-date-label { font-size: 0.8rem; color: var(--text-muted); }
-.mood-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.mood-bar-row { display: flex; align-items: center; gap: 9px; margin-bottom: 12px; }
 .mood-bar-track { flex: 1; height: 5px; background: var(--bg4); border-radius: 5px; overflow: hidden; }
 .mood-bar-fill { height: 100%; border-radius: 5px; transition: width 0.5s ease; }
-.mood-score-txt { font-size: 0.82rem; font-weight: 700; min-width: 32px; text-align: right; }
-.soap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.soap-block label {
-  font-size: 0.67rem; text-transform: uppercase; letter-spacing: 0.08em;
-  color: var(--text-dim); display: block; margin-bottom: 2px; font-weight: 600;
-}
+.mood-score-txt { font-size: 0.82rem; font-weight: 700; min-width: 34px; text-align: right; }
+.soap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.soap-block label { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--text-dim); display: block; margin-bottom: 3px; font-weight: 700; }
 .soap-block p { font-size: 0.82rem; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-/* ==========================================================
+/* ============================================================
    CHART GRID
-   ========================================================== */
-.chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 14px; margin-bottom: 18px; }
+   ============================================================ */
+.chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(370px, 1fr)); gap: 14px; margin-bottom: 20px; }
 .chart-card {
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 20px;
+  padding: 22px;
   box-shadow: var(--shadow-sm);
 }
 .chart-title {
-  font-size: 0.78rem; font-weight: 600; text-transform: uppercase;
-  letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 14px;
+  font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.09em; color: var(--text-dim); margin-bottom: 16px;
 }
-.chart-area { position: relative; height: 210px; }
+.chart-area { position: relative; height: 215px; }
 
-/* ==========================================================
+/* ============================================================
    INSIGHTS
-   ========================================================== */
+   ============================================================ */
 .insight-list { display: flex; flex-direction: column; gap: 8px; }
 .insight-row {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 13px;
+  padding: 10px 14px;
   background: var(--bg3);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   font-size: 0.85rem;
 }
-.insight-rank { color: var(--text-dim); font-size: 0.78rem; min-width: 22px; }
+.insight-rank { color: var(--text-dim); font-size: 0.76rem; min-width: 22px; }
 .insight-name { flex: 1; padding: 0 10px; }
-.insight-count {
-  font-weight: 600; font-size: 0.78rem;
-  padding: 2px 8px; border-radius: 100px;
-}
+.insight-count { font-weight: 700; font-size: 0.76rem; padding: 2px 9px; border-radius: 100px; }
 .insight-count.teal { background: var(--accent-bg); color: var(--accent); }
 .insight-count.red  { background: var(--danger-bg); color: var(--danger); }
 
-/* ==========================================================
+/* ============================================================
    REPORT
-   ========================================================== */
+   ============================================================ */
 #reportBody {
   background: #fff;
   color: #111;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 40px 44px;
-  max-width: 820px;
+  padding: 44px 48px;
+  max-width: 840px;
   margin: 0 auto;
   box-shadow: var(--shadow);
 }
 .report-top {
   display: flex; justify-content: space-between; align-items: flex-start;
-  padding-bottom: 22px; border-bottom: 2px solid #e5e7eb; margin-bottom: 26px;
+  padding-bottom: 24px; border-bottom: 2px solid #e5e7eb; margin-bottom: 28px;
 }
-.report-clinic-name { font-family: var(--font-display); font-size: 1.5rem; color: #0ea5e9; }
+.report-clinic-name { font-family: var(--font-display); font-size: 1.6rem; color: #4f6ef7; font-weight: 400; }
 .report-clinic-sub { font-size: 0.78rem; color: #6b7280; margin-top: 2px; }
 .report-date-block { text-align: right; font-size: 0.8rem; color: #6b7280; }
-.report-section { margin-bottom: 24px; }
+.report-section { margin-bottom: 26px; }
 .report-section-title {
-  font-family: var(--font-display); font-size: 1.05rem; color: #0ea5e9;
-  padding-bottom: 7px; border-bottom: 1px solid #e5e7eb; margin-bottom: 14px;
+  font-family: var(--font-display); font-size: 1.1rem; color: #4f6ef7; font-weight: 400;
+  padding-bottom: 8px; border-bottom: 1px solid #e5e7eb; margin-bottom: 16px;
 }
-.report-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
-.report-info-item label { font-size: 0.69rem; text-transform: uppercase; letter-spacing: 0.06em; color: #9ca3af; display: block; margin-bottom: 2px; font-weight: 600; }
+.report-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+.report-info-item label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.07em; color: #9ca3af; display: block; margin-bottom: 2px; font-weight: 700; }
 .report-info-item span { font-size: 0.88rem; color: #111827; }
-.report-session-item { padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 6px; margin-bottom: 7px; background: #f9fafb; font-size: 0.83rem; }
-.report-session-item .rsi-head { display: flex; justify-content: space-between; margin-bottom: 5px; }
-.report-session-item .rsi-num { font-weight: 700; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; color: #6366f1; }
-.report-remarks-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 14px 16px; font-size: 0.88rem; color: #374151; min-height: 90px; }
-.report-footer { margin-top: 28px; padding-top: 14px; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; font-size: 0.75rem; color: #9ca3af; }
+.report-session-item { padding: 12px 16px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 8px; background: #f9fafb; font-size: 0.83rem; }
+.report-session-item .rsi-head { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.report-session-item .rsi-num { font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.07em; color: #8b5cf6; }
+.report-remarks-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px 18px; font-size: 0.88rem; color: #374151; min-height: 90px; }
+.report-footer { margin-top: 30px; padding-top: 16px; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; font-size: 0.75rem; color: #9ca3af; }
 
-/* ==========================================================
+/* ============================================================
    LOADING, EMPTY, TOAST
-   ========================================================== */
+   ============================================================ */
 .loader {
   display: flex; align-items: center; justify-content: center;
-  flex-direction: column; gap: 12px;
-  padding: 50px 20px; color: var(--text-muted); font-size: 0.86rem;
+  flex-direction: column; gap: 13px;
+  padding: 56px 20px; color: var(--text-muted); font-size: 0.86rem;
 }
 .spinner {
   width: 28px; height: 28px;
@@ -704,27 +719,27 @@ tbody tr:hover td { background: var(--bg3); }
 @keyframes spin { to { transform: rotate(360deg); } }
 .empty-state {
   display: flex; flex-direction: column; align-items: center;
-  padding: 50px 20px; gap: 10px; color: var(--text-muted); text-align: center;
+  padding: 56px 20px; gap: 10px; color: var(--text-muted); text-align: center;
 }
-.empty-icon { font-size: 2.5rem; opacity: 0.25; }
+.empty-icon { font-size: 2.6rem; opacity: 0.2; }
 .empty-state p { font-size: 0.88rem; max-width: 300px; }
 
 .toast-wrap {
-  position: fixed; bottom: 20px; right: 20px;
+  position: fixed; bottom: 24px; right: 24px;
   z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none;
 }
 .toast {
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 12px 16px;
+  padding: 13px 18px;
   font-size: 0.84rem;
   color: var(--text);
   box-shadow: var(--shadow-lg);
-  display: flex; align-items: center; gap: 9px;
+  display: flex; align-items: center; gap: 10px;
   pointer-events: all;
-  max-width: 340px;
-  animation: toastIn 0.28s ease;
+  max-width: 360px;
+  animation: toastIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
 }
 .toast.success { border-left: 3px solid var(--success); }
 .toast.error   { border-left: 3px solid var(--danger); }
@@ -734,21 +749,21 @@ tbody tr:hover td { background: var(--bg3); }
 @keyframes toastOut { to { transform: translateX(110%); opacity: 0; } }
 .toast.out { animation: toastOut 0.28s ease forwards; }
 
-/* ==========================================================
+/* ============================================================
    SETTINGS
-   ========================================================== */
-.settings-section { max-width: 660px; margin-bottom: 22px; }
+   ============================================================ */
+.settings-section { max-width: 680px; margin-bottom: 24px; }
 .settings-section h3 {
-  font-family: var(--font-display); font-size: 1.05rem; margin-bottom: 14px;
-  padding-bottom: 10px; border-bottom: 1px solid var(--border);
+  font-family: var(--font-display); font-size: 1.1rem; font-weight: 400; margin-bottom: 16px;
+  padding-bottom: 12px; border-bottom: 1px solid var(--border);
 }
 .code-box {
   background: #f8fafc;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 14px;
+  padding: 16px;
   font-family: 'Courier New', monospace;
-  font-size: 0.74rem;
+  font-size: 0.73rem;
   line-height: 1.75;
   color: #374151;
   overflow-x: auto;
@@ -756,53 +771,49 @@ tbody tr:hover td { background: var(--bg3); }
   overflow-y: auto;
   white-space: pre;
 }
-.setup-step {
-  display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start;
-}
+.setup-step { display: flex; gap: 13px; margin-bottom: 13px; align-items: flex-start; }
 .step-num {
-  width: 24px; height: 24px; border-radius: 50%;
+  width: 26px; height: 26px; border-radius: 50%;
   background: var(--accent); color: #fff;
-  font-size: 0.75rem; font-weight: 700;
+  font-size: 0.74rem; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; margin-top: 2px;
+  flex-shrink: 0; margin-top: 1px;
 }
-.step-text { font-size: 0.86rem; color: var(--text-muted); line-height: 1.6; }
+.step-text { font-size: 0.87rem; color: var(--text-muted); line-height: 1.6; }
 .step-text strong { color: var(--text); }
 code {
-  background: var(--bg3); padding: 1px 6px; border-radius: 4px;
-  font-family: 'Courier New', monospace; font-size: 0.82em; color: var(--accent);
+  background: var(--bg4); padding: 2px 7px; border-radius: 5px;
+  font-family: 'Courier New', monospace; font-size: 0.81em; color: var(--accent);
 }
 
 /* Filter bar */
 .filter-bar {
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  padding: 14px 16px;
+  display: flex; align-items: center; gap: 11px; flex-wrap: wrap;
+  padding: 15px 18px;
   background: var(--bg2);
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  margin-bottom: 16px;
+  border-radius: var(--radius);
+  margin-bottom: 18px;
   box-shadow: var(--shadow-sm);
 }
-.filter-bar label { font-size: 0.76rem; color: var(--text-muted); white-space: nowrap; font-weight: 500; }
-.filter-bar input, .filter-bar select { padding: 6px 10px; font-size: 0.83rem; max-width: 160px; }
+.filter-bar label { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; font-weight: 600; }
+.filter-bar input, .filter-bar select { padding: 7px 11px; font-size: 0.83rem; max-width: 170px; }
 
-/* Warning banner */
+/* Banners */
 .warn-banner {
   background: var(--warn-bg);
-  border: 1px solid rgba(245,158,11,0.3);
+  border: 1px solid rgba(245,158,11,0.28);
   border-radius: var(--radius-sm);
-  padding: 12px 16px;
-  margin-bottom: 20px;
+  padding: 13px 18px;
+  margin-bottom: 22px;
   font-size: 0.84rem;
   color: #92400e;
-  display: flex; align-items: flex-start; gap: 10px;
+  display: flex; align-items: flex-start; gap: 11px;
 }
 .warn-banner a { color: var(--accent); text-decoration: underline; cursor: pointer; }
-
-/* Error banner */
 .error-banner {
   background: var(--danger-bg);
-  border: 1px solid rgba(239,68,68,0.25);
+  border: 1px solid rgba(239,68,68,0.22);
   border-radius: var(--radius-sm);
   padding: 12px 16px;
   margin-bottom: 16px;
@@ -815,31 +826,67 @@ code {
 .back-link {
   display: inline-flex; align-items: center; gap: 5px;
   font-size: 0.82rem; color: var(--text-muted); cursor: pointer;
-  margin-bottom: 16px; transition: color var(--transition);
+  margin-bottom: 18px; transition: color var(--transition);
 }
 .back-link:hover { color: var(--accent); }
 
-/* ==========================================================
+/* ============================================================
+   DASHBOARD WELCOME STRIP
+   ============================================================ */
+.welcome-strip {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  box-shadow: 0 8px 28px rgba(79,110,247,0.3);
+  overflow: hidden;
+  position: relative;
+}
+.welcome-strip::after {
+  content: '🧠';
+  position: absolute;
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 7rem;
+  opacity: 0.06;
+  pointer-events: none;
+}
+.welcome-text h2 { font-family: var(--font-display); font-size: 1.6rem; color: #fff; font-weight: 400; margin-bottom: 4px; }
+.welcome-text p  { font-size: 0.84rem; color: rgba(255,255,255,0.7); }
+
+/* Inline clock on dashboard strip */
+.strip-clock { text-align: right; flex-shrink: 0; }
+.strip-clock .big-time { font-family: var(--font-display); font-size: 2.6rem; color: #fff; line-height: 1; font-weight: 400; }
+.strip-clock .small-meta { font-size: 0.72rem; color: rgba(255,255,255,0.65); margin-top: 3px; text-align: right; }
+
+/* ============================================================
    RESPONSIVE
-   ========================================================== */
-@media (max-width: 860px) {
+   ============================================================ */
+@media (max-width: 900px) {
   .sidebar { transform: translateX(-100%); }
-  .sidebar.open { transform: translateX(0); box-shadow: 4px 0 30px rgba(0,0,0,0.15); }
+  .sidebar.open { transform: translateX(0); box-shadow: 6px 0 32px rgba(0,0,0,0.2); }
   .main-content { margin-left: 0; }
   .hamburger { display: flex; }
-  .page-container { padding: 16px; }
+  .page-container { padding: 18px; }
   .chart-grid { grid-template-columns: 1fr; }
   .form-grid { grid-template-columns: 1fr; }
   .profile-hero { flex-direction: column; }
   .soap-grid { grid-template-columns: 1fr; }
-  #reportBody { padding: 20px; }
+  #reportBody { padding: 22px; }
   .report-top { flex-direction: column; gap: 10px; }
-  .topbar { padding: 0 16px; }
+  .topbar { padding: 0 18px; }
   .stat-grid { grid-template-columns: 1fr 1fr; }
+  .welcome-strip { flex-direction: column; align-items: flex-start; }
+  .strip-clock .big-time { font-size: 2rem; }
+  .clock-widget { display: none; }
 }
 @media (max-width: 480px) {
   .stat-grid { grid-template-columns: 1fr 1fr; }
-  .chart-grid { grid-template-columns: 1fr; }
 }
 @media print {
   .sidebar, .topbar, .btn, .back-link, .filter-bar, #reportControls { display: none !important; }
@@ -1054,6 +1101,17 @@ code {
         <div class="topbar-title" id="topbarTitle">Dashboard</div>
       </div>
       <div class="topbar-right">
+        <!-- Clock widget in topbar -->
+        <div class="clock-widget">
+          <div>
+            <div class="clock-time" id="topbarClockTime">00:00:00</div>
+          </div>
+          <div class="clock-meta">
+            <span class="clock-date" id="topbarClockDate">—</span>
+            <span class="clock-day" id="topbarClockDay">—</span>
+          </div>
+          <span class="clock-ampm" id="topbarClockAmpm">AM</span>
+        </div>
         <button class="btn btn-primary btn-sm" onclick="openModal('modalPatient')">+ New Patient</button>
       </div>
     </div>
@@ -1070,12 +1128,17 @@ code {
         </span>
       </div>
 
-      <div class="section-header">
-        <div>
-          <div class="section-title">Welcome back 👋</div>
-          <div class="section-sub" id="dashDate"></div>
+      <!-- Welcome strip with large clock -->
+      <div class="welcome-strip">
+        <div class="welcome-text">
+          <h2>Welcome back 👋</h2>
+          <p id="dashDate">Loading date...</p>
         </div>
-        <button class="btn btn-secondary btn-sm" onclick="refreshDashboard()">↻ Refresh</button>
+        <div class="strip-clock">
+          <div class="big-time" id="dashClockTime">00:00</div>
+          <div class="small-meta" id="dashClockMeta">— · —</div>
+        </div>
+        <button class="btn btn-sm" style="background:rgba(255,255,255,0.18);color:#fff;border-color:rgba(255,255,255,0.3);flex-shrink:0;" onclick="refreshDashboard()">↻ Refresh</button>
       </div>
 
       <div class="stat-grid">
@@ -1100,7 +1163,7 @@ code {
         <div class="stat-card c4">
           <div class="stat-label">Avg Mood Score</div>
           <div class="stat-value" id="d_mood">—</div>
-          <div class="stat-sub">Last 30 sessions</div>
+          <div class="stat-sub">All sessions</div>
           <div class="stat-icon">😊</div>
         </div>
       </div>
@@ -1161,7 +1224,7 @@ code {
             style="padding-left:32px;width:100%;max-width:100%;" />
         </div>
         <label>Gender:</label>
-        <select id="genderFilter" onchange="filterPatients()" style="max-width:140px;">
+        <select id="genderFilter" onchange="filterPatients()" style="max-width:150px;">
           <option value="">All</option>
           <option>Male</option>
           <option>Female</option>
@@ -1299,7 +1362,7 @@ code {
         </div>
       </div>
 
-      <div class="card mb-20" style="max-width:580px;">
+      <div class="card mb-20" style="max-width:600px;">
         <div class="card-title">Select Patient & Generate</div>
         <div class="flex gap-12 align-center flex-wrap mb-16">
           <select id="r_patient" style="flex:1;min-width:200px;">
@@ -1340,9 +1403,7 @@ code {
 
         <div class="warn-banner mb-16" style="display:block;">
           ⚠️ <span>
-            <strong>Important:</strong> You must also update your Google Apps Script to the new version below.
-            The old script uses <code>doPost()</code> for writes, which causes CORS errors from browsers.
-            The new script handles everything via <code>doGet()</code> with URL parameters — this is the correct way to call Apps Script from a static website.
+            <strong>Important:</strong> Your Google Apps Script must be deployed as a Web App with access set to <strong>Anyone</strong> using the GET-only pattern. All operations (read and write) are sent as GET parameters to avoid CORS issues.
           </span>
         </div>
 
@@ -1356,7 +1417,7 @@ code {
           <button class="btn btn-primary" onclick="saveAndTest()">Save & Test Connection</button>
           <button class="btn btn-ghost" onclick="clearApiUrl()">Clear</button>
         </div>
-        <div id="testResult" style="margin-top:12px;font-size:0.83rem;"></div>
+        <div id="testResult" style="margin-top:14px;font-size:0.83rem;"></div>
       </div>
 
       <div class="card settings-section">
@@ -1368,10 +1429,7 @@ code {
           </div>
           <div class="setup-step">
             <div class="step-num">2</div>
-            <div class="step-text">
-              Make sure your sheet has two tabs named exactly:
-              <code>Patients</code> and <code>Sessions</code>
-            </div>
+            <div class="step-text">Make sure your sheet has two tabs named exactly: <code>Patients</code> and <code>Sessions</code></div>
           </div>
           <div class="setup-step">
             <div class="step-num">3</div>
@@ -1414,7 +1472,7 @@ code {
       <div class="card settings-section">
         <h3>Data Management</h3>
         <p style="font-size:0.84rem;color:var(--text-muted);margin-bottom:14px;">
-          Your data lives in Google Sheets. The API URL is cached locally in this browser only.
+          Your data lives in Google Sheets. The API URL is stored locally in this browser only.
         </p>
         <button class="btn btn-danger btn-sm" onclick="clearAll()">🗑 Clear Local Cache</button>
       </div>
@@ -1424,52 +1482,33 @@ code {
 </div><!-- /app-shell -->
 
 <script>
-/* ===========================================================
-   ██████╗  ██████╗  ██████╗ ████████╗
-   ██╔══██╗██╔═══██╗██╔═══██╗╚══██╔══╝
-   ██████╔╝██║   ██║██║   ██║   ██║
-   ██╔══██╗██║   ██║██║   ██║   ██║
-   ██║  ██║╚██████╔╝╚██████╔╝   ██║
-   REASON THIS APPROACH FIXES CORS:
-   Google Apps Script /exec URLs respond to GET requests
-   with JSON directly (no CORS issue).
-   POST requests trigger a 302 redirect to another domain,
-   which browsers block for cross-origin requests.
-   SOLUTION: encode ALL operations as GET parameters.
-   The Apps Script reads e.parameter.action and processes.
-   =========================================================== */
-
-/* ===========================================================
+/* ============================================================
    CONFIG
-   =========================================================== */
+   ============================================================ */
 
-// ✅ YOUR APPS SCRIPT URL — pre-filled from your details
+// ✅ DEFAULT API URL — only used if user hasn't saved one yet
 const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbyzUwbU3IieSy_0En3fzbPUXV9lWweCuvJDFSx1LjhiNl6bD7XlAowl5_o7MrRBc7Aw/exec";
+
+// FIX: Read from localStorage FIRST; only fall back to hard-coded default if nothing stored.
+// This ensures the user's saved URL from Settings always wins over the hard-coded value.
 const APP = {
-  apiUrl: "https://script.google.com/macros/s/AKfycbyzUwbU3IieSy_0En3fzbPUXV9lWweCuvJDFSx1LjhiNl6bD7XlAowl5_o7MrRBc7Aw/exec",
+  apiUrl: localStorage.getItem('psychcare_api_url') || DEFAULT_API_URL,
   patients: [],
   sessions: [],
   currentPatientId: null,
   charts: {},
 };
-// Save the default URL immediately if nothing was stored
-if (!localStorage.getItem('psychcare_api_url') && DEFAULT_API_URL) {
-  localStorage.setItem('psychcare_api_url', DEFAULT_API_URL);
-}
 
-/* ===========================================================
-   THE NEW APPS SCRIPT CODE
-   (handles EVERYTHING via doGet — no POST needed)
-   =========================================================== */
+// ============================================================
+//   APPS SCRIPT CODE (displayed in Settings)
+// ============================================================
 const APPS_SCRIPT = `// ============================================================
 // PsychCare - Google Apps Script (GET-only, CORS-safe)
 // REPLACE ALL EXISTING CODE with this, then redeploy.
 // ============================================================
 
 function doGet(e) {
-  // Return CORS headers so any origin can read the response
-  const output = handleRequest(e);
-  return output;
+  return handleRequest(e);
 }
 
 function handleRequest(e) {
@@ -1479,23 +1518,17 @@ function handleRequest(e) {
   try {
     if (action === 'ping') {
       result = { status: 'ok', message: 'PsychCare API is live', timestamp: new Date().toISOString() };
-
     } else if (action === 'getPatients') {
       result = getPatients();
-
     } else if (action === 'getAllSessions') {
       result = getAllSessions();
-
     } else if (action === 'getSessions') {
       const patientId = e.parameter.patient_id || '';
       result = getSessions(patientId);
-
     } else if (action === 'addPatient') {
       result = addPatient(e.parameter);
-
     } else if (action === 'addSession') {
       result = addSession(e.parameter);
-
     } else {
       result = { error: 'Unknown action: ' + action };
     }
@@ -1507,8 +1540,6 @@ function handleRequest(e) {
     .createTextOutput(JSON.stringify(result))
     .setMimeType(ContentService.MimeType.JSON);
 }
-
-// ---- Sheet helpers ----
 
 function getSheet(name) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -1539,8 +1570,6 @@ function sheetToObjects(sheet, headers) {
   });
 }
 
-// ---- Actions ----
-
 function getPatients() {
   var headers = ['patient_id','name','age','gender','phone','email',
     'occupation','address','complaint','referral','emergency','timestamp'];
@@ -1561,7 +1590,7 @@ function getSessions(patientId) {
 
 function getNextPatientId() {
   var sheet = getSheet('Patients');
-  var count = Math.max(sheet.getLastRow(), 1); // includes header
+  var count = Math.max(sheet.getLastRow(), 1);
   return 'PSY-' + String(count).padStart(4, '0');
 }
 
@@ -1575,11 +1604,9 @@ function addPatient(p) {
   var pid = getNextPatientId();
   var ts = new Date().toISOString();
   sheet.appendRow([
-    pid,
-    p.name || '', p.age || '', p.gender || '', p.phone || '',
+    pid, p.name || '', p.age || '', p.gender || '', p.phone || '',
     p.email || '', p.occupation || '', p.address || '',
-    p.complaint || '', p.referral || '', p.emergency || '',
-    ts
+    p.complaint || '', p.referral || '', p.emergency || '', ts
   ]);
   return { success: true, patient_id: pid, message: 'Patient ' + pid + ' saved.' };
 }
@@ -1590,26 +1617,54 @@ function addSession(p) {
   var sessionId = p.patient_id + '-S' + String(sessionNum).padStart(3,'0');
   var ts = new Date().toISOString();
   sheet.appendRow([
-    sessionId,
-    p.patient_id || '', String(sessionNum), p.session_date || '',
+    sessionId, p.patient_id || '', String(sessionNum), p.session_date || '',
     p.subjective || '', p.objective || '',
-    p.assessment || '', p.plan || '',
-    p.mood_score || '5', ts
+    p.assessment || '', p.plan || '', p.mood_score || '5', ts
   ]);
   return { success: true, session_id: sessionId, session_number: sessionNum };
 }`;
 
-/* ===========================================================
-   CHART DEFAULTS (light mode)
-   =========================================================== */
-Chart.defaults.color = '#6b7280';
-Chart.defaults.borderColor = '#e1e5eb';
-Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+/* ============================================================
+   CHART DEFAULTS
+   ============================================================ */
+Chart.defaults.color = '#9aa0be';
+Chart.defaults.borderColor = '#e4e7f0';
+Chart.defaults.font.family = "'DM Sans', system-ui, sans-serif";
 Chart.defaults.font.size = 11;
 
-/* ===========================================================
+/* ============================================================
+   CLOCK
+   ============================================================ */
+function updateClocks() {
+  const now = new Date();
+  const h = now.getHours();
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = String(h % 12 || 12).padStart(2,'0');
+
+  // Topbar clock
+  const tcTime = document.getElementById('topbarClockTime');
+  const tcDate = document.getElementById('topbarClockDate');
+  const tcDay  = document.getElementById('topbarClockDay');
+  const tcAmpm = document.getElementById('topbarClockAmpm');
+  if (tcTime) tcTime.textContent = `${h12}:${m}:${s}`;
+  if (tcDate) tcDate.textContent = now.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+  if (tcDay)  tcDay.textContent  = now.toLocaleDateString('en-US', { weekday:'long' });
+  if (tcAmpm) tcAmpm.textContent = ampm;
+
+  // Dashboard strip clock
+  const dcTime = document.getElementById('dashClockTime');
+  const dcMeta = document.getElementById('dashClockMeta');
+  if (dcTime) dcTime.textContent = `${h12}:${m} ${ampm}`;
+  if (dcMeta) dcMeta.textContent = now.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+}
+setInterval(updateClocks, 1000);
+updateClocks();
+
+/* ============================================================
    DEBUG LOG
-   =========================================================== */
+   ============================================================ */
 function dbLog(msg) {
   console.log('[PsychCare]', msg);
   try {
@@ -1621,13 +1676,13 @@ function dbLog(msg) {
   } catch(e) {}
 }
 
-/* ===========================================================
-   CORE API — GET-only, handles Apps Script redirects properly
-   =========================================================== */
+/* ============================================================
+   CORE API — GET-only, handles Apps Script redirects
+   FIX: single unified apiCall(), no apiPost(), no duplicate logic
+   ============================================================ */
 async function apiCall(params) {
   if (!APP.apiUrl) throw new Error('API URL not configured. Go to Settings.');
 
-  // Build URL with all params as query string
   const url = new URL(APP.apiUrl);
   Object.entries(params).forEach(([k, v]) => {
     if (v !== undefined && v !== null && v !== '') {
@@ -1638,12 +1693,6 @@ async function apiCall(params) {
   const fullUrl = url.toString();
   dbLog(`→ GET ${params.action} | ${fullUrl.slice(0, 120)}...`);
 
-  /* KEY FIX:
-     Apps Script /exec redirects. fetch() with redirect:'follow' + no-cors fails.
-     The correct approach is redirect:'follow' with a regular GET — this works
-     because Google's redirect chain ends at a URL with proper CORS headers.
-     We do NOT set mode:'no-cors' because we need to read the response body.
-  */
   const response = await fetch(fullUrl, {
     method: 'GET',
     redirect: 'follow',
@@ -1662,7 +1711,6 @@ async function apiCall(params) {
     throw new Error('Empty response from server. Check your Apps Script is deployed correctly.');
   }
 
-  // Parse JSON (strip any BOM or whitespace)
   let data;
   try {
     data = JSON.parse(text.trim());
@@ -1678,28 +1726,23 @@ async function apiCall(params) {
   return data;
 }
 
-/* ===========================================================
-   DEMO DATA (used when API not configured)
-   =========================================================== */
+/* ============================================================
+   DEMO DATA
+   ============================================================ */
 const DEMO_PATIENTS = [
-  { patient_id:'PSY-0001', name:'Rafiqul Islam',   age:'34', gender:'Male',   phone:'01711111111', email:'rafiq@example.com',  occupation:'Teacher',     address:'Khulna',     complaint:'Work anxiety and sleep issues',      referral:'Self',   emergency:'Wife 01800000001', timestamp:'2025-01-10T08:00:00Z' },
-  { patient_id:'PSY-0002', name:'Fatema Begum',    age:'28', gender:'Female', phone:'01722222222', email:'fatema@example.com', occupation:'Homemaker',   address:'Dhaka',      complaint:'Post-partum depression',           referral:'Doctor', emergency:'Husband 01800000002', timestamp:'2025-01-15T09:00:00Z' },
-  { patient_id:'PSY-0003', name:'Sakib Hossain',   age:'22', gender:'Male',   phone:'01733333333', email:'',                   occupation:'Student',     address:'Rajshahi',   complaint:'Social anxiety, academic stress',  referral:'University counselor', emergency:'Mother 01800000003', timestamp:'2025-02-01T10:00:00Z' },
-  { patient_id:'PSY-0004', name:'Nasrin Akter',    age:'45', gender:'Female', phone:'01744444444', email:'',                   occupation:'Business',    address:'Chittagong', complaint:'Grief and insomnia after bereavement', referral:'Family', emergency:'Son 01800000004', timestamp:'2025-02-10T11:00:00Z' },
-  { patient_id:'PSY-0005', name:'Arif Chowdhury',  age:'39', gender:'Male',   phone:'01755555555', email:'',                   occupation:'Engineer',    address:'Sylhet',     complaint:'PTSD after road accident',         referral:'Self',   emergency:'Wife 01800000005', timestamp:'2025-02-20T08:00:00Z' },
+  { patient_id:'PSY-0001', name:'Rafiqul Islam',   age:'34', gender:'Male',   phone:'01711111111', email:'rafiq@example.com',  occupation:'Teacher',   address:'Khulna',     complaint:'Work anxiety and sleep issues',         referral:'Self',   emergency:'Wife 01800000001', timestamp:'2025-01-10T08:00:00Z' },
+  { patient_id:'PSY-0002', name:'Fatema Begum',    age:'28', gender:'Female', phone:'01722222222', email:'fatema@example.com', occupation:'Homemaker', address:'Dhaka',      complaint:'Post-partum depression',               referral:'Doctor', emergency:'Husband 01800000002', timestamp:'2025-01-15T09:00:00Z' },
+  { patient_id:'PSY-0003', name:'Sakib Hossain',   age:'22', gender:'Male',   phone:'01733333333', email:'',                   occupation:'Student',   address:'Rajshahi',   complaint:'Social anxiety, academic stress',      referral:'University counselor', emergency:'Mother 01800000003', timestamp:'2025-02-01T10:00:00Z' },
+  { patient_id:'PSY-0004', name:'Nasrin Akter',    age:'45', gender:'Female', phone:'01744444444', email:'',                   occupation:'Business',  address:'Chittagong', complaint:'Grief and insomnia after bereavement', referral:'Family', emergency:'Son 01800000004', timestamp:'2025-02-10T11:00:00Z' },
+  { patient_id:'PSY-0005', name:'Arif Chowdhury',  age:'39', gender:'Male',   phone:'01755555555', email:'',                   occupation:'Engineer',  address:'Sylhet',     complaint:'PTSD after road accident',             referral:'Self',   emergency:'Wife 01800000005', timestamp:'2025-02-20T08:00:00Z' },
 ];
 const DEMO_SESSIONS = [
-  { session_id:'PSY-0001-S001', patient_id:'PSY-0001', session_number:'1', session_date:'2025-01-17', subjective:'Overwhelmed at work, poor sleep', objective:'Anxious, fidgety',        assessment:'GAD features', plan:'CBT intro, breathing',         mood_score:'4', timestamp:'2025-01-17T09:00:00Z' },
-  { session_id:'PSY-0001-S002', patient_id:'PSY-0001', session_number:'2', session_date:'2025-01-31', subjective:'Slightly better sleep',          objective:'More relaxed',             assessment:'Mild improvement',   plan:'Continue CBT, journaling',      mood_score:'5', timestamp:'2025-01-31T09:00:00Z' },
-  { session_id:'PSY-0001-S003', patient_id:'PSY-0001', session_number:'3', session_date:'2025-02-14', subjective:'Managing stress well now',        objective:'Calm, positive',           assessment:'Good progress',      plan:'Monthly check-in',              mood_score:'7', timestamp:'2025-02-14T09:00:00Z' },
-  { session_id:'PSY-0002-S001', patient_id:'PSY-0002', session_number:'1', session_date:'2025-01-22', subjective:'Disconnected from baby, guilt',   objective:'Tearful, distressed',      assessment:'PPD confirmed',      plan:'Psychoeducation, support',      mood_score:'3', timestamp:'2025-01-22T10:00:00Z' },
-  { session_id:'PSY-0002-S002', patient_id:'PSY-0002', session_number:'2', session_date:'2025-02-05', subjective:'Bonding slowly improving',         objective:'Smiles occasionally',      assessment:'Gradual improvement', plan:'Continue, involve husband',    mood_score:'5', timestamp:'2025-02-05T10:00:00Z' },
-  { session_id:'PSY-0002-S003', patient_id:'PSY-0002', session_number:'3', session_date:'2025-02-19', subjective:'Good week, enjoying baby',          objective:'Animated, positive',       assessment:'Significant progress', plan:'Booster in 1 month',          mood_score:'7', timestamp:'2025-02-19T10:00:00Z' },
-  { session_id:'PSY-0003-S001', patient_id:'PSY-0003', session_number:'1', session_date:'2025-02-07', subjective:'Avoids group settings',              objective:'Quiet, soft-spoken',       assessment:'Social anxiety disorder', plan:'Exposure hierarchy',         mood_score:'4', timestamp:'2025-02-07T11:00:00Z' },
-  { session_id:'PSY-0003-S002', patient_id:'PSY-0003', session_number:'2', session_date:'2025-02-21', subjective:'Attended one study group',           objective:'More confident',           assessment:'Positive exposure progress', plan:'Increase exposure',      mood_score:'6', timestamp:'2025-02-21T11:00:00Z' },
-  { session_id:'PSY-0004-S001', patient_id:'PSY-0004', session_number:'1', session_date:'2025-02-15', subjective:'Lost mother 3 months ago, insomnia', objective:'Sad, poor grooming',       assessment:'Complicated grief',   plan:'Grief counseling, sleep hygiene', mood_score:'2', timestamp:'2025-02-15T14:00:00Z' },
-  { session_id:'PSY-0005-S001', patient_id:'PSY-0005', session_number:'1', session_date:'2025-02-25', subjective:'Nightmares, avoids driving',          objective:'Hypervigilant, startle',   assessment:'PTSD',               plan:'TF-CBT, psychoeducation',       mood_score:'3', timestamp:'2025-02-25T09:00:00Z' },
-  { session_id:'PSY-0005-S002', patient_id:'PSY-0005', session_number:'2', session_date:'2025-03-11', subjective:'Fewer nightmares this week',           objective:'Slightly less guarded',    assessment:'Early improvement',   plan:'EMDR introduction',             mood_score:'5', timestamp:'2025-03-11T09:00:00Z' },
+  { session_id:'PSY-0001-S001', patient_id:'PSY-0001', session_number:'1', session_date:'2025-01-17', subjective:'Overwhelmed at work, poor sleep', objective:'Anxious, fidgety',   assessment:'GAD features',     plan:'CBT intro, breathing',    mood_score:'4', timestamp:'2025-01-17T09:00:00Z' },
+  { session_id:'PSY-0001-S002', patient_id:'PSY-0001', session_number:'2', session_date:'2025-01-31', subjective:'Slightly better sleep',          objective:'More relaxed',        assessment:'Mild improvement', plan:'Continue CBT, journaling', mood_score:'5', timestamp:'2025-01-31T09:00:00Z' },
+  { session_id:'PSY-0001-S003', patient_id:'PSY-0001', session_number:'3', session_date:'2025-02-14', subjective:'Managing stress well now',       objective:'Calm, positive',      assessment:'Good progress',    plan:'Monthly check-in',         mood_score:'7', timestamp:'2025-02-14T09:00:00Z' },
+  { session_id:'PSY-0002-S001', patient_id:'PSY-0002', session_number:'1', session_date:'2025-01-22', subjective:'Disconnected from baby, guilt',  objective:'Tearful, distressed', assessment:'PPD confirmed',    plan:'Psychoeducation, support', mood_score:'3', timestamp:'2025-01-22T10:00:00Z' },
+  { session_id:'PSY-0002-S002', patient_id:'PSY-0002', session_number:'2', session_date:'2025-02-05', subjective:'Bonding slightly better',        objective:'Less tearful',        assessment:'Gradual improvement', plan:'Support group referral', mood_score:'5', timestamp:'2025-02-05T10:00:00Z' },
+  { session_id:'PSY-0003-S001', patient_id:'PSY-0003', session_number:'1', session_date:'2025-02-08', subjective:'Avoids social situations',       objective:'Guarded, quiet',      assessment:'Social anxiety disorder', plan:'Exposure therapy plan', mood_score:'4', timestamp:'2025-02-08T10:00:00Z' },
 ];
 
 function isDemo() { return !APP.apiUrl; }
@@ -1709,9 +1752,11 @@ function useDemoData() {
   APP.sessions = [...DEMO_SESSIONS];
 }
 
-/* ===========================================================
-   DATA FETCHING WITH FALLBACK
-   =========================================================== */
+/* ============================================================
+   DATA FETCHING
+   FIX: loadPatients() now properly normalises response (array or {data:[]})
+        and stores into APP.patients so table always renders
+   ============================================================ */
 async function fetchPatients(forceRefresh = false) {
   if (!forceRefresh && APP.patients.length) return APP.patients;
 
@@ -1724,7 +1769,8 @@ async function fetchPatients(forceRefresh = false) {
   try {
     dbLog('Fetching patients...');
     const data = await apiCall({ action: 'getPatients' });
-    APP.patients = Array.isArray(data) ? data : (data.data || []);
+    // Normalise: API may return raw array OR {data: [...]}
+    APP.patients = Array.isArray(data) ? data : (Array.isArray(data.data) ? data.data : []);
     dbLog(`✓ Loaded ${APP.patients.length} patients`);
     return APP.patients;
   } catch (err) {
@@ -1746,7 +1792,7 @@ async function fetchAllSessions(forceRefresh = false) {
   try {
     dbLog('Fetching all sessions...');
     const data = await apiCall({ action: 'getAllSessions' });
-    APP.sessions = Array.isArray(data) ? data : (data.data || []);
+    APP.sessions = Array.isArray(data) ? data : (Array.isArray(data.data) ? data.data : []);
     dbLog(`✓ Loaded ${APP.sessions.length} sessions`);
     return APP.sessions;
   } catch (err) {
@@ -1765,7 +1811,7 @@ async function fetchPatientSessions(patientId) {
   try {
     dbLog(`Fetching sessions for ${patientId}...`);
     const data = await apiCall({ action: 'getSessions', patient_id: patientId });
-    const sessions = Array.isArray(data) ? data : (data.data || []);
+    const sessions = Array.isArray(data) ? data : (Array.isArray(data.data) ? data.data : []);
     dbLog(`✓ Loaded ${sessions.length} sessions for ${patientId}`);
     return sessions;
   } catch (err) {
@@ -1775,9 +1821,9 @@ async function fetchPatientSessions(patientId) {
   }
 }
 
-/* ===========================================================
+/* ============================================================
    NAVIGATION
-   =========================================================== */
+   ============================================================ */
 const PAGE_TITLES = {
   dashboard: 'Dashboard',
   patients:  'Patients',
@@ -1809,9 +1855,9 @@ function navigate(page, opts = {}) {
   else if (page === 'profile' && opts.patientId) loadProfile(opts.patientId);
 }
 
-/* ===========================================================
+/* ============================================================
    SIDEBAR
-   =========================================================== */
+   ============================================================ */
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('open');
   document.getElementById('overlay').classList.toggle('active');
@@ -1821,15 +1867,15 @@ function closeSidebar() {
   document.getElementById('overlay').classList.remove('active');
 }
 
-/* ===========================================================
+/* ============================================================
    MODAL
-   =========================================================== */
+   ============================================================ */
 function openModal(id) { document.getElementById(id).classList.add('active'); }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-/* ===========================================================
+/* ============================================================
    TOAST
-   =========================================================== */
+   ============================================================ */
 function toast(msg, type = 'info') {
   const icons = { success: '✅', error: '❌', info: 'ℹ️', warn: '⚠️' };
   const el = document.createElement('div');
@@ -1839,23 +1885,19 @@ function toast(msg, type = 'info') {
   setTimeout(() => {
     el.classList.add('out');
     setTimeout(() => el.remove(), 300);
-  }, type === 'error' ? 5000 : 3000);
+  }, type === 'error' ? 5500 : 3200);
 }
 
-/* ===========================================================
+/* ============================================================
    DASHBOARD
-   =========================================================== */
+   ============================================================ */
 async function refreshDashboard() {
   const today = new Date();
   document.getElementById('dashDate').textContent =
     today.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
   document.getElementById('d_todayDate').textContent = today.toLocaleDateString('en-GB');
 
-  if (!APP.apiUrl) {
-    document.getElementById('demoBanner').style.display = 'flex';
-  } else {
-    document.getElementById('demoBanner').style.display = 'none';
-  }
+  document.getElementById('demoBanner').style.display = APP.apiUrl ? 'none' : 'flex';
 
   const [patients, sessions] = await Promise.all([
     fetchPatients(true),
@@ -1900,44 +1942,39 @@ function renderRecentPatients(patients) {
 
 function renderDashCharts(sessions) {
   const byMonth = groupByMonth(sessions, 'session_date');
-  makeLineChart('dash_sessionsChart', byMonth, 'Sessions', '#0ea5e9');
+  makeLineChart('dash_sessionsChart', byMonth, 'Sessions', '#4f6ef7');
 
   const moodByMonth = groupMoodByMonth(sessions);
-  makeLineChart('dash_moodChart', moodByMonth, 'Avg Mood', '#6366f1');
+  makeLineChart('dash_moodChart', moodByMonth, 'Avg Mood', '#8b5cf6');
 }
 
-/* ===========================================================
+/* ============================================================
    PATIENTS PAGE
-   =========================================================== */
+   FIX: loadPatients uses apiCall correctly; renderPatientsTable
+        is called after APP.patients is properly set (array).
+   ============================================================ */
 async function loadPatients() {
   const tbody = document.getElementById('patientsBody');
-
-  // loading spinner
-  tbody.innerHTML = `<tr><td colspan="7">
-    <div class="loader"><div class="spinner"></div></div>
-  </td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="7"><div class="loader"><div class="spinner"></div></div></td></tr>`;
 
   try {
-    const data = await apiCall({ action: 'getPatients' });
-
-    console.log("Loaded patients:", data);
-
-    APP.patients = data;
-
+    // fetchPatients already normalises data into APP.patients
+    await fetchPatients(true);
     renderPatientsTable(APP.patients);
-
   } catch (err) {
     console.error(err);
-
     tbody.innerHTML = `<tr><td colspan="7">
-      ❌ Failed to load patients
+      <div class="empty-state">
+        <div class="empty-icon">❌</div>
+        <p>Failed to load patients: ${esc(err.message)}</p>
+      </div>
     </td></tr>`;
   }
 }
 
 function renderPatientsTable(list) {
   const tbody = document.getElementById('patientsBody');
-  if (!list.length) {
+  if (!Array.isArray(list) || !list.length) {
     tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">👥</div><p>No patients found.</p></div></td></tr>`;
     return;
   }
@@ -1960,19 +1997,19 @@ function renderPatientsTable(list) {
 }
 
 function filterPatients() {
-  const q = document.getElementById('searchInput').value.toLowerCase();
+  const q = (document.getElementById('searchInput').value || '').toLowerCase();
   const gender = document.getElementById('genderFilter').value;
   const filtered = APP.patients.filter(p => {
-    const matchQ = !q || p.name?.toLowerCase().includes(q) || p.phone?.includes(q);
+    const matchQ = !q || (p.name||'').toLowerCase().includes(q) || (p.phone||'').includes(q);
     const matchG = !gender || p.gender === gender;
     return matchQ && matchG;
   });
   renderPatientsTable(filtered);
 }
 
-/* ===========================================================
+/* ============================================================
    PROFILE
-   =========================================================== */
+   ============================================================ */
 async function loadProfile(patientId) {
   APP.currentPatientId = patientId;
   const container = document.getElementById('profileContent');
@@ -2012,7 +2049,7 @@ async function loadProfile(patientId) {
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
-        <button class="btn btn-success" onclick="openAddSession()" style="background:#fff;color:#0ea5e9;border-color:#fff;">+ Add Session</button>
+        <button class="btn btn-sm" onclick="openAddSession()" style="background:#fff;color:var(--accent);border-color:#fff;font-weight:700;">+ Add Session</button>
         <button class="btn btn-ghost btn-sm" onclick="generateReportFor()" style="color:#fff;border-color:rgba(255,255,255,0.4);">📄 Report</button>
       </div>
     </div>
@@ -2069,10 +2106,10 @@ function renderProfileMoodChart(sessions) {
       datasets: [{
         label: 'Mood',
         data: sessions.map(s => parseFloat(s.mood_score)),
-        borderColor: '#6366f1',
-        backgroundColor: 'rgba(99,102,241,0.08)',
+        borderColor: '#8b5cf6',
+        backgroundColor: 'rgba(139,92,246,0.08)',
         tension: 0.4, fill: true,
-        pointRadius: 5, pointBackgroundColor: '#6366f1',
+        pointRadius: 5, pointBackgroundColor: '#8b5cf6',
       }]
     },
     options: stdChartOpts({ min: 0, max: 10 }),
@@ -2089,7 +2126,7 @@ function renderSessionCard(s) {
         <span class="session-date-label">📅 ${s.session_date}</span>
       </div>
       <div class="mood-bar-row">
-        <span style="font-size:0.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;">Mood</span>
+        <span style="font-size:0.69rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.07em;">Mood</span>
         <div class="mood-bar-track"><div class="mood-bar-fill" style="width:${mood*10}%;background:${color};"></div></div>
         <span class="mood-score-txt" style="color:${color};">${mood}/10</span>
       </div>
@@ -2103,9 +2140,9 @@ function renderSessionCard(s) {
   `;
 }
 
-/* ===========================================================
+/* ============================================================
    ADD SESSION MODAL
-   =========================================================== */
+   ============================================================ */
 function openAddSession() {
   if (!APP.currentPatientId) { toast('No patient selected', 'error'); return; }
   const patient = APP.patients.find(p => p.patient_id === APP.currentPatientId);
@@ -2126,14 +2163,14 @@ function generateReportFor() {
   }, 200);
 }
 
-/* ===========================================================
+/* ============================================================
    SAVE PATIENT
-   =========================================================== */
+   ============================================================ */
 async function savePatient() {
-  const name  = document.getElementById('pf_name').value.trim();
-  const age   = document.getElementById('pf_age').value.trim();
-  const gender= document.getElementById('pf_gender').value;
-  const phone = document.getElementById('pf_phone').value.trim();
+  const name   = document.getElementById('pf_name').value.trim();
+  const age    = document.getElementById('pf_age').value.trim();
+  const gender = document.getElementById('pf_gender').value;
+  const phone  = document.getElementById('pf_phone').value.trim();
   const errBox = document.getElementById('patientFormError');
 
   if (!name || !age || !gender || !phone) {
@@ -2175,14 +2212,14 @@ async function savePatient() {
   try {
     const result = await apiCall(params);
     dbLog(`addPatient result: ${JSON.stringify(result)}`);
-    if (result.success) {
+    if (result && result.success) {
       toast(`✅ Patient ${result.patient_id} saved!`, 'success');
       closeModal('modalPatient');
       clearPatientForm();
-      // Refresh data
+      // Refresh local cache
       APP.patients = [];
       await fetchPatients(true);
-      // If on patients page, reload table
+      // Re-render if on patients page
       if (document.getElementById('page-patients').classList.contains('active')) {
         renderPatientsTable(APP.patients);
       }
@@ -2209,9 +2246,9 @@ function clearPatientForm() {
   document.getElementById('patientFormError').style.display = 'none';
 }
 
-/* ===========================================================
+/* ============================================================
    SAVE SESSION
-   =========================================================== */
+   ============================================================ */
 async function saveSession() {
   const date = document.getElementById('sf_date').value;
   const mood = document.getElementById('sf_mood').value;
@@ -2261,12 +2298,10 @@ async function saveSession() {
   try {
     const result = await apiCall(params);
     dbLog(`addSession result: ${JSON.stringify(result)}`);
-    if (result.success) {
+    if (result && result.success) {
       toast(`✅ Session #${result.session_number} saved!`, 'success');
       closeModal('modalSession');
-      // Refresh sessions
       APP.sessions = [];
-      // Reload profile
       loadProfile(APP.currentPatientId);
     } else {
       throw new Error(result.error || 'Unknown server error');
@@ -2282,16 +2317,15 @@ async function saveSession() {
   btn.textContent = '💾 Save Session';
 }
 
-/* ===========================================================
+/* ============================================================
    ANALYTICS
-   =========================================================== */
+   ============================================================ */
 async function loadAnalytics() {
   const [patients, sessions] = await Promise.all([
     fetchPatients(true),
     fetchAllSessions(true),
   ]);
 
-  // Populate patient filter dropdown
   const sel = document.getElementById('af_patient');
   sel.innerHTML = '<option value="">All Patients</option>' +
     patients.map(p => `<option value="${p.patient_id}">${esc(p.name)}</option>`).join('');
@@ -2312,20 +2346,15 @@ function computeAnalytics(patients, sessions) {
     patients.length ? (sessions.length / patients.length).toFixed(1) : '—';
   document.getElementById('a_active').textContent = activeIds.size;
 
-  const byMonth = groupByMonth(sessions, 'session_date');
-  makeLineChart('a_sessionsChart', byMonth, 'Sessions', '#0ea5e9');
-
-  const moodByMonth = groupMoodByMonth(sessions);
-  makeLineChart('a_moodChart', moodByMonth, 'Avg Mood', '#6366f1');
-
-  const growthByMonth = groupByMonth(patients, 'timestamp');
-  makeBarChart('a_growthChart', growthByMonth, 'New Patients', '#f59e0b');
+  makeLineChart('a_sessionsChart', groupByMonth(sessions, 'session_date'), 'Sessions', '#4f6ef7');
+  makeLineChart('a_moodChart', groupMoodByMonth(sessions), 'Avg Mood', '#8b5cf6');
+  makeBarChart('a_growthChart', groupByMonth(patients, 'timestamp'), 'New Patients', '#f59e0b');
 
   const genderCounts = {};
   patients.forEach(p => { genderCounts[p.gender || 'Unknown'] = (genderCounts[p.gender||'Unknown']||0)+1; });
   makePieChart('a_genderChart', genderCounts);
 
-  // Top 5
+  // Top 5 by sessions
   const sessCount = {};
   sessions.forEach(s => { sessCount[s.patient_id] = (sessCount[s.patient_id]||0)+1; });
   const top5 = Object.entries(sessCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
@@ -2359,7 +2388,7 @@ function computeAnalytics(patients, sessions) {
           <span class="insight-count red">Avg ${x.avg.toFixed(1)}</span>
         </div>`;
       }).join('')
-    : '<p style="font-size:.84rem;color:var(--text-dim);padding:8px 0;">No low-mood patients.</p>';
+    : '<p style="font-size:.84rem;color:var(--text-dim);padding:8px 0;">No low-mood patients. 🎉</p>';
 }
 
 function applyFilters() {
@@ -2381,9 +2410,9 @@ function resetFilters() {
   computeAnalytics(APP.patients, APP.sessions);
 }
 
-/* ===========================================================
+/* ============================================================
    REPORTS
-   =========================================================== */
+   ============================================================ */
 function initReports() {
   if (!APP.patients.length) fetchPatients().then(populateReportSel);
   else populateReportSel();
@@ -2428,61 +2457,72 @@ async function generateReport() {
     <div class="report-top">
       <div>
         <div class="report-clinic-name">PsychCare Clinic</div>
-        <div class="report-clinic-sub">Psychology & Counseling Services — Confidential Patient Record</div>
+        <div class="report-clinic-sub">Patient Progress Report</div>
       </div>
       <div class="report-date-block">
-        <div><strong>Date Generated</strong></div>
-        <div>${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</div>
+        <div>Generated: ${new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})}</div>
+        <div style="margin-top:4px;">Confidential — Clinical Use Only</div>
       </div>
     </div>
 
     <div class="report-section">
-      <div class="report-section-title">1. Patient Summary</div>
+      <div class="report-section-title">Patient Information</div>
       <div class="report-info-grid">
         <div class="report-info-item"><label>Patient ID</label><span>${patient.patient_id}</span></div>
         <div class="report-info-item"><label>Full Name</label><span>${esc(patient.name)}</span></div>
-        <div class="report-info-item"><label>Age</label><span>${patient.age||'—'} years</span></div>
+        <div class="report-info-item"><label>Age</label><span>${patient.age||'—'}</span></div>
         <div class="report-info-item"><label>Gender</label><span>${patient.gender||'—'}</span></div>
         <div class="report-info-item"><label>Phone</label><span>${esc(patient.phone)}</span></div>
+        <div class="report-info-item"><label>Registered</label><span>${fmtDate(patient.timestamp)}</span></div>
         <div class="report-info-item"><label>Occupation</label><span>${esc(patient.occupation||'—')}</span></div>
         <div class="report-info-item"><label>Referral</label><span>${esc(patient.referral||'—')}</span></div>
-        <div class="report-info-item"><label>Registered</label><span>${fmtDate(patient.timestamp)}</span></div>
       </div>
-      ${patient.complaint?`<div style="margin-top:12px;"><div class="report-info-item"><label>Chief Complaint</label><span style="display:block;margin-top:4px;">${esc(patient.complaint)}</span></div></div>`:''}
     </div>
 
+    ${patient.complaint ? `
     <div class="report-section">
-      <div class="report-section-title">2. Session Summary</div>
-      <div class="report-info-grid" style="margin-bottom:14px;">
+      <div class="report-section-title">Chief Complaint</div>
+      <p style="font-size:0.88rem;color:#374151;">${esc(patient.complaint)}</p>
+    </div>` : ''}
+
+    <div class="report-section">
+      <div class="report-section-title">Treatment Summary</div>
+      <div class="report-info-grid">
         <div class="report-info-item"><label>Total Sessions</label><span>${sessions.length}</span></div>
         <div class="report-info-item"><label>First Session</label><span>${firstSess}</span></div>
         <div class="report-info-item"><label>Last Session</label><span>${lastSess}</span></div>
-        <div class="report-info-item"><label>Average Mood Score</label><span>${avgMood}/10</span></div>
+        <div class="report-info-item"><label>Avg Mood Score</label><span>${avgMood}/10</span></div>
+        <div class="report-info-item"><label>Mood Trend</label><span>${trend}</span></div>
       </div>
-      ${sessions.map(s=>`
+    </div>
+
+    ${sessions.length > 1 ? `
+    <div class="report-section">
+      <div class="report-section-title">Mood Trend Chart</div>
+      <div style="position:relative;height:180px;"><canvas id="reportMoodChart"></canvas></div>
+    </div>` : ''}
+
+    <div class="report-section">
+      <div class="report-section-title">Session Records</div>
+      ${sessions.map(s => `
         <div class="report-session-item">
           <div class="rsi-head">
-            <span class="rsi-num">Session #${s.session_number}</span>
-            <span style="font-size:.8rem;color:#6b7280;">${s.session_date} — Mood: ${s.mood_score}/10</span>
+            <span class="rsi-num">Session #${s.session_number} — ${s.session_date}</span>
+            <span style="font-size:.78rem;color:#6b7280;">Mood: ${s.mood_score}/10</span>
           </div>
-          ${s.subjective?`<p style="font-size:.82rem;color:#374151;margin-bottom:3px;"><strong>S:</strong> ${esc(s.subjective)}</p>`:''}
-          ${s.assessment?`<p style="font-size:.82rem;color:#374151;"><strong>A:</strong> ${esc(s.assessment)}</p>`:''}
-        </div>`).join('')}
+          ${s.subjective ? `<div><strong style="font-size:.74rem;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;">Subjective</strong><p style="margin:.2rem 0 .5rem;">${esc(s.subjective)}</p></div>` : ''}
+          ${s.objective  ? `<div><strong style="font-size:.74rem;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;">Objective</strong><p style="margin:.2rem 0 .5rem;">${esc(s.objective)}</p></div>` : ''}
+          ${s.assessment ? `<div><strong style="font-size:.74rem;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;">Assessment</strong><p style="margin:.2rem 0 .5rem;">${esc(s.assessment)}</p></div>` : ''}
+          ${s.plan       ? `<div><strong style="font-size:.74rem;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;">Plan</strong><p style="margin:.2rem 0;">${esc(s.plan)}</p></div>` : ''}
+        </div>
+      `).join('')}
     </div>
 
+    ${remarks ? `
     <div class="report-section">
-      <div class="report-section-title">3. Progress Tracking</div>
-      <div class="report-info-grid" style="margin-bottom:14px;">
-        <div class="report-info-item"><label>Trend</label><span>${trend}</span></div>
-        <div class="report-info-item"><label>Average Mood</label><span>${avgMood}/10</span></div>
-      </div>
-      ${sessions.length>1?`<div style="height:180px;"><canvas id="reportMoodChart"></canvas></div>`:''}
-    </div>
-
-    <div class="report-section">
-      <div class="report-section-title">4. Therapist Remarks & Recommendations</div>
-      <div class="report-remarks-box">${remarks||'<em style="color:#9ca3af;">No remarks recorded.</em>'}</div>
-    </div>
+      <div class="report-section-title">Therapist Remarks</div>
+      <div class="report-remarks-box">${esc(remarks)}</div>
+    </div>` : ''}
 
     <div class="report-footer">
       <span>PsychCare Patient Management System</span>
@@ -2502,8 +2542,8 @@ async function generateReport() {
           datasets: [{
             label: 'Mood',
             data: sessions.map(s => parseFloat(s.mood_score)),
-            borderColor: '#0ea5e9',
-            backgroundColor: 'rgba(14,165,233,0.08)',
+            borderColor: '#4f6ef7',
+            backgroundColor: 'rgba(79,110,247,0.08)',
             tension: 0.4, fill: true, pointRadius: 4,
           }]
         },
@@ -2533,11 +2573,14 @@ async function downloadPDF() {
   }
 }
 
-/* ===========================================================
+/* ============================================================
    SETTINGS
-   =========================================================== */
+   FIX: APP.apiUrl is read from localStorage on init (above),
+        so settings page simply reflects what's already loaded.
+        saveAndTest() updates both APP.apiUrl AND localStorage.
+   ============================================================ */
 function initSettings() {
-  document.getElementById('setting_url').value = APP.apiUrl || DEFAULT_API_URL;
+  document.getElementById('setting_url').value = APP.apiUrl || '';
   document.getElementById('scriptCodeBox').textContent = APPS_SCRIPT;
   updateStatusUI();
 }
@@ -2564,7 +2607,7 @@ async function saveAndTest() {
       updateStatusUI('ok');
       toast('API connected successfully!', 'success');
     } else {
-      resultEl.innerHTML = `<span style="color:var(--warn);">⚠️ Connected but unexpected response format. Check script.</span><br><code style="font-size:.78rem;">${JSON.stringify(data).slice(0,200)}</code>`;
+      resultEl.innerHTML = `<span style="color:var(--warn);">⚠️ Connected but unexpected response format.</span><br><code style="font-size:.78rem;">${JSON.stringify(data).slice(0,200)}</code>`;
       updateStatusUI('ok');
     }
   } catch (err) {
@@ -2573,10 +2616,9 @@ async function saveAndTest() {
       <div style="color:var(--danger);">❌ Connection failed: ${err.message}</div>
       <div style="margin-top:8px;font-size:.8rem;color:var(--text-muted);">
         Possible fixes:<br>
-        1. Make sure you redeployed with the <strong>new script code</strong> above.<br>
-        2. Redeploy as new deployment (not just save) — set access to <strong>Anyone</strong>.<br>
-        3. Make sure you authorized the script when prompted.<br>
-        4. Try pasting the URL directly in a new browser tab — it should return JSON.
+        1. Redeploy as a <strong>new</strong> deployment (not just save).<br>
+        2. Set access to <strong>Anyone</strong> and authorize when prompted.<br>
+        3. Paste the URL in a new browser tab — it should return JSON.
       </div>`;
     updateStatusUI('err');
   }
@@ -2586,10 +2628,10 @@ function updateStatusUI(state) {
   const dot   = document.getElementById('statusDot');
   const label = document.getElementById('statusLabel');
   const s = state || (APP.apiUrl ? 'ok' : 'none');
-  if (s === 'ok')      { dot.className='status-dot ok';      label.textContent='Connected'; }
-  else if (s === 'err'){ dot.className='status-dot err';     label.textContent='Connection error'; }
-  else if (s === 'loading'){ dot.className='status-dot loading'; label.textContent='Connecting...'; }
-  else                 { dot.className='status-dot';          label.textContent='Not configured'; }
+  if (s === 'ok')           { dot.className='status-dot ok';      label.textContent='Connected'; }
+  else if (s === 'err')     { dot.className='status-dot err';     label.textContent='Connection error'; }
+  else if (s === 'loading') { dot.className='status-dot loading'; label.textContent='Connecting...'; }
+  else                      { dot.className='status-dot';          label.textContent='Not configured'; }
 }
 
 function clearApiUrl() {
@@ -2616,17 +2658,17 @@ function copyScript() {
     .catch(() => toast('Copy failed — please select all and copy manually.', 'error'));
 }
 
-/* ===========================================================
+/* ============================================================
    CHART HELPERS
-   =========================================================== */
+   ============================================================ */
 function stdChartOpts(yOpts = {}) {
   return {
     responsive: true,
     maintainAspectRatio: false,
     plugins: { legend: { display: false } },
     scales: {
-      y: { ...yOpts, grid: { color: '#f0f2f5' }, ticks: { color: '#6b7280' } },
-      x: { grid: { color: '#f0f2f5' }, ticks: { color: '#6b7280' } },
+      y: { ...yOpts, grid: { color: '#f0f2f5' }, ticks: { color: '#9aa0be' } },
+      x: { grid: { color: '#f0f2f5' }, ticks: { color: '#9aa0be' } },
     },
   };
 }
@@ -2675,7 +2717,7 @@ function makeBarChart(id, { labels, data }, label, color) {
   if (APP.charts[id]) APP.charts[id].destroy();
   APP.charts[id] = new Chart(ctx, {
     type: 'bar',
-    data: { labels, datasets: [{ label, data, backgroundColor: color+'cc', borderColor: color, borderRadius: 5 }] },
+    data: { labels, datasets: [{ label, data, backgroundColor: color+'cc', borderColor: color, borderRadius: 6 }] },
     options: stdChartOpts(),
   });
 }
@@ -2687,15 +2729,15 @@ function makePieChart(id, counts) {
     type: 'doughnut',
     data: {
       labels: Object.keys(counts),
-      datasets: [{ data: Object.values(counts), backgroundColor: ['#0ea5e9cc','#6366f1cc','#f59e0bcc'], borderColor: '#fff', borderWidth: 3 }]
+      datasets: [{ data: Object.values(counts), backgroundColor: ['#4f6ef7cc','#8b5cf6cc','#f59e0bcc'], borderColor: '#fff', borderWidth: 3 }]
     },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position:'bottom', labels:{color:'#6b7280'} } } }
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position:'bottom', labels:{color:'#9aa0be'} } } }
   });
 }
 
-/* ===========================================================
+/* ============================================================
    UTILITIES
-   =========================================================== */
+   ============================================================ */
 function esc(str) {
   if (!str) return '';
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -2707,13 +2749,14 @@ function fmtDate(ts) {
   catch { return String(ts); }
 }
 
-/* ===========================================================
+/* ============================================================
    INIT
-   =========================================================== */
+   ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
   console.log('[PsychCare] App initializing...');
   console.log('[PsychCare] API URL:', APP.apiUrl || '(none — demo mode)');
-  document.getElementById('setting_url') && (document.getElementById('setting_url').value = APP.apiUrl);
+  const urlInput = document.getElementById('setting_url');
+  if (urlInput) urlInput.value = APP.apiUrl || '';
   updateStatusUI();
   navigate('dashboard');
 });
