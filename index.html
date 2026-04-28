@@ -223,34 +223,6 @@ body {
 .page-container { flex: 1; padding: 28px 32px; max-width: 1400px; width: 100%; }
 
 /* ============================================================
-   CLOCK WIDGET
-   ============================================================ */
-.clock-widget {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 8px 14px;
-}
-.clock-time {
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 400;
-  color: var(--accent);
-  letter-spacing: 0.02em;
-  line-height: 1;
-}
-.clock-meta {
-  display: flex;
-  flex-direction: column;
-}
-.clock-date { font-size: 0.7rem; color: var(--text-muted); font-weight: 500; }
-.clock-day  { font-size: 0.63rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
-.clock-ampm { font-size: 0.65rem; color: var(--text-dim); font-weight: 600; text-transform: uppercase; align-self: flex-end; }
-
-/* ============================================================
    CARDS
    ============================================================ */
 .card {
@@ -883,7 +855,6 @@ code {
   .stat-grid { grid-template-columns: 1fr 1fr; }
   .welcome-strip { flex-direction: column; align-items: flex-start; }
   .strip-clock .big-time { font-size: 2rem; }
-  .clock-widget { display: none; }
 }
 @media (max-width: 480px) {
   .stat-grid { grid-template-columns: 1fr 1fr; }
@@ -1114,18 +1085,7 @@ code {
       </div>
       <div class="topbar-right">
         <span id="topbarHospital" style="font-size:0.73rem;color:var(--text-muted);font-weight:500;display:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;"></span>
-        <!-- Clock widget in topbar -->
-        <div class="clock-widget">
-          <div>
-            <div class="clock-time" id="topbarClockTime">00:00:00</div>
-          </div>
-          <div class="clock-meta">
-            <span class="clock-date" id="topbarClockDate">—</span>
-            <span class="clock-day" id="topbarClockDay">—</span>
-          </div>
-          <span class="clock-ampm" id="topbarClockAmpm">AM</span>
-        </div>
-        <button class="btn btn-primary btn-sm" onclick="openModal('modalPatient')">+ New Patient</button>
+        <button class="btn btn-primary btn-sm" onclick="openPatientModal()">+ New Patient</button>
       </div>
     </div>
 
@@ -1350,7 +1310,7 @@ code {
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">
+      <div class="chart-grid mb-20">
         <div class="chart-card">
           <div class="chart-title">Top 5 Patients by Sessions</div>
           <div id="insight_top5" class="insight-list">
@@ -1417,7 +1377,7 @@ code {
       <div class="card settings-section">
         <h3>Google Apps Script URL</h3>
 
-        <div class="warn-banner mb-16" style="display:block;">
+        <div class="warn-banner mb-16">
           ⚠️ <span>
             <strong>Important:</strong> Your Google Apps Script must be deployed as a Web App with access set to <strong>Anyone</strong> using the GET-only pattern. All operations (read and write) are sent as GET parameters to avoid CORS issues.
           </span>
@@ -1658,16 +1618,6 @@ function updateClocks() {
   const s = String(now.getSeconds()).padStart(2,'0');
   const ampm = h >= 12 ? 'PM' : 'AM';
   const h12 = String(h % 12 || 12).padStart(2,'0');
-
-  // Topbar clock
-  const tcTime = document.getElementById('topbarClockTime');
-  const tcDate = document.getElementById('topbarClockDate');
-  const tcDay  = document.getElementById('topbarClockDay');
-  const tcAmpm = document.getElementById('topbarClockAmpm');
-  if (tcTime) tcTime.textContent = `${h12}:${m}:${s}`;
-  if (tcDate) tcDate.textContent = now.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
-  if (tcDay)  tcDay.textContent  = now.toLocaleDateString('en-US', { weekday:'long' });
-  if (tcAmpm) tcAmpm.textContent = ampm;
 
   // Dashboard strip clock
   const dcTime = document.getElementById('dashClockTime');
@@ -2180,11 +2130,15 @@ function openAddSession() {
 }
 
 function generateReportFor() {
+  const pid = APP.currentPatientId;
   navigate('reports');
   setTimeout(() => {
     const sel = document.getElementById('r_patient');
-    if (sel && APP.currentPatientId) sel.value = APP.currentPatientId;
-  }, 200);
+    if (sel && pid) {
+      sel.value = pid;
+      generateReport();
+    }
+  }, 300);
 }
 
 /* ============================================================
