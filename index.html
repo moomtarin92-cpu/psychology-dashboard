@@ -16,40 +16,129 @@
 /* ============================================================
    DESIGN TOKENS
    ============================================================ */
+/* ============================================================
+   LIGHT THEME — semantic token system
+   ============================================================ */
 :root {
-  --bg:           #f0f2f7;
-  --bg2:          #ffffff;
-  --bg3:          #f5f6fa;
-  --bg4:          #eceef5;
-  --border:       #e4e7f0;
-  --border-md:    #d0d5e8;
-  --text:         #0f1523;
-  --text-muted:   #5a6282;
-  --text-dim:     #9aa0be;
-  --accent:       #4f6ef7;
-  --accent-bg:    rgba(79,110,247,0.08);
-  --accent-dark:  #3a58e0;
-  --accent2:      #8b5cf6;
-  --accent2-bg:   rgba(139,92,246,0.08);
-  --accent3:      #f59e0b;
-  --accent3-bg:   rgba(245,158,11,0.08);
-  --success:      #10b981;
-  --success-bg:   rgba(16,185,129,0.09);
-  --danger:       #ef4444;
-  --danger-bg:    rgba(239,68,68,0.08);
-  --warn:         #f59e0b;
-  --warn-bg:      rgba(245,158,11,0.09);
-  --shadow-sm:    0 1px 4px rgba(15,21,35,0.06), 0 1px 2px rgba(15,21,35,0.03);
-  --shadow:       0 4px 16px rgba(15,21,35,0.09);
-  --shadow-lg:    0 16px 48px rgba(15,21,35,0.14);
-  --radius-sm:    8px;
-  --radius:       12px;
-  --radius-lg:    16px;
-  --sidebar-w:    260px;
-  --topbar-h:     64px;
-  --transition:   0.17s ease;
+  /* Surface backgrounds */
+  --color-bg-primary:    #f0f2f7;
+  --color-bg-secondary:  #ffffff;
+  --color-surface:       #f5f6fa;
+  --color-surface-alt:   #eceef5;
+
+  /* Borders */
+  --color-border:        #e4e7f0;
+  --color-border-strong: #d0d5e8;
+
+  /* Text */
+  --color-text-primary:   #0f1523;
+  --color-text-secondary: #5a6282;
+  --color-text-tertiary:  #9aa0be;
+
+  /* Accent (blue) */
+  --color-accent:         #4f6ef7;
+  --color-accent-bg:      rgba(79,110,247,0.08);
+  --color-accent-hover:   #3a58e0;
+
+  /* Accent 2 (purple) */
+  --color-accent2:        #8b5cf6;
+  --color-accent2-bg:     rgba(139,92,246,0.08);
+
+  /* Accent 3 (amber) */
+  --color-accent3:        #f59e0b;
+  --color-accent3-bg:     rgba(245,158,11,0.08);
+
+  /* Semantic states */
+  --color-success:    #10b981;
+  --color-success-bg: rgba(16,185,129,0.09);
+  --color-danger:     #ef4444;
+  --color-danger-bg:  rgba(239,68,68,0.08);
+  --color-warn:       #f59e0b;
+  --color-warn-bg:    rgba(245,158,11,0.09);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 4px rgba(15,21,35,0.06), 0 1px 2px rgba(15,21,35,0.03);
+  --shadow:    0 4px 16px rgba(15,21,35,0.09);
+  --shadow-lg: 0 16px 48px rgba(15,21,35,0.14);
+
+  /* Chart grid / tick colors (for JS) */
+  --chart-grid:  #e8eaf0;
+  --chart-tick:  #9aa0be;
+
+  /* Legacy aliases — keeps existing CSS working without changes */
+  --bg:        var(--color-bg-primary);
+  --bg2:       var(--color-bg-secondary);
+  --bg3:       var(--color-surface);
+  --bg4:       var(--color-surface-alt);
+  --border:    var(--color-border);
+  --border-md: var(--color-border-strong);
+  --text:      var(--color-text-primary);
+  --text-muted:var(--color-text-secondary);
+  --text-dim:  var(--color-text-tertiary);
+  --accent:    var(--color-accent);
+  --accent-bg: var(--color-accent-bg);
+  --accent-dark:var(--color-accent-hover);
+  --accent2:   var(--color-accent2);
+  --accent2-bg:var(--color-accent2-bg);
+  --accent3:   var(--color-accent3);
+  --accent3-bg:var(--color-accent3-bg);
+  --success:   var(--color-success);
+  --success-bg:var(--color-success-bg);
+  --danger:    var(--color-danger);
+  --danger-bg: var(--color-danger-bg);
+  --warn:      var(--color-warn);
+  --warn-bg:   var(--color-warn-bg);
+
+  /* Geometry */
+  --radius-sm: 8px;
+  --radius:    12px;
+  --radius-lg: 16px;
+  --sidebar-w: 260px;
+  --topbar-h:  64px;
+  --transition:0.17s ease;
   --font:         'DM Sans', system-ui, sans-serif;
   --font-display: 'DM Serif Display', Georgia, serif;
+}
+
+/* ============================================================
+   DARK THEME — variable overrides only
+   ============================================================ */
+[data-theme="dark"] {
+  --color-bg-primary:    #0d1117;
+  --color-bg-secondary:  #161b22;
+  --color-surface:       #1c2128;
+  --color-surface-alt:   #21262d;
+
+  --color-border:        #30363d;
+  --color-border-strong: #444c56;
+
+  --color-text-primary:   #e6edf3;
+  --color-text-secondary: #8b949e;
+  --color-text-tertiary:  #6e7681;
+
+  --color-accent:       #58a6ff;
+  --color-accent-bg:    rgba(88,166,255,0.12);
+  --color-accent-hover: #79b8ff;
+
+  --color-accent2:      #bc8cff;
+  --color-accent2-bg:   rgba(188,140,255,0.12);
+
+  --color-accent3:      #ffa657;
+  --color-accent3-bg:   rgba(255,166,87,0.12);
+
+  --color-success:    #3fb950;
+  --color-success-bg: rgba(63,185,80,0.12);
+  --color-danger:     #f85149;
+  --color-danger-bg:  rgba(248,81,73,0.12);
+  --color-warn:       #d29922;
+  --color-warn-bg:    rgba(210,153,34,0.12);
+
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow:    0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,0.5);
+
+  --chart-grid: #21262d;
+  --chart-tick: #6e7681;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -293,6 +382,32 @@ body {
   opacity: 0.07;
 }
 
+/* Trend badge on stat cards */
+.stat-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 100px;
+  margin-top: 8px;
+}
+.stat-trend.up   { background: var(--color-success-bg); color: var(--color-success); }
+.stat-trend.down { background: var(--color-danger-bg);  color: var(--color-danger); }
+.stat-trend.flat { background: var(--color-surface-alt); color: var(--color-text-tertiary); }
+
+/* Sparkline canvas inside stat card */
+.sparkline-wrap {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 48px;
+  opacity: 0.35;
+  overflow: hidden;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.sparkline-wrap canvas { display: block; }
+
 /* ============================================================
    BUTTONS
    ============================================================ */
@@ -416,29 +531,51 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 /* ============================================================
-   TABLE
+   TABLE — sticky header, hover actions, improved empty state
    ============================================================ */
-.table-wrap { overflow-x: auto; }
+.table-wrap { overflow-x: auto; overflow-y: visible; }
 table { width: 100%; border-collapse: collapse; }
-thead tr { background: var(--bg3); border-bottom: 2px solid var(--border); }
+thead { position: sticky; top: var(--topbar-h); z-index: 10; }
+thead tr { background: var(--color-surface); border-bottom: 2px solid var(--color-border); }
 th {
   padding: 11px 15px;
   text-align: left;
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.09em;
-  color: var(--text-dim);
+  color: var(--color-text-tertiary);
   font-weight: 700;
   white-space: nowrap;
+  user-select: none;
 }
 td {
   padding: 12px 15px;
   font-size: 0.87rem;
-  color: var(--text);
-  border-bottom: 1px solid var(--border);
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border);
+  transition: background var(--transition);
 }
 tbody tr:last-child td { border-bottom: none; }
-tbody tr:hover td { background: var(--bg3); }
+tbody tr { transition: background var(--transition); }
+tbody tr:hover td { background: var(--color-surface); }
+
+/* Hover action cell — hidden button revealed on row hover */
+.row-actions { display: flex; gap: 6px; opacity: 0; transition: opacity var(--transition); }
+tbody tr:hover .row-actions { opacity: 1; }
+
+/* Improved empty state */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 64px 20px; gap: 12px; color: var(--color-text-secondary); text-align: center;
+}
+.empty-icon {
+  font-size: 2.8rem;
+  line-height: 1;
+  filter: grayscale(0.5);
+  opacity: 0.4;
+}
+.empty-state h3 { font-size: 0.95rem; font-weight: 600; color: var(--color-text-secondary); margin: 0; }
+.empty-state p  { font-size: 0.82rem; max-width: 280px; margin: 0; color: var(--color-text-tertiary); line-height: 1.6; }
 
 /* ============================================================
    BADGES & TAGS
@@ -730,18 +867,100 @@ tbody tr:hover td { background: var(--bg3); }
   padding-bottom: 12px; border-bottom: 1px solid var(--border);
 }
 .code-box {
-  background: #f8fafc;
-  border: 1px solid var(--border);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   padding: 16px;
   font-family: 'Courier New', monospace;
   font-size: 0.73rem;
   line-height: 1.75;
-  color: #374151;
+  color: var(--color-text-secondary);
   overflow-x: auto;
   max-height: 380px;
   overflow-y: auto;
   white-space: pre;
+}
+
+/* ============================================================
+   THEME TOGGLE BUTTON
+   ============================================================ */
+.theme-toggle {
+  position: relative;
+  width: 40px; height: 22px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+  flex-shrink: 0;
+}
+.theme-toggle-track {
+  width: 40px; height: 22px;
+  background: var(--color-border-strong);
+  border-radius: 11px;
+  position: relative;
+  transition: background 0.25s ease;
+}
+[data-theme="dark"] .theme-toggle-track { background: var(--color-accent); }
+.theme-toggle-thumb {
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 16px; height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+[data-theme="dark"] .theme-toggle-thumb { transform: translateX(18px); }
+.theme-toggle-icon { line-height: 1; }
+
+/* ============================================================
+   DARK MODE OVERRIDES — chart card, settings code, pid-tag
+   ============================================================ */
+[data-theme="dark"] .pid-tag {
+  background: var(--color-accent-bg);
+  border-color: rgba(88,166,255,0.25);
+  color: var(--color-accent);
+}
+[data-theme="dark"] code {
+  background: var(--color-surface-alt);
+  color: var(--color-accent);
+}
+[data-theme="dark"] input[type="range"]::-webkit-slider-thumb {
+  background: var(--color-surface);
+  border-color: var(--color-accent);
+}
+[data-theme="dark"] .warn-banner { color: #e6b55a; }
+[data-theme="dark"] .error-banner { color: #f98080; }
+[data-theme="dark"] select option { background: var(--color-bg-secondary); }
+
+/* ============================================================
+   MICRO-INTERACTIONS — buttons, cards, nav items
+   ============================================================ */
+.btn { transform: translateY(0); }
+.btn-primary:active:not(:disabled) { transform: translateY(1px); box-shadow: 0 1px 4px rgba(79,110,247,0.2) !important; }
+.btn-secondary:active:not(:disabled),
+.btn-ghost:active:not(:disabled) { transform: translateY(1px); }
+
+.stat-card { cursor: default; }
+.stat-card:hover { transform: translateY(-2px); }
+.stat-card:active { transform: translateY(0); }
+
+.chart-card {
+  transition: box-shadow var(--transition), border-color var(--transition);
+}
+.chart-card:hover { box-shadow: var(--shadow); border-color: var(--color-border-strong); }
+
+.session-card { cursor: default; }
+.insight-row { transition: background var(--transition), transform var(--transition); }
+.insight-row:hover { background: var(--color-surface-alt); transform: translateX(3px); }
+
+/* Focus ring — accessible */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 .setup-step { display: flex; gap: 13px; margin-bottom: 13px; align-items: flex-start; }
 .step-num {
@@ -770,6 +989,41 @@ code {
 }
 .filter-bar label { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; font-weight: 600; }
 .filter-bar input, .filter-bar select { padding: 7px 11px; font-size: 0.83rem; max-width: 170px; }
+
+/* ============================================================
+   DARK MODE — sidebar (currently uses --text as bg)
+   ============================================================ */
+[data-theme="dark"] .sidebar {
+  background: #0d1117;
+  border-right: 1px solid var(--color-border);
+}
+[data-theme="dark"] .sidebar-brand {
+  border-bottom-color: rgba(255,255,255,0.06);
+}
+[data-theme="dark"] .sidebar-footer {
+  border-top-color: rgba(255,255,255,0.06);
+}
+
+/* Topbar dark */
+[data-theme="dark"] .topbar {
+  background: var(--color-bg-secondary);
+  border-bottom-color: var(--color-border);
+}
+
+/* Filter bar dark */
+[data-theme="dark"] .filter-bar {
+  background: var(--color-bg-secondary);
+}
+
+/* Modal dark */
+[data-theme="dark"] .modal {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+[data-theme="dark"] .modal-close {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
 
 /* Banners */
 .warn-banner {
@@ -1085,6 +1339,14 @@ code {
       </div>
       <div class="topbar-right">
         <span id="topbarHospital" style="font-size:0.73rem;color:var(--text-muted);font-weight:500;display:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;"></span>
+        <!-- Theme Toggle -->
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode" aria-label="Toggle theme">
+          <div class="theme-toggle-track">
+            <div class="theme-toggle-thumb">
+              <span class="theme-toggle-icon" id="themeIcon">☀️</span>
+            </div>
+          </div>
+        </button>
         <button class="btn btn-primary btn-sm" onclick="openPatientModal()">+ New Patient</button>
       </div>
     </div>
@@ -1120,13 +1382,17 @@ code {
           <div class="stat-label">Total Patients</div>
           <div class="stat-value" id="d_patients">—</div>
           <div class="stat-sub">Registered in system</div>
+          <div id="d_patients_trend"></div>
           <div class="stat-icon">👥</div>
+          <div class="sparkline-wrap"><canvas id="spark_patients" height="48"></canvas></div>
         </div>
         <div class="stat-card c2">
           <div class="stat-label">Total Sessions</div>
           <div class="stat-value" id="d_sessions">—</div>
           <div class="stat-sub">All-time sessions</div>
+          <div id="d_sessions_trend"></div>
           <div class="stat-icon">📋</div>
+          <div class="sparkline-wrap"><canvas id="spark_sessions" height="48"></canvas></div>
         </div>
         <div class="stat-card c3">
           <div class="stat-label">Today's Sessions</div>
@@ -1138,7 +1404,9 @@ code {
           <div class="stat-label">Avg Mood Score</div>
           <div class="stat-value" id="d_mood">—</div>
           <div class="stat-sub">All sessions</div>
+          <div id="d_mood_trend"></div>
           <div class="stat-icon">😊</div>
+          <div class="sparkline-wrap"><canvas id="spark_mood" height="48"></canvas></div>
         </div>
       </div>
 
@@ -1374,6 +1642,22 @@ code {
         </div>
       </div>
 
+      <!-- Appearance Settings -->
+      <div class="card settings-section">
+        <h3>Appearance</h3>
+        <div style="display:flex;align-items:center;gap:16px;padding:4px 0 8px;">
+          <div style="flex:1;">
+            <div style="font-size:0.88rem;font-weight:600;color:var(--color-text-primary);margin-bottom:2px;">Dark Mode</div>
+            <div style="font-size:0.78rem;color:var(--color-text-tertiary);">Automatically follows your system preference, or toggle manually.</div>
+          </div>
+          <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme" style="flex-shrink:0;">
+            <div class="theme-toggle-track">
+              <div class="theme-toggle-thumb"><span class="theme-toggle-icon" id="themeIcon2">☀️</span></div>
+            </div>
+          </button>
+        </div>
+      </div>
+
       <div class="card settings-section">
         <h3>Google Apps Script URL</h3>
 
@@ -1603,10 +1887,17 @@ function addSession(p) {
 /* ============================================================
    CHART DEFAULTS
    ============================================================ */
-Chart.defaults.color = '#9aa0be';
-Chart.defaults.borderColor = '#e4e7f0';
 Chart.defaults.font.family = "'DM Sans', system-ui, sans-serif";
 Chart.defaults.font.size = 11;
+
+// Init theme immediately (before page renders)
+(function() {
+  const saved  = localStorage.getItem('psychcare_theme');
+  const system = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const t = saved || (system ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', t);
+  // Set icon if DOM already has it (race-safe — setTheme() will do it again on DOMContentLoaded)
+})();
 
 /* ============================================================
    CLOCK
@@ -1883,15 +2174,61 @@ async function refreshDashboard() {
   document.getElementById('d_mood').textContent     = avgMood;
 
   renderDashCharts(sessions);
+  renderDashSparklines(patients, sessions);
 
   const recent = [...patients].reverse().slice(0, 6);
   renderRecentPatients(recent);
 }
 
+function renderDashSparklines(patients, sessions) {
+  // Build monthly series for sparklines (last 6 months)
+  const now = new Date();
+  const months6 = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months6.push(d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'));
+  }
+
+  const sessPerMonth = months6.map(m => sessions.filter(s => String(s.session_date||'').startsWith(m)).length);
+  const patientsPerMonth = months6.map(m => patients.filter(p => String(p.timestamp||'').startsWith(m)).length);
+  const moodPerMonth = months6.map(m => {
+    const ms = sessions.filter(s => String(s.session_date||'').startsWith(m)).map(s => parseFloat(s.mood_score)).filter(n=>!isNaN(n));
+    return ms.length ? (ms.reduce((a,b)=>a+b,0)/ms.length) : 0;
+  });
+
+  makeSparkline('spark_sessions', sessPerMonth, '#4f6ef7', '4f6ef7');
+  makeSparkline('spark_patients', patientsPerMonth, '#8b5cf6', '8b5cf6');
+  makeSparkline('spark_mood', moodPerMonth, '#10b981', '10b981');
+
+  // Trend: compare last 3 months vs prior 3 months
+  const half = 3;
+  const recentSess = sessPerMonth.slice(-half).reduce((a,b)=>a+b,0);
+  const priorSess  = sessPerMonth.slice(0,half).reduce((a,b)=>a+b,0);
+  renderTrend('d_sessions_trend', recentSess, priorSess);
+
+  const recentPat = patientsPerMonth.slice(-half).reduce((a,b)=>a+b,0);
+  const priorPat  = patientsPerMonth.slice(0,half).reduce((a,b)=>a+b,0);
+  renderTrend('d_patients_trend', recentPat, priorPat);
+
+  const recentMood = moodPerMonth.slice(-half).filter(n=>n>0);
+  const priorMood  = moodPerMonth.slice(0,half).filter(n=>n>0);
+  if (recentMood.length && priorMood.length) {
+    const rm = recentMood.reduce((a,b)=>a+b,0)/recentMood.length;
+    const pm = priorMood.reduce((a,b)=>a+b,0)/priorMood.length;
+    renderTrend('d_mood_trend', rm, pm, 1);
+  }
+}
+
 function renderRecentPatients(patients) {
   const tbody = document.getElementById('dash_recentBody');
   if (!patients.length) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">👤</div><p>No patients yet.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7">
+      <div class="empty-state">
+        <div class="empty-icon">👤</div>
+        <h3>No patients yet</h3>
+        <p>Add your first patient to get started.</p>
+      </div>
+    </td></tr>`;
     return;
   }
   tbody.innerHTML = patients.map(p => `
@@ -1941,7 +2278,13 @@ async function loadPatients() {
 function renderPatientsTable(list) {
   const tbody = document.getElementById('patientsBody');
   if (!Array.isArray(list) || !list.length) {
-    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">👥</div><p>No patients found.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8">
+      <div class="empty-state">
+        <div class="empty-icon">👥</div>
+        <h3>No patients found</h3>
+        <p>Try adjusting your search or add a new patient to get started.</p>
+      </div>
+    </td></tr>`;
     return;
   }
   tbody.innerHTML = list.map(p => `
@@ -1954,10 +2297,15 @@ function renderPatientsTable(list) {
       <td>${renderLocBadge(p.location)}</td>
       <td>${fmtDate(p.timestamp)}</td>
       <td>
-        <button class="btn btn-secondary btn-sm"
-          onclick="navigate('profile',{patientId:'${p.patient_id}'})">
-          View Profile
-        </button>
+        <div class="row-actions">
+          <button class="btn btn-secondary btn-sm"
+            onclick="navigate('profile',{patientId:'${p.patient_id}'})">
+            View →
+          </button>
+          <button class="btn btn-ghost btn-sm"
+            onclick="openSessionModal('${p.patient_id}');navigate('profile',{patientId:'${p.patient_id}'})"
+            title="Add session">+ Session</button>
+        </div>
       </td>
     </tr>
   `).join('');
@@ -2653,18 +3001,143 @@ function copyScript() {
 }
 
 /* ============================================================
-   CHART HELPERS
+   THEME SYSTEM
+   ============================================================ */
+const THEME_KEY = 'psychcare_theme';
+
+function getChartColors() {
+  const style = getComputedStyle(document.documentElement);
+  return {
+    grid: style.getPropertyValue('--chart-grid').trim() || '#e8eaf0',
+    tick: style.getPropertyValue('--chart-tick').trim() || '#9aa0be',
+    text: style.getPropertyValue('--color-text-secondary').trim() || '#5a6282',
+  };
+}
+
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem(THEME_KEY, t);
+  const emoji = t === 'dark' ? '🌙' : '☀️';
+  document.querySelectorAll('.theme-toggle-icon').forEach(el => el.textContent = emoji);
+  updateChartsTheme();
+}
+
+function initTheme() {
+  const saved  = localStorage.getItem(THEME_KEY);
+  const system = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  setTheme(saved || (system ? 'dark' : 'light'));
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  setTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+function updateChartsTheme() {
+  const c = getChartColors();
+  Object.values(APP.charts).forEach(chart => {
+    if (!chart || !chart.options) return;
+    if (chart.options.plugins?.legend?.labels) {
+      chart.options.plugins.legend.labels.color = c.text;
+    }
+    if (chart.options.scales?.x?.ticks) chart.options.scales.x.ticks.color = c.tick;
+    if (chart.options.scales?.y?.ticks) chart.options.scales.y.ticks.color = c.tick;
+    if (chart.options.scales?.x?.grid)  chart.options.scales.x.grid.color  = c.grid;
+    if (chart.options.scales?.y?.grid)  chart.options.scales.y.grid.color  = c.grid;
+    chart.update('none');
+  });
+  // Also update global Chart defaults for new charts
+  Chart.defaults.color = c.tick;
+  Chart.defaults.borderColor = c.grid;
+}
+
+// Listen for system theme changes
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+  if (!localStorage.getItem(THEME_KEY)) setTheme(e.matches ? 'dark' : 'light');
+});
+
+/* ============================================================
+   CHART HELPERS — gradient fills, smooth curves, rich tooltips
    ============================================================ */
 function stdChartOpts(yOpts = {}) {
+  const c = getChartColors();
   return {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(15,21,35,0.88)',
+        titleColor: '#ffffff',
+        bodyColor: 'rgba(255,255,255,0.75)',
+        borderColor: 'rgba(255,255,255,0.08)',
+        borderWidth: 1,
+        padding: 10,
+        cornerRadius: 8,
+        displayColors: true,
+        boxWidth: 8, boxHeight: 8, boxPadding: 4,
+      },
+    },
     scales: {
-      y: { ...yOpts, grid: { color: '#f0f2f5' }, ticks: { color: '#9aa0be' } },
-      x: { grid: { color: '#f0f2f5' }, ticks: { color: '#9aa0be' } },
+      y: {
+        ...yOpts,
+        grid: { color: c.grid, drawBorder: false },
+        ticks: { color: c.tick, maxTicksLimit: 5, padding: 6 },
+        border: { display: false },
+      },
+      x: {
+        grid: { color: 'transparent' },
+        ticks: { color: c.tick, maxTicksLimit: 7, padding: 4 },
+        border: { display: false },
+      },
     },
   };
+}
+
+function makeGradient(ctx, color, alpha1 = 0.25, alpha2 = 0.01) {
+  // color expected as hex
+  const hex = color.replace('#','');
+  const r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+  const grad = ctx.createLinearGradient(0, 0, 0, 220);
+  grad.addColorStop(0,   `rgba(${r},${g},${b},${alpha1})`);
+  grad.addColorStop(1,   `rgba(${r},${g},${b},${alpha2})`);
+  return grad;
+}
+
+// Sparkline mini-chart (no axes, no grid, just a line)
+function makeSparkline(id, data, color, hexColor) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  if (APP.charts[id]) APP.charts[id].destroy();
+  const grad = ctx.getContext('2d').createLinearGradient(0, 0, 0, 48);
+  const hex = hexColor.replace('#','');
+  const r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+  grad.addColorStop(0, `rgba(${r},${g},${b},0.3)`);
+  grad.addColorStop(1, `rgba(${r},${g},${b},0.0)`);
+  APP.charts[id] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.map((_,i) => i),
+      datasets: [{ data, borderColor: color, backgroundColor: grad, tension: 0.4, fill: true,
+        pointRadius: 0, borderWidth: 1.5 }]
+    },
+    options: {
+      responsive: false, animation: false,
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: { x: { display: false }, y: { display: false } },
+    }
+  });
+}
+
+function renderTrend(elId, current, previous, decimals = 0) {
+  const el = document.getElementById(elId);
+  if (!el || previous == null || previous === 0) return;
+  const pct = ((current - previous) / Math.abs(previous) * 100).toFixed(1);
+  const isUp = pct >= 0;
+  el.innerHTML = `<span class="stat-trend ${isUp ? 'up' : 'down'}">
+    ${isUp ? '↑' : '↓'} ${Math.abs(pct)}% vs last period
+  </span>`;
 }
 
 function groupByMonth(items, field) {
@@ -2699,33 +3172,94 @@ function groupMoodByMonth(sessions) {
 function makeLineChart(id, { labels, data }, label, color) {
   const ctx = document.getElementById(id); if (!ctx) return;
   if (APP.charts[id]) APP.charts[id].destroy();
+  const gradient = makeGradient(ctx.getContext('2d'), color, 0.22, 0.01);
+  const opts = stdChartOpts();
   APP.charts[id] = new Chart(ctx, {
     type: 'line',
-    data: { labels, datasets: [{ label, data, borderColor: color, backgroundColor: color+'18', tension: 0.4, fill: true, pointRadius: 4, pointBackgroundColor: color }] },
-    options: stdChartOpts(),
+    data: {
+      labels,
+      datasets: [{
+        label,
+        data,
+        borderColor: color,
+        backgroundColor: gradient,
+        tension: 0.45,
+        fill: true,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBackgroundColor: color,
+        pointBorderColor: 'var(--color-bg-secondary)',
+        pointBorderWidth: 2,
+        borderWidth: 2,
+      }]
+    },
+    options: opts,
   });
 }
 
 function makeBarChart(id, { labels, data }, label, color) {
   const ctx = document.getElementById(id); if (!ctx) return;
   if (APP.charts[id]) APP.charts[id].destroy();
+  const opts = stdChartOpts();
   APP.charts[id] = new Chart(ctx, {
     type: 'bar',
-    data: { labels, datasets: [{ label, data, backgroundColor: color+'cc', borderColor: color, borderRadius: 6 }] },
-    options: stdChartOpts(),
+    data: {
+      labels,
+      datasets: [{
+        label,
+        data,
+        backgroundColor: color + 'bb',
+        borderColor: color,
+        borderRadius: 7,
+        borderSkipped: false,
+        hoverBackgroundColor: color,
+      }]
+    },
+    options: opts,
   });
 }
 
 function makePieChart(id, counts) {
   const ctx = document.getElementById(id); if (!ctx) return;
   if (APP.charts[id]) APP.charts[id].destroy();
+  const c = getChartColors();
+  const theme = document.documentElement.getAttribute('data-theme');
+  const borderCol = theme === 'dark' ? '#161b22' : '#ffffff';
   APP.charts[id] = new Chart(ctx, {
     type: 'doughnut',
     data: {
       labels: Object.keys(counts),
-      datasets: [{ data: Object.values(counts), backgroundColor: ['#4f6ef7cc','#8b5cf6cc','#f59e0bcc'], borderColor: '#fff', borderWidth: 3 }]
+      datasets: [{
+        data: Object.values(counts),
+        backgroundColor: [
+          'rgba(79,110,247,0.8)',
+          'rgba(139,92,246,0.8)',
+          'rgba(245,158,11,0.8)',
+          'rgba(16,185,129,0.8)',
+        ],
+        borderColor: borderCol,
+        borderWidth: 3,
+        hoverOffset: 6,
+      }]
     },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position:'bottom', labels:{color:'#9aa0be'} } } }
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '62%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: c.text, padding: 14, boxWidth: 10, boxHeight: 10, usePointStyle: true }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(15,21,35,0.88)',
+          titleColor: '#fff',
+          bodyColor: 'rgba(255,255,255,0.75)',
+          padding: 10,
+          cornerRadius: 8,
+        },
+      }
+    }
   });
 }
 
@@ -2769,6 +3303,14 @@ function updateHospitalUI(location) {
 document.addEventListener('DOMContentLoaded', () => {
   console.log('[PsychCare] App initializing...');
   console.log('[PsychCare] API URL:', APP.apiUrl || '(none — demo mode)');
+
+  // Initialize theme (reads saved pref / system preference)
+  initTheme();
+  // Sync Chart.js global defaults to current theme
+  const _tc = getChartColors();
+  Chart.defaults.color = _tc.tick;
+  Chart.defaults.borderColor = _tc.grid;
+
   const urlInput = document.getElementById('setting_url');
   if (urlInput) urlInput.value = APP.apiUrl || '';
 
