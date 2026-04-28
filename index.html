@@ -911,28 +911,9 @@ code {
 .text-accent { color: var(--accent); }
 .w-full { width: 100%; }
 /* Location badges */
-.loc-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  white-space: nowrap;
-  background: var(--bg4);
-  color: var(--text-muted);
-  border: 1px solid var(--border);
-}
-.loc-badge.addin {
-  background: var(--accent-bg);
-  color: var(--accent);
-  border-color: rgba(79,110,247,0.2);
-}
-.loc-badge.kuet {
-  background: var(--accent2-bg);
-  color: var(--accent2);
-  border-color: rgba(139,92,246,0.2);
-}
+.loc-badge { display:inline-flex; align-items:center; padding:2px 9px; border-radius:20px; font-size:0.71rem; font-weight:600; white-space:nowrap; background:var(--bg4); color:var(--text-muted); border:1px solid var(--border); }
+.loc-badge.addin { background:var(--accent-bg); color:var(--accent); border-color:rgba(79,110,247,0.2); }
+.loc-badge.kuet  { background:var(--accent2-bg); color:var(--accent2); border-color:rgba(139,92,246,0.2); }
 </style>
 </head>
 <body>
@@ -1132,8 +1113,7 @@ code {
         <div class="topbar-title" id="topbarTitle">Dashboard</div>
       </div>
       <div class="topbar-right">
-        <!-- Hospital identity (dynamic) -->
-        <span id="topbarHospital" style="font-size:0.75rem;color:var(--text-muted);font-weight:500;display:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;"></span>
+        <span id="topbarHospital" style="font-size:0.73rem;color:var(--text-muted);font-weight:500;display:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;"></span>
         <!-- Clock widget in topbar -->
         <div class="clock-widget">
           <div>
@@ -1165,7 +1145,7 @@ code {
       <div class="welcome-strip">
         <div class="welcome-text">
           <h2>Welcome back 👋</h2>
-          <p id="heroHospitalName" style="font-size:0.82rem;color:rgba(255,255,255,0.75);margin-bottom:2px;"></p>
+          <p id="heroHospitalName" style="font-size:0.8rem;color:rgba(255,255,255,0.72);margin-bottom:2px;min-height:1.1em;"></p>
           <p id="dashDate">Loading date...</p>
         </div>
         <div class="strip-clock">
@@ -2100,7 +2080,7 @@ async function loadProfile(patientId) {
         <div class="info-item"><label>Address</label><span>${esc(patient.address||'—')}</span></div>
         <div class="info-item"><label>Referral</label><span>${esc(patient.referral||'—')}</span></div>
         <div class="info-item"><label>Emergency Contact</label><span>${esc(patient.emergency||'—')}</span></div>
-        ${patient.location ? `<div class="info-item"><label>Location</label><span>${esc(patient.location)}</span></div>` : ''}
+        ${patient.location ? `<div class="info-item"><label>Location</label><span>${renderLocBadge(patient.location)}</span></div>` : ''}
       </div>
     </div>
 
@@ -2179,13 +2159,15 @@ function renderSessionCard(s) {
 }
 
 /* ============================================================
-   ADD SESSION MODAL
+   SESSION MODAL  (Tasks 6 + 7)
    ============================================================ */
-// Opens the Add Session modal. Accepts an optional patientId so the
-// profile hero button can pass the ID directly without relying on
-// APP.currentPatientId being set in advance.
-function openAddSession(patientId) {
-  if (patientId) APP.currentPatientId = patientId;       // set if provided
+// Task 7: named entry point used by profile hero button
+function openSessionModal(patientId) {
+  APP.currentPatientId = patientId;
+  openAddSession();
+}
+
+function openAddSession() {
   if (!APP.currentPatientId) { toast('No patient selected', 'error'); return; }
   const patient = APP.patients.find(p => p.patient_id === APP.currentPatientId);
   document.getElementById('sessionModalSub').textContent = `Patient: ${patient?.name || APP.currentPatientId}`;
@@ -2195,11 +2177,6 @@ function openAddSession(patientId) {
   ['sf_subjective','sf_objective','sf_assessment','sf_plan'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('sessionFormError').style.display = 'none';
   openModal('modalSession');
-}
-
-// Alias — used by profile page buttons rendered via innerHTML template literals
-function openSessionModal(patientId) {
-  openAddSession(patientId);
 }
 
 function generateReportFor() {
@@ -2221,7 +2198,6 @@ async function savePatient() {
   const phone    = document.getElementById('pf_phone').value.trim();
   const errBox   = document.getElementById('patientFormError');
 
-  // Validate location first
   if (!location) {
     errBox.style.display = 'flex';
     errBox.textContent = '❌ Please select a Data Source / Location.';
@@ -2241,7 +2217,7 @@ async function savePatient() {
   const params = {
     action:     'addPatient',
     name, age, gender, phone,
-    location,                                              // ← saved with patient
+    location,
     email:      document.getElementById('pf_email').value.trim(),
     occupation: document.getElementById('pf_occupation').value.trim(),
     address:    document.getElementById('pf_address').value.trim(),
@@ -2251,19 +2227,17 @@ async function savePatient() {
   };
 
   if (!APP.apiUrl) {
-    // Demo mode: fake save
     const fakeId = 'PSY-' + String(DEMO_PATIENTS.length + 1).padStart(4, '0');
-    const newP   = { ...params, patient_id: fakeId, timestamp: new Date().toISOString() };
+    const newP = { ...params, patient_id: fakeId, timestamp: new Date().toISOString() };
     delete newP.action;
     DEMO_PATIENTS.push(newP);
     APP.patients.push(newP);
-    localStorage.setItem('lastLocation', location);       // ← persist
-    updateHospitalUI(location);                           // ← update topbar + hero
+    localStorage.setItem('lastLocation', location);
+    updateHospitalUI(location);
     toast(`✅ Patient ${fakeId} saved (demo mode)`, 'success');
     closeModal('modalPatient');
     clearPatientForm();
     btn.disabled = false; btn.textContent = '💾 Save Patient';
-    // Re-render if on patients page
     if (document.getElementById('page-patients').classList.contains('active')) {
       renderPatientsTable(APP.patients);
     }
@@ -2274,8 +2248,8 @@ async function savePatient() {
     const result = await apiCall(params);
     dbLog(`addPatient result: ${JSON.stringify(result)}`);
     if (result && result.success) {
-      localStorage.setItem('lastLocation', location);     // ← persist
-      updateHospitalUI(location);                         // ← update topbar + hero
+      localStorage.setItem('lastLocation', location);
+      updateHospitalUI(location);
       toast(`✅ Patient ${result.patient_id} saved!`, 'success');
       closeModal('modalPatient');
       clearPatientForm();
@@ -2311,8 +2285,8 @@ function clearPatientForm() {
    SAVE SESSION
    ============================================================ */
 async function saveSession() {
-  const date   = document.getElementById('sf_date').value;
-  const mood   = document.getElementById('sf_mood').value;
+  const date = document.getElementById('sf_date').value;
+  const mood = document.getElementById('sf_mood').value;
   const errBox = document.getElementById('sessionFormError');
 
   if (!date) {
@@ -2322,7 +2296,7 @@ async function saveSession() {
   }
   errBox.style.display = 'none';
 
-  // Inherit location from the linked patient — no UI input needed
+  // Inherit location from patient record — no extra form field needed
   const patient  = APP.patients.find(p => p.patient_id === APP.currentPatientId);
   const location = patient ? (patient.location || '') : '';
 
@@ -2335,7 +2309,7 @@ async function saveSession() {
     patient_id:   APP.currentPatientId,
     session_date: date,
     mood_score:   mood,
-    location,                                             // ← attached from patient
+    location,
     subjective:   document.getElementById('sf_subjective').value.trim(),
     objective:    document.getElementById('sf_objective').value.trim(),
     assessment:   document.getElementById('sf_assessment').value.trim(),
@@ -2347,9 +2321,9 @@ async function saveSession() {
     const num = existing.length + 1;
     const newS = {
       ...params,
-      session_id:     params.patient_id + '-S' + String(num).padStart(3,'0'),
+      session_id: params.patient_id + '-S' + String(num).padStart(3,'0'),
       session_number: String(num),
-      timestamp:      new Date().toISOString(),
+      timestamp: new Date().toISOString(),
     };
     delete newS.action;
     DEMO_SESSIONS.push(newS);
@@ -2815,9 +2789,7 @@ function fmtDate(ts) {
   catch { return String(ts); }
 }
 
-/* TASK 2 — Location badge renderer
-   Blue badge  → Ad-Din Akij Medical College Hospital
-   Purple badge → Khulna University of Engineering & Technology (KUET) */
+// Task 2: location badge
 function renderLocBadge(location) {
   if (!location) return '';
   if (location.includes('Ad-Din')) {
@@ -2829,17 +2801,12 @@ function renderLocBadge(location) {
   return `<span class="loc-badge">${esc(location)}</span>`;
 }
 
-/* TASK 4 — Update topbar hospital label + hero hospital label dynamically */
+// Task 4: sync topbar + hero to current location
 function updateHospitalUI(location) {
   const topbar = document.getElementById('topbarHospital');
   const hero   = document.getElementById('heroHospitalName');
-  if (topbar) {
-    topbar.textContent = location;
-    topbar.style.display = location ? '' : 'none';
-  }
-  if (hero) {
-    hero.textContent = location;
-  }
+  if (topbar) { topbar.textContent = location; topbar.style.display = 'inline'; }
+  if (hero)   hero.textContent = location;
 }
 
 /* ============================================================
@@ -2848,17 +2815,34 @@ function updateHospitalUI(location) {
 document.addEventListener('DOMContentLoaded', () => {
   console.log('[PsychCare] App initializing...');
   console.log('[PsychCare] API URL:', APP.apiUrl || '(none — demo mode)');
-
   const urlInput = document.getElementById('setting_url');
   if (urlInput) urlInput.value = APP.apiUrl || '';
 
-  // TASK 4 — Restore last used location into topbar + hero on every page load
+  // Task 4: restore last location into topbar + hero on every load
   const lastLoc = localStorage.getItem('lastLocation');
   if (lastLoc) updateHospitalUI(lastLoc);
+
+  // Task 8: pre-fill location dropdown when opening Add Patient modal
+  const patientModalTriggers = document.querySelectorAll('[onclick*="modalPatient"]');
+  patientModalTriggers.forEach(btn => {
+    const orig = btn.getAttribute('onclick');
+    if (!orig.includes('openPatientModal')) {
+      btn.setAttribute('onclick', 'openPatientModal()');
+    }
+  });
 
   updateStatusUI();
   navigate('dashboard');
 });
+
+// Task 8: open patient modal with last location pre-filled
+function openPatientModal() {
+  clearPatientForm();
+  const lastLoc = localStorage.getItem('lastLocation');
+  const sel = document.getElementById('pf_location');
+  if (sel && lastLoc) sel.value = lastLoc;
+  openModal('modalPatient');
+}
 
 // Close modals on backdrop click
 document.querySelectorAll('.modal-backdrop').forEach(el => {
