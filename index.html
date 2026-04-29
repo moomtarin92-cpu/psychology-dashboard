@@ -223,33 +223,7 @@ body {
 .page.active { display: block; }
 .page-container { flex: 1; padding: 28px 32px; max-width: 1400px; width: 100%; }
 
-/* ============================================================
-   CLOCK WIDGET
-   ============================================================ */
-.clock-widget {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 8px 14px;
-}
-.clock-time {
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 400;
-  color: var(--accent);
-  letter-spacing: 0.02em;
-  line-height: 1;
-}
-.clock-meta {
-  display: flex;
-  flex-direction: column;
-}
-.clock-date { font-size: 0.7rem; color: var(--text-muted); font-weight: 500; }
-.clock-day  { font-size: 0.63rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
-.clock-ampm { font-size: 0.65rem; color: var(--text-dim); font-weight: 600; text-transform: uppercase; align-self: flex-end; }
+/* Clock widget removed — only dashboard strip clock used */
 
 /* ============================================================
    CARDS
@@ -1113,7 +1087,6 @@ code {
   .stat-grid { grid-template-columns: 1fr 1fr; }
   .welcome-strip { flex-direction: column; align-items: flex-start; }
   .strip-clock .big-time { font-size: 2rem; }
-  .clock-widget { display: none; }
 }
 @media (max-width: 480px) {
   .stat-grid { grid-template-columns: 1fr 1fr; }
@@ -1348,18 +1321,7 @@ code {
       </div>
       <div class="topbar-right">
         <span id="topbarHospital"></span>
-        <!-- Clock widget in topbar -->
-        <div class="clock-widget">
-          <div>
-            <div class="clock-time" id="topbarClockTime">00:00:00</div>
-          </div>
-          <div class="clock-meta">
-            <span class="clock-date" id="topbarClockDate">—</span>
-            <span class="clock-day" id="topbarClockDay">—</span>
-          </div>
-          <span class="clock-ampm" id="topbarClockAmpm">AM</span>
-        </div>
-        <button class="btn btn-primary btn-sm" onclick="openModal('modalPatient')">+ New Patient</button>
+        <button class="btn btn-primary btn-sm" onclick="openPatientModal()">+ New Patient</button>
       </div>
     </div>
 
@@ -1462,7 +1424,7 @@ code {
           <div class="section-title">Patient Registry</div>
           <div class="section-sub">All registered patients</div>
         </div>
-        <button class="btn btn-primary" onclick="openModal('modalPatient')">+ Add Patient</button>
+        <button class="btn btn-primary" onclick="openPatientModal()">+ Add Patient</button>
       </div>
 
       <div class="filter-bar">
@@ -1890,21 +1852,10 @@ function updateClocks() {
   const now = new Date();
   const h = now.getHours();
   const m = String(now.getMinutes()).padStart(2,'0');
-  const s = String(now.getSeconds()).padStart(2,'0');
   const ampm = h >= 12 ? 'PM' : 'AM';
   const h12 = String(h % 12 || 12).padStart(2,'0');
 
-  // Topbar clock
-  const tcTime = document.getElementById('topbarClockTime');
-  const tcDate = document.getElementById('topbarClockDate');
-  const tcDay  = document.getElementById('topbarClockDay');
-  const tcAmpm = document.getElementById('topbarClockAmpm');
-  if (tcTime) tcTime.textContent = `${h12}:${m}:${s}`;
-  if (tcDate) tcDate.textContent = now.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
-  if (tcDay)  tcDay.textContent  = now.toLocaleDateString('en-US', { weekday:'long' });
-  if (tcAmpm) tcAmpm.textContent = ampm;
-
-  // Dashboard strip clock
+  // Dashboard strip clock only
   const dcTime = document.getElementById('dashClockTime');
   const dcMeta = document.getElementById('dashClockMeta');
   if (dcTime) dcTime.textContent = `${h12}:${m} ${ampm}`;
@@ -3177,20 +3128,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const lastLoc = localStorage.getItem('lastLocation');
   if (lastLoc) updateHospitalUI(lastLoc);
 
-  // Wire all "New Patient" buttons to openPatientModal (pre-fills location)
-  document.querySelectorAll('[onclick*="modalPatient"]').forEach(btn => {
-    if (!btn.getAttribute('onclick').includes('openPatientModal')) {
-      btn.setAttribute('onclick', 'openPatientModal()');
+  // Close modals on backdrop click (click outside modal box)
+  document.querySelectorAll('.modal-backdrop').forEach(el => {
+    el.addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.classList.remove('active');
+      }
+    });
+  });
+
+  // ESC key closes any open modal
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-backdrop.active').forEach(el => {
+        el.classList.remove('active');
+      });
     }
   });
 
   updateStatusUI();
   navigate('dashboard');
-});
-
-// Close modals on backdrop click
-document.querySelectorAll('.modal-backdrop').forEach(el => {
-  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('active'); });
 });
 </script>
 </body>
