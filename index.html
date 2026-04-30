@@ -1220,23 +1220,11 @@ code {
           </select>
         </div>
         <div class="form-group">
-          <label>🔴 Patient Status</label>
-          <select id="pf_status">
-            <option value="">— Select status —</option>
-            <option value="Active">Active</option>
-            <option value="On Hold">On Hold</option>
-            <option value="Inactive">Inactive</option>
-            <option value="Discharged">Discharged</option>
-          </select>
-        </div>
-        <div class="form-group">
           <label>👩‍⚕️ Assigned Counselor</label>
-          <input type="text" id="pf_counselor" placeholder="e.g. Moom Tarin Nahar" />
+          <input type="text" id="pf_counselor" value="Moom Tarin Nahar" readonly style="background:var(--bg3);color:var(--text-muted);cursor:not-allowed;" />
         </div>
-        <div class="form-group">
-          <label>💊 Medication (if any)</label>
-          <input type="text" id="pf_medication" placeholder="e.g. Sertraline 50mg — Dr. Rahman" />
-        </div>
+        <input type="hidden" id="pf_status" value="Active" />
+        <input type="hidden" id="pf_medication" value="" />
         <div class="form-group full">
           <label>✅ Consent & Clinical Notes</label>
           <textarea id="pf_consent" placeholder="Consent status, important background notes..."></textarea>
@@ -1536,14 +1524,6 @@ code {
           <option>Female</option>
           <option>Other</option>
         </select>
-        <label>Status:</label>
-        <select id="statusFilter" onchange="filterPatients()" style="max-width:130px;">
-          <option value="">All</option>
-          <option>Active</option>
-          <option>On Hold</option>
-          <option>Inactive</option>
-          <option>Discharged</option>
-        </select>
         <label>Location:</label>
         <select id="locationFilter" onchange="filterPatients()" style="max-width:130px;">
           <option value="">All</option>
@@ -1564,7 +1544,6 @@ code {
                 <th>Gender</th>
                 <th>Phone</th>
                 <th>Location</th>
-                <th>Status</th>
                 <th>Registered</th>
                 <th>Action</th>
               </tr>
@@ -2533,7 +2512,7 @@ async function loadPatients() {
 function renderPatientsTable(list) {
   const tbody = document.getElementById('patientsBody');
   if (!Array.isArray(list) || !list.length) {
-    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">👥</div><p>No patients found.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">👥</div><p>No patients found.</p></div></td></tr>`;
     return;
   }
   tbody.innerHTML = list.map(p => `
@@ -2542,13 +2521,11 @@ function renderPatientsTable(list) {
       <td>
         <strong>${esc(p.name)}</strong>
         ${p.diagnosis ? `<br><span style="font-size:0.7rem;color:var(--accent2);">🏷️ ${esc(p.diagnosis)}</span>` : ''}
-        ${p.counselor ? `<br><span style="font-size:0.7rem;color:var(--text-dim);">👩‍⚕️ ${esc(p.counselor)}</span>` : ''}
       </td>
       <td>${p.age||'—'}</td>
       <td><span class="badge badge-${(p.gender||'').toLowerCase()}">${p.gender||'—'}</span></td>
       <td>${esc(p.phone)}</td>
       <td>${renderLocBadge(p.location)}</td>
-      <td>${renderStatusBadge(p.status)}</td>
       <td>${fmtDate(p.timestamp)}</td>
       <td><button class="btn btn-secondary btn-sm" onclick="navigate('profile',{patientId:'${p.patient_id}'})">View Profile</button></td>
     </tr>
@@ -3044,8 +3021,8 @@ async function savePatient() {
 
 function clearPatientForm() {
   ['pf_patient_id','pf_location','pf_name','pf_age','pf_gender','pf_phone','pf_email','pf_occupation',
-   'pf_address','pf_complaint','pf_referral','pf_emergency','pf_diagnosis','pf_status','pf_counselor',
-   'pf_medication','pf_consent'].forEach(id => {
+   'pf_address','pf_complaint','pf_referral','pf_emergency','pf_diagnosis',
+   'pf_consent'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
