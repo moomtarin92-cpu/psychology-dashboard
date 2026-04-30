@@ -1255,6 +1255,14 @@ code {
           <label>Plan — Next steps</label>
           <textarea id="sf_plan" placeholder="Interventions, homework, next appointment..."></textarea>
         </div>
+        <div class="form-group">
+          <label>📅 Next Appointment Date</label>
+          <input type="date" id="sf_next_date" />
+        </div>
+        <div class="form-group">
+          <label>🕐 Next Appointment Time (optional)</label>
+          <input type="time" id="sf_next_time" />
+        </div>
       </div>
     </div>
     <div class="modal-footer">
@@ -1771,7 +1779,7 @@ function getSheet(name) {
     }
     if (name === 'Sessions') {
       sheet.appendRow(['session_id','patient_id','session_number','session_date',
-        'subjective','objective','assessment','plan','mood_score','timestamp']);
+        'subjective','objective','assessment','plan','mood_score','next_date','next_time','timestamp']);
     }
   }
   return sheet;
@@ -1797,7 +1805,7 @@ function getPatients() {
 
 function getAllSessions() {
   var headers = ['session_id','patient_id','session_number','session_date',
-    'subjective','objective','assessment','plan','mood_score','timestamp'];
+    'subjective','objective','assessment','plan','mood_score','next_date','next_time','timestamp'];
   return sheetToObjects(getSheet('Sessions'), headers);
 }
 
@@ -1838,7 +1846,8 @@ function addSession(p) {
   sheet.appendRow([
     sessionId, p.patient_id || '', String(sessionNum), p.session_date || '',
     p.subjective || '', p.objective || '',
-    p.assessment || '', p.plan || '', p.mood_score || '5', ts
+    p.assessment || '', p.plan || '', p.mood_score || '5',
+    p.next_date || '', p.next_time || '', ts
   ]);
   return { success: true, session_id: sessionId, session_number: sessionNum };
 }
@@ -1877,6 +1886,8 @@ function updateSession(p) {
       sheet.getRange(row, 7).setValue(p.assessment   !== undefined ? p.assessment   : data[i][6]);
       sheet.getRange(row, 8).setValue(p.plan         !== undefined ? p.plan         : data[i][7]);
       sheet.getRange(row, 9).setValue(p.mood_score   !== undefined ? p.mood_score   : data[i][8]);
+      sheet.getRange(row,10).setValue(p.next_date    !== undefined ? p.next_date    : data[i][9]);
+      sheet.getRange(row,11).setValue(p.next_time    !== undefined ? p.next_time    : data[i][10]);
       return { success: true, session_id: p.session_id, message: 'Session updated.' };
     }
   }
@@ -2278,6 +2289,27 @@ async function loadProfile(patientId) {
     ? (sessions.reduce((s, x) => s + parseFloat(x.mood_score || 0), 0) / sessions.length).toFixed(1)
     : '—';
 
+  // Find next upcoming appointment from any session's next_date
+  const today = new Date(); today.setHours(0,0,0,0);
+  const upcoming = sessions
+    .filter(s => s.next_date)
+    .map(s => ({ date: new Date(s.next_date), time: s.next_time || '', session: s }))
+    .filter(x => x.date >= today)
+    .sort((a,b) => a.date - b.date);
+  const nextAppt = upcoming[0] || null;
+  let nextApptDisplay = '—';
+  if (nextAppt) {
+    const diffDays = Math.round((nextAppt.date - today) / 86400000);
+    nextApptDisplay = diffDays === 0 ? 'Today!' : diffDays === 1 ? 'Tomorrow' : `${diffDays}d`;
+  }
+
+  // Build visit timeline data
+  const timelineRows = sessions.map((s, i) => {
+    const prev = i > 0 ? sessions[i-1] : null;
+    const gap = prev ? Math.round((new Date(s.session_date) - new Date(prev.session_date)) / 86400000) : null;
+    return { ...s, gap };
+  });
+
   container.innerHTML = `
     <div class="profile-hero">
       <div class="profile-avatar">${initials}</div>
@@ -2292,7 +2324,8 @@ async function loadProfile(patientId) {
         <div class="profile-stats">
           <div class="profile-stat-item"><div class="val">${sessions.length}</div><div class="lbl">Sessions</div></div>
           <div class="profile-stat-item"><div class="val">${avgMood}</div><div class="lbl">Avg Mood</div></div>
-          <div class="profile-stat-item"><div class="val">${fmtDate(patient.timestamp)}</div><div class="lbl">Registered</div></div>
+          <div class="profile-stat-item"><div class="val">${sessions.length ? fmtDate(sessions[sessions.length-1].session_date) : '—'}</div><div class="lbl">Last Visit</div></div>
+          <div class="profile-stat-item"><div class="val" style="font-size:${nextApptDisplay.length > 8 ? '1rem':'1.45rem'};">${nextApptDisplay}</div><div class="lbl">Next Appt</div></div>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
@@ -2319,6 +2352,65 @@ async function loadProfile(patientId) {
     <div class="card mb-16">
       <div class="card-title">Chief Complaint</div>
       <p style="font-size:0.9rem;color:var(--text-muted);">${esc(patient.complaint)}</p>
+    </div>` : ''}
+
+    ${nextAppt ? `
+    <div class="card mb-16" style="border-left:4px solid var(--accent);background:linear-gradient(135deg,var(--accent-bg),var(--bg2));">
+      <div class="flex align-center justify-between flex-wrap gap-8">
+        <div>
+          <div class="card-title mb-0" style="color:var(--accent);">📅 Next Appointment</div>
+          <div style="font-size:1.05rem;font-weight:600;color:var(--text);margin-top:6px;">
+            ${fmtDate(nextAppt.date.toISOString().slice(0,10))}
+            ${nextAppt.time ? `<span style="color:var(--text-muted);font-size:0.9rem;margin-left:8px;">🕐 ${nextAppt.time}</span>` : ''}
+          </div>
+          <div style="font-size:0.82rem;color:var(--text-muted);margin-top:3px;">
+            ${Math.round((nextAppt.date - today) / 86400000) === 0
+              ? '⚡ Patient expected <strong>today</strong>'
+              : Math.round((nextAppt.date - today) / 86400000) === 1
+              ? '⏰ Patient expected <strong>tomorrow</strong>'
+              : `🗓 <strong>${Math.round((nextAppt.date - today)/86400000)} days</strong> from today`}
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:2rem;font-weight:700;color:var(--accent);line-height:1;">${nextApptDisplay}</div>
+          <div style="font-size:0.68rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.07em;">Until visit</div>
+        </div>
+      </div>
+    </div>` : ''}
+
+    ${sessions.length > 0 ? `
+    <div class="card mb-16">
+      <div class="card-title">🗓 Visit Timeline</div>
+      <div style="position:relative;">
+        ${timelineRows.map((s, i) => {
+          const isLast = i === timelineRows.length - 1;
+          const mood = parseFloat(s.mood_score) || 0;
+          const moodColor = mood >= 7 ? '#10b981' : mood >= 4 ? '#f59e0b' : '#ef4444';
+          const gapBadge = s.gap !== null
+            ? `<span style="display:inline-block;background:var(--bg4);color:var(--text-muted);font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;margin-bottom:6px;">↳ ${s.gap} day${s.gap!==1?'s':''} since last visit</span>`
+            : '';
+          const nextBadge = s.next_date
+            ? `<span style="display:inline-flex;align-items:center;gap:4px;background:var(--accent-bg);color:var(--accent);font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;margin-left:6px;">📅 Next: ${fmtDate(s.next_date)}${s.next_time?' '+s.next_time:''}</span>`
+            : '';
+          return `
+          <div style="display:flex;gap:14px;margin-bottom:${isLast?'0':'18px'};">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:0;">
+              <div style="width:14px;height:14px;border-radius:50%;background:${moodColor};border:2px solid #fff;box-shadow:0 0 0 2px ${moodColor}33;flex-shrink:0;margin-top:4px;"></div>
+              ${!isLast ? `<div style="width:2px;flex:1;background:var(--border);margin-top:4px;min-height:32px;"></div>` : ''}
+            </div>
+            <div style="flex:1;padding-bottom:4px;">
+              ${gapBadge}
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <span style="font-size:0.88rem;font-weight:600;color:var(--text);">${fmtDate(s.session_date)}</span>
+                <span style="font-size:0.72rem;font-weight:700;background:var(--accent2-bg);color:var(--accent2);padding:2px 8px;border-radius:20px;">Session #${s.session_number}</span>
+                <span style="font-size:0.72rem;font-weight:700;color:${moodColor};">Mood ${mood}/10</span>
+                ${nextBadge}
+              </div>
+              ${s.subjective ? `<p style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;">${esc(s.subjective)}</p>` : ''}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
     </div>` : ''}
 
     ${sessions.length > 1 ? `
@@ -2368,6 +2460,12 @@ function renderProfileMoodChart(sessions) {
 function renderSessionCard(s) {
   const mood = parseFloat(s.mood_score) || 0;
   const color = mood >= 7 ? '#10b981' : mood >= 4 ? '#f59e0b' : '#ef4444';
+  const nextApptHtml = s.next_date ? `
+    <div style="margin-top:12px;padding:10px 13px;background:var(--accent-bg);border-radius:var(--radius-sm);display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <span style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);">📅 Next Appointment</span>
+      <span style="font-size:0.84rem;font-weight:600;color:var(--text);">${fmtDate(s.next_date)}</span>
+      ${s.next_time ? `<span style="font-size:0.8rem;color:var(--text-muted);">🕐 ${s.next_time}</span>` : ''}
+    </div>` : '';
   return `
     <div class="session-card">
       <div class="session-card-top">
@@ -2386,8 +2484,9 @@ function renderSessionCard(s) {
         ${s.subjective  ? `<div class="soap-block"><label>Subjective</label><p>${esc(s.subjective)}</p></div>`  : ''}
         ${s.objective   ? `<div class="soap-block"><label>Objective</label><p>${esc(s.objective)}</p></div>`   : ''}
         ${s.assessment  ? `<div class="soap-block"><label>Assessment</label><p>${esc(s.assessment)}</p></div>` : ''}
-        ${s.plan        ? `<div class="soap-block"><label>Plan</label><p>${esc(s.plan)}</p></div>`              : ''}
+        ${s.plan        ? `<div class="soap-block"><label>Plan</label><p>${esc(s.plan)}</p></div>`             : ''}
       </div>
+      ${nextApptHtml}
     </div>
   `;
 }
@@ -2410,6 +2509,8 @@ function openAddSession() {
   document.getElementById('sf_mood').value = 5;
   document.getElementById('moodNum').textContent = '5';
   ['sf_subjective','sf_objective','sf_assessment','sf_plan'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('sf_next_date').value = '';
+  document.getElementById('sf_next_time').value = '';
   document.getElementById('sessionFormError').style.display = 'none';
   const btn = document.getElementById('btnSaveSession');
   btn.textContent = '💾 Save Session';
@@ -2436,6 +2537,8 @@ function openEditSession(sessionId) {
   document.getElementById('sf_objective').value = session.objective || '';
   document.getElementById('sf_assessment').value = session.assessment || '';
   document.getElementById('sf_plan').value = session.plan || '';
+  document.getElementById('sf_next_date').value = session.next_date || '';
+  document.getElementById('sf_next_time').value = session.next_time || '';
   document.getElementById('sessionFormError').style.display = 'none';
   APP.currentPatientId = session.patient_id;
   const btn = document.getElementById('btnSaveSession');
@@ -2658,6 +2761,8 @@ async function saveSession() {
     objective:    document.getElementById('sf_objective').value.trim(),
     assessment:   document.getElementById('sf_assessment').value.trim(),
     plan:         document.getElementById('sf_plan').value.trim(),
+    next_date:    document.getElementById('sf_next_date').value || '',
+    next_time:    document.getElementById('sf_next_time').value || '',
   };
 
   // ── EDIT MODE ──
