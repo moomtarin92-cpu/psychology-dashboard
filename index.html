@@ -1200,6 +1200,47 @@ code {
           <label>Emergency Contact</label>
           <input type="text" id="pf_emergency" placeholder="Name and phone number" />
         </div>
+        <div class="form-group">
+          <label>🏷️ Diagnosis / Label</label>
+          <select id="pf_diagnosis">
+            <option value="">— Select or type below —</option>
+            <option>Anxiety Disorder</option>
+            <option>Depression</option>
+            <option>PTSD</option>
+            <option>OCD</option>
+            <option>Bipolar Disorder</option>
+            <option>Schizophrenia</option>
+            <option>Social Anxiety</option>
+            <option>Panic Disorder</option>
+            <option>Grief / Bereavement</option>
+            <option>Stress / Burnout</option>
+            <option>Adjustment Disorder</option>
+            <option>Post-Partum Depression</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>🔴 Patient Status</label>
+          <select id="pf_status">
+            <option value="">— Select status —</option>
+            <option value="Active">Active</option>
+            <option value="On Hold">On Hold</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Discharged">Discharged</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>👩‍⚕️ Assigned Counselor</label>
+          <input type="text" id="pf_counselor" placeholder="e.g. Moom Tarin Nahar" />
+        </div>
+        <div class="form-group">
+          <label>💊 Medication (if any)</label>
+          <input type="text" id="pf_medication" placeholder="e.g. Sertraline 50mg — Dr. Rahman" />
+        </div>
+        <div class="form-group full">
+          <label>✅ Consent & Clinical Notes</label>
+          <textarea id="pf_consent" placeholder="Consent status, important background notes..."></textarea>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
@@ -1263,6 +1304,31 @@ code {
           <label>🕐 Next Appointment Time (optional)</label>
           <input type="time" id="sf_next_time" />
         </div>
+        <div class="form-group">
+          <label>⚠️ Risk Level</label>
+          <select id="sf_risk">
+            <option value="">— Select —</option>
+            <option value="Low">🟢 Low</option>
+            <option value="Medium">🟡 Medium</option>
+            <option value="High">🔴 High</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>⏱️ Session Duration (minutes)</label>
+          <input type="number" id="sf_duration" placeholder="e.g. 50" min="1" max="300" />
+        </div>
+        <div class="form-group">
+          <label>📊 PHQ-9 Score (0–27, Depression)</label>
+          <input type="number" id="sf_phq9" placeholder="Leave blank if not assessed" min="0" max="27" />
+        </div>
+        <div class="form-group">
+          <label>📊 GAD-7 Score (0–21, Anxiety)</label>
+          <input type="number" id="sf_gad7" placeholder="Leave blank if not assessed" min="0" max="21" />
+        </div>
+        <div class="form-group full">
+          <label>📝 Homework / Tasks for Patient</label>
+          <textarea id="sf_homework" placeholder="Tasks or exercises assigned to the patient until next session..."></textarea>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
@@ -1296,6 +1362,9 @@ code {
       </div>
       <div class="nav-item" onclick="navigate('patients')">
         <span class="nav-icon">👥</span> Patients
+      </div>
+      <div class="nav-item" onclick="navigate('appointments')">
+        <span class="nav-icon">🗓️</span> Appointments
       </div>
       <div class="nav-item" onclick="navigate('analytics')">
         <span class="nav-icon">📈</span> Analytics
@@ -1331,6 +1400,12 @@ code {
       </div>
       <div class="topbar-right">
         <span id="topbarHospital"></span>
+        <div style="position:relative;">
+          <input type="text" id="globalSearch" placeholder="🔍 Quick search patient..." 
+            oninput="globalSearchHandler(this.value)"
+            style="font-size:0.8rem;padding:7px 12px;width:200px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg3);color:var(--text);" />
+          <div id="globalSearchDrop" style="display:none;position:absolute;top:calc(100% + 6px);right:0;width:280px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);z-index:300;max-height:280px;overflow-y:auto;"></div>
+        </div>
         <button class="btn btn-primary btn-sm" onclick="openPatientModal()">+ New Patient</button>
       </div>
     </div>
@@ -1401,6 +1476,16 @@ code {
 
       <div class="card">
         <div class="flex align-center justify-between mb-16">
+          <div class="card-title mb-0">📅 Today's Appointments</div>
+          <button class="btn btn-ghost btn-sm" onclick="navigate('appointments')">View all →</button>
+        </div>
+        <div id="dash_todayAppts">
+          <div class="loader"><div class="spinner"></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex align-center justify-between mb-16">
           <div class="card-title mb-0">Recent Patients</div>
           <button class="btn btn-ghost btn-sm" onclick="navigate('patients')">View all →</button>
         </div>
@@ -1440,16 +1525,30 @@ code {
       <div class="filter-bar">
         <div class="flex align-center gap-8" style="flex:1;min-width:200px;position:relative;">
           <span style="position:absolute;left:10px;color:var(--text-dim);font-size:0.9rem;pointer-events:none;">🔍</span>
-          <input type="text" id="searchInput" placeholder="Search by name or phone..."
+          <input type="text" id="searchInput" placeholder="Search by name, ID or phone..."
             oninput="filterPatients()"
             style="padding-left:32px;width:100%;max-width:100%;" />
         </div>
         <label>Gender:</label>
-        <select id="genderFilter" onchange="filterPatients()" style="max-width:150px;">
+        <select id="genderFilter" onchange="filterPatients()" style="max-width:130px;">
           <option value="">All</option>
           <option>Male</option>
           <option>Female</option>
           <option>Other</option>
+        </select>
+        <label>Status:</label>
+        <select id="statusFilter" onchange="filterPatients()" style="max-width:130px;">
+          <option value="">All</option>
+          <option>Active</option>
+          <option>On Hold</option>
+          <option>Inactive</option>
+          <option>Discharged</option>
+        </select>
+        <label>Location:</label>
+        <select id="locationFilter" onchange="filterPatients()" style="max-width:130px;">
+          <option value="">All</option>
+          <option value="Ad-Din">Ad-Din</option>
+          <option value="KUET">KUET</option>
         </select>
         <button class="btn btn-secondary btn-sm" onclick="loadPatients()">↻ Refresh</button>
       </div>
@@ -1460,11 +1559,12 @@ code {
             <thead>
               <tr>
                 <th>Patient ID</th>
-                <th>Name</th>
+                <th>Name / Diagnosis</th>
                 <th>Age</th>
                 <th>Gender</th>
                 <th>Phone</th>
                 <th>Location</th>
+                <th>Status</th>
                 <th>Registered</th>
                 <th>Action</th>
               </tr>
@@ -1488,6 +1588,39 @@ code {
     </div>
 
     <!-- ================================
+         PAGE: APPOINTMENTS
+         ================================ -->
+    <div class="page page-container" id="page-appointments">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Appointments</div>
+          <div class="section-sub">All upcoming patient appointments</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="loadAppointments()">↻ Refresh</button>
+      </div>
+
+      <div class="filter-bar mb-16">
+        <label>Filter:</label>
+        <select id="appt_filter" onchange="loadAppointments()">
+          <option value="upcoming">Upcoming</option>
+          <option value="today">Today Only</option>
+          <option value="week">This Week</option>
+          <option value="all">All</option>
+        </select>
+        <label>Location:</label>
+        <select id="appt_loc" onchange="loadAppointments()">
+          <option value="">All Locations</option>
+          <option value="Ad-Din">Ad-Din</option>
+          <option value="KUET">KUET</option>
+        </select>
+      </div>
+
+      <div id="apptList">
+        <div class="loader"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- ================================
          PAGE: ANALYTICS
          ================================ -->
     <div class="page page-container" id="page-analytics">
@@ -1507,6 +1640,12 @@ code {
         <label>Patient:</label>
         <select id="af_patient">
           <option value="">All Patients</option>
+        </select>
+        <label>Location:</label>
+        <select id="af_location" onchange="applyFilters()">
+          <option value="">All Locations</option>
+          <option value="Ad-Din">Ad-Din</option>
+          <option value="KUET">KUET</option>
         </select>
         <button class="btn btn-primary btn-sm" onclick="applyFilters()">Apply</button>
         <button class="btn btn-ghost btn-sm" onclick="resetFilters()">Reset</button>
@@ -1775,11 +1914,13 @@ function getSheet(name) {
     sheet = ss.insertSheet(name);
     if (name === 'Patients') {
       sheet.appendRow(['patient_id','name','age','gender','phone','email',
-        'occupation','address','complaint','referral','emergency','timestamp']);
+        'occupation','address','complaint','referral','emergency',
+        'diagnosis','status','counselor','medication','consent','timestamp']);
     }
     if (name === 'Sessions') {
       sheet.appendRow(['session_id','patient_id','session_number','session_date',
-        'subjective','objective','assessment','plan','mood_score','next_date','next_time','timestamp']);
+        'subjective','objective','assessment','plan','mood_score',
+        'next_date','next_time','risk','duration','phq9','gad7','homework','timestamp']);
     }
   }
   return sheet;
@@ -1799,13 +1940,15 @@ function sheetToObjects(sheet, headers) {
 
 function getPatients() {
   var headers = ['patient_id','name','age','gender','phone','email',
-    'occupation','address','complaint','referral','emergency','timestamp'];
+    'occupation','address','complaint','referral','emergency',
+    'diagnosis','status','counselor','medication','consent','timestamp'];
   return sheetToObjects(getSheet('Patients'), headers);
 }
 
 function getAllSessions() {
   var headers = ['session_id','patient_id','session_number','session_date',
-    'subjective','objective','assessment','plan','mood_score','next_date','next_time','timestamp'];
+    'subjective','objective','assessment','plan','mood_score',
+    'next_date','next_time','risk','duration','phq9','gad7','homework','timestamp'];
   return sheetToObjects(getSheet('Sessions'), headers);
 }
 
@@ -1833,7 +1976,9 @@ function addPatient(p) {
   sheet.appendRow([
     pid, p.name || '', p.age || '', p.gender || '', p.phone || '',
     p.email || '', p.occupation || '', p.address || '',
-    p.complaint || '', p.referral || '', p.emergency || '', ts
+    p.complaint || '', p.referral || '', p.emergency || '',
+    p.diagnosis || '', p.status || '', p.counselor || '',
+    p.medication || '', p.consent || '', ts
   ]);
   return { success: true, patient_id: pid, message: 'Patient ' + pid + ' saved.' };
 }
@@ -1847,7 +1992,8 @@ function addSession(p) {
     sessionId, p.patient_id || '', String(sessionNum), p.session_date || '',
     p.subjective || '', p.objective || '',
     p.assessment || '', p.plan || '', p.mood_score || '5',
-    p.next_date || '', p.next_time || '', ts
+    p.next_date || '', p.next_time || '',
+    p.risk || '', p.duration || '', p.phq9 || '', p.gad7 || '', p.homework || '', ts
   ]);
   return { success: true, session_id: sessionId, session_number: sessionNum };
 }
@@ -1858,16 +2004,21 @@ function updatePatient(p) {
   for (var i = 1; i < data.length; i++) {
     if (String(data[i][0]) === String(p.patient_id)) {
       var row = i + 1;
-      sheet.getRange(row, 2).setValue(p.name      || data[i][1]);
-      sheet.getRange(row, 3).setValue(p.age       || data[i][2]);
-      sheet.getRange(row, 4).setValue(p.gender    || data[i][3]);
-      sheet.getRange(row, 5).setValue(p.phone     || data[i][4]);
-      sheet.getRange(row, 6).setValue(p.email     !== undefined ? p.email     : data[i][5]);
-      sheet.getRange(row, 7).setValue(p.occupation!== undefined ? p.occupation: data[i][6]);
-      sheet.getRange(row, 8).setValue(p.address   !== undefined ? p.address   : data[i][7]);
-      sheet.getRange(row, 9).setValue(p.complaint !== undefined ? p.complaint : data[i][8]);
-      sheet.getRange(row,10).setValue(p.referral  !== undefined ? p.referral  : data[i][9]);
-      sheet.getRange(row,11).setValue(p.emergency !== undefined ? p.emergency : data[i][10]);
+      sheet.getRange(row, 2).setValue(p.name       || data[i][1]);
+      sheet.getRange(row, 3).setValue(p.age        || data[i][2]);
+      sheet.getRange(row, 4).setValue(p.gender     || data[i][3]);
+      sheet.getRange(row, 5).setValue(p.phone      || data[i][4]);
+      sheet.getRange(row, 6).setValue(p.email      !== undefined ? p.email      : data[i][5]);
+      sheet.getRange(row, 7).setValue(p.occupation !== undefined ? p.occupation : data[i][6]);
+      sheet.getRange(row, 8).setValue(p.address    !== undefined ? p.address    : data[i][7]);
+      sheet.getRange(row, 9).setValue(p.complaint  !== undefined ? p.complaint  : data[i][8]);
+      sheet.getRange(row,10).setValue(p.referral   !== undefined ? p.referral   : data[i][9]);
+      sheet.getRange(row,11).setValue(p.emergency  !== undefined ? p.emergency  : data[i][10]);
+      sheet.getRange(row,12).setValue(p.diagnosis  !== undefined ? p.diagnosis  : data[i][11]);
+      sheet.getRange(row,13).setValue(p.status     !== undefined ? p.status     : data[i][12]);
+      sheet.getRange(row,14).setValue(p.counselor  !== undefined ? p.counselor  : data[i][13]);
+      sheet.getRange(row,15).setValue(p.medication !== undefined ? p.medication : data[i][14]);
+      sheet.getRange(row,16).setValue(p.consent    !== undefined ? p.consent    : data[i][15]);
       return { success: true, patient_id: p.patient_id, message: 'Patient updated.' };
     }
   }
@@ -1888,6 +2039,11 @@ function updateSession(p) {
       sheet.getRange(row, 9).setValue(p.mood_score   !== undefined ? p.mood_score   : data[i][8]);
       sheet.getRange(row,10).setValue(p.next_date    !== undefined ? p.next_date    : data[i][9]);
       sheet.getRange(row,11).setValue(p.next_time    !== undefined ? p.next_time    : data[i][10]);
+      sheet.getRange(row,12).setValue(p.risk         !== undefined ? p.risk         : data[i][11]);
+      sheet.getRange(row,13).setValue(p.duration     !== undefined ? p.duration     : data[i][12]);
+      sheet.getRange(row,14).setValue(p.phq9         !== undefined ? p.phq9         : data[i][13]);
+      sheet.getRange(row,15).setValue(p.gad7         !== undefined ? p.gad7         : data[i][14]);
+      sheet.getRange(row,16).setValue(p.homework     !== undefined ? p.homework     : data[i][15]);
       return { success: true, session_id: p.session_id, message: 'Session updated.' };
     }
   }
@@ -2084,12 +2240,13 @@ async function fetchPatientSessions(patientId) {
    NAVIGATION
    ============================================================ */
 const PAGE_TITLES = {
-  dashboard: 'Dashboard',
-  patients:  'Patients',
-  profile:   'Patient Profile',
-  analytics: 'Analytics',
-  reports:   'Report Generator',
-  settings:  'Settings',
+  dashboard:    'Dashboard',
+  patients:     'Patients',
+  profile:      'Patient Profile',
+  appointments: 'Appointments',
+  analytics:    'Analytics',
+  reports:      'Report Generator',
+  settings:     'Settings',
 };
 
 function navigate(page, opts = {}) {
@@ -2103,20 +2260,139 @@ function navigate(page, opts = {}) {
   if (navEl) navEl.classList.add('active');
 
   document.getElementById('topbarTitle').textContent = PAGE_TITLES[page] || page;
+  document.getElementById('globalSearchDrop').style.display = 'none';
 
   closeSidebar();
 
-  if (page === 'dashboard') refreshDashboard();
-  else if (page === 'patients') loadPatients();
-  else if (page === 'analytics') loadAnalytics();
-  else if (page === 'reports') initReports();
-  else if (page === 'settings') initSettings();
+  if (page === 'dashboard')    refreshDashboard();
+  else if (page === 'patients')     loadPatients();
+  else if (page === 'appointments') loadAppointments();
+  else if (page === 'analytics')    loadAnalytics();
+  else if (page === 'reports')      initReports();
+  else if (page === 'settings')     initSettings();
   else if (page === 'profile' && opts.patientId) loadProfile(opts.patientId);
 }
 
 /* ============================================================
-   SIDEBAR
+   GLOBAL QUICK SEARCH
    ============================================================ */
+function globalSearchHandler(q) {
+  const drop = document.getElementById('globalSearchDrop');
+  if (!q || q.length < 2) { drop.style.display = 'none'; return; }
+  const matches = APP.patients.filter(p =>
+    (p.name||'').toLowerCase().includes(q.toLowerCase()) ||
+    (p.patient_id||'').toLowerCase().includes(q.toLowerCase()) ||
+    (p.phone||'').includes(q)
+  ).slice(0, 8);
+  if (!matches.length) {
+    drop.style.display = 'block';
+    drop.innerHTML = `<div style="padding:12px;color:var(--text-muted);font-size:0.83rem;">No patients found</div>`;
+    return;
+  }
+  drop.style.display = 'block';
+  drop.innerHTML = matches.map(p => `
+    <div onclick="navigate('profile',{patientId:'${p.patient_id}'});document.getElementById('globalSearch').value='';document.getElementById('globalSearchDrop').style.display='none';"
+      style="padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;"
+      onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent);font-size:0.78rem;flex-shrink:0;">
+        ${p.name.slice(0,2).toUpperCase()}
+      </div>
+      <div>
+        <div style="font-weight:600;font-size:0.85rem;">${esc(p.name)}</div>
+        <div style="font-size:0.73rem;color:var(--text-muted);">${p.patient_id} · ${p.phone||'—'} ${p.diagnosis?'· '+p.diagnosis:''}</div>
+      </div>
+      ${renderStatusBadge(p.status)}
+    </div>
+  `).join('');
+}
+
+/* ============================================================
+   STATUS BADGE HELPER
+   ============================================================ */
+function renderStatusBadge(status) {
+  if (!status) return '<span style="color:var(--text-dim);font-size:0.75rem;">—</span>';
+  const map = {
+    'Active':     { bg:'var(--success-bg)', color:'var(--success)',  dot:'🟢' },
+    'On Hold':    { bg:'var(--warn-bg)',    color:'var(--warn)',     dot:'🟡' },
+    'Inactive':   { bg:'var(--bg4)',        color:'var(--text-muted)',dot:'⚫' },
+    'Discharged': { bg:'var(--accent2-bg)', color:'var(--accent2)',  dot:'🔵' },
+  };
+  const s = map[status] || { bg:'var(--bg4)', color:'var(--text-muted)', dot:'⚪' };
+  return `<span style="display:inline-flex;align-items:center;gap:4px;background:${s.bg};color:${s.color};font-size:0.72rem;font-weight:600;padding:2px 8px;border-radius:20px;">${s.dot} ${status}</span>`;
+}
+
+/* ============================================================
+   APPOINTMENTS PAGE
+   ============================================================ */
+async function loadAppointments() {
+  const container = document.getElementById('apptList');
+  if (!container) return;
+  container.innerHTML = `<div class="loader"><div class="spinner"></div></div>`;
+
+  const [patients, sessions] = await Promise.all([fetchPatients(), fetchAllSessions(true)]);
+  const filterVal = document.getElementById('appt_filter')?.value || 'upcoming';
+  const locVal    = document.getElementById('appt_loc')?.value || '';
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const weekEnd = new Date(today); weekEnd.setDate(weekEnd.getDate() + 7);
+
+  let appts = sessions
+    .filter(s => s.next_date)
+    .map(s => ({
+      ...s,
+      patient: patients.find(p => p.patient_id === s.patient_id),
+      apptDate: new Date(s.next_date),
+    }))
+    .filter(s => s.patient);
+
+  if (filterVal === 'upcoming') appts = appts.filter(s => s.apptDate >= today);
+  else if (filterVal === 'today') appts = appts.filter(s => s.next_date === today.toISOString().slice(0,10));
+  else if (filterVal === 'week')  appts = appts.filter(s => s.apptDate >= today && s.apptDate <= weekEnd);
+
+  if (locVal) appts = appts.filter(s => (s.patient.location||'').includes(locVal));
+
+  appts.sort((a,b) => a.apptDate - b.apptDate || (a.next_time||'').localeCompare(b.next_time||''));
+
+  if (!appts.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📅</div><p>No appointments found for this filter.</p></div>`;
+    return;
+  }
+
+  // Group by date
+  const byDate = {};
+  appts.forEach(s => { (byDate[s.next_date] = byDate[s.next_date]||[]).push(s); });
+
+  container.innerHTML = Object.entries(byDate).map(([date, items]) => {
+    const d = new Date(date);
+    const diffDays = Math.round((d - today) / 86400000);
+    const label = diffDays === 0 ? '⚡ Today' : diffDays === 1 ? '⏰ Tomorrow' : `🗓 ${d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'short'})}`;
+    const isToday = diffDays === 0;
+    return `
+      <div class="card mb-16" ${isToday?'style="border-left:4px solid var(--accent);"':''}>
+        <div style="font-weight:700;font-size:0.95rem;color:${isToday?'var(--accent)':'var(--text)'};margin-bottom:12px;">${label}</div>
+        ${items.map(s => `
+          <div style="display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--border);">
+            <div style="width:40px;height:40px;border-radius:50%;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent);flex-shrink:0;">
+              ${s.patient.name.slice(0,2).toUpperCase()}
+            </div>
+            <div style="flex:1;">
+              <div style="font-weight:600;">${esc(s.patient.name)}</div>
+              <div style="font-size:0.78rem;color:var(--text-muted);">
+                ${s.patient.patient_id}
+                ${s.patient.diagnosis?'· 🏷️ '+esc(s.patient.diagnosis):''}
+                ${s.patient.counselor?'· 👩‍⚕️ '+esc(s.patient.counselor):''}
+              </div>
+              ${renderLocBadge(s.patient.location)}
+            </div>
+            ${s.next_time?`<div style="font-weight:700;color:var(--accent);">🕐 ${s.next_time}</div>`:''}
+            ${renderStatusBadge(s.patient.status)}
+            <button class="btn btn-ghost btn-sm" onclick="navigate('profile',{patientId:'${s.patient.patient_id}'})">View →</button>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }).join('');
+}
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('open');
   document.getElementById('overlay').classList.toggle('active');
@@ -2176,9 +2452,38 @@ async function refreshDashboard() {
   document.getElementById('d_mood').textContent     = avgMood;
 
   renderDashCharts(sessions);
+  renderTodayAppointments(patients, sessions);
 
   const recent = [...patients].reverse().slice(0, 6);
   renderRecentPatients(recent);
+}
+
+function renderTodayAppointments(patients, sessions) {
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayAppts = sessions
+    .filter(s => s.next_date === todayStr)
+    .map(s => ({ ...s, patient: patients.find(p => p.patient_id === s.patient_id) }))
+    .filter(s => s.patient)
+    .sort((a,b) => (a.next_time||'').localeCompare(b.next_time||''));
+
+  const el = document.getElementById('dash_todayAppts');
+  if (!todayAppts.length) {
+    el.innerHTML = `<div class="empty-state" style="padding:20px 0;"><div class="empty-icon">📅</div><p>No appointments scheduled for today.</p></div>`;
+    return;
+  }
+  el.innerHTML = todayAppts.map(s => `
+    <div style="display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div style="width:38px;height:38px;border-radius:50%;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent);font-size:0.85rem;flex-shrink:0;">
+        ${s.patient.name.slice(0,2).toUpperCase()}
+      </div>
+      <div style="flex:1;">
+        <div style="font-weight:600;font-size:0.9rem;">${esc(s.patient.name)}</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);">${s.patient.patient_id} · Session #${s.session_number}</div>
+      </div>
+      ${s.next_time ? `<div style="font-size:0.85rem;font-weight:600;color:var(--accent);">🕐 ${s.next_time}</div>` : ''}
+      <button class="btn btn-ghost btn-sm" onclick="navigate('profile',{patientId:'${s.patient.patient_id}'})">View →</button>
+    </div>
+  `).join('');
 }
 
 function renderRecentPatients(patients) {
@@ -2190,11 +2495,11 @@ function renderRecentPatients(patients) {
   tbody.innerHTML = patients.map(p => `
     <tr>
       <td><span class="pid-tag">${p.patient_id}</span></td>
-      <td><strong>${esc(p.name)}</strong></td>
+      <td><strong>${esc(p.name)}</strong>${p.diagnosis ? `<br><span style="font-size:0.7rem;color:var(--accent2);">🏷️ ${esc(p.diagnosis)}</span>` : ''}</td>
       <td><span class="badge badge-${(p.gender||'').toLowerCase()}">${p.gender||'—'}</span></td>
       <td>${esc(p.phone)}</td>
       <td>${renderLocBadge(p.location)}</td>
-      <td>${fmtDate(p.timestamp)}</td>
+      <td>${renderStatusBadge(p.status)}</td>
       <td><button class="btn btn-ghost btn-sm" onclick="navigate('profile',{patientId:'${p.patient_id}'})">View →</button></td>
     </tr>
   `).join('');
@@ -2228,17 +2533,22 @@ async function loadPatients() {
 function renderPatientsTable(list) {
   const tbody = document.getElementById('patientsBody');
   if (!Array.isArray(list) || !list.length) {
-    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">👥</div><p>No patients found.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">👥</div><p>No patients found.</p></div></td></tr>`;
     return;
   }
   tbody.innerHTML = list.map(p => `
     <tr>
       <td><span class="pid-tag">${p.patient_id}</span></td>
-      <td><strong>${esc(p.name)}</strong></td>
+      <td>
+        <strong>${esc(p.name)}</strong>
+        ${p.diagnosis ? `<br><span style="font-size:0.7rem;color:var(--accent2);">🏷️ ${esc(p.diagnosis)}</span>` : ''}
+        ${p.counselor ? `<br><span style="font-size:0.7rem;color:var(--text-dim);">👩‍⚕️ ${esc(p.counselor)}</span>` : ''}
+      </td>
       <td>${p.age||'—'}</td>
       <td><span class="badge badge-${(p.gender||'').toLowerCase()}">${p.gender||'—'}</span></td>
       <td>${esc(p.phone)}</td>
       <td>${renderLocBadge(p.location)}</td>
+      <td>${renderStatusBadge(p.status)}</td>
       <td>${fmtDate(p.timestamp)}</td>
       <td><button class="btn btn-secondary btn-sm" onclick="navigate('profile',{patientId:'${p.patient_id}'})">View Profile</button></td>
     </tr>
@@ -2246,12 +2556,16 @@ function renderPatientsTable(list) {
 }
 
 function filterPatients() {
-  const q = (document.getElementById('searchInput').value || '').toLowerCase();
+  const q      = (document.getElementById('searchInput').value || '').toLowerCase();
   const gender = document.getElementById('genderFilter').value;
+  const status = document.getElementById('statusFilter')?.value || '';
+  const loc    = document.getElementById('locationFilter')?.value || '';
   const filtered = APP.patients.filter(p => {
-    const matchQ = !q || (p.name||'').toLowerCase().includes(q) || (p.phone||'').includes(q);
-    const matchG = !gender || p.gender === gender;
-    return matchQ && matchG;
+    const matchQ  = !q || (p.name||'').toLowerCase().includes(q) || (p.phone||'').includes(q) || (p.patient_id||'').toLowerCase().includes(q);
+    const matchG  = !gender || p.gender === gender;
+    const matchS  = !status || p.status === status;
+    const matchL  = !loc    || (p.location||'').includes(loc);
+    return matchQ && matchG && matchS && matchL;
   });
   renderPatientsTable(filtered);
 }
@@ -2320,6 +2634,9 @@ async function loadProfile(patientId) {
           <span>🎂 ${patient.age||'—'} yrs</span>
           <span>📞 ${esc(patient.phone)}</span>
           <span>${patient.gender||'—'}</span>
+          ${patient.diagnosis ? `<span>🏷️ ${esc(patient.diagnosis)}</span>` : ''}
+          ${patient.counselor ? `<span>👩‍⚕️ ${esc(patient.counselor)}</span>` : ''}
+          ${patient.status ? `<span>${renderStatusBadge(patient.status)}</span>` : ''}
         </div>
         <div class="profile-stats">
           <div class="profile-stat-item"><div class="val">${sessions.length}</div><div class="lbl">Sessions</div></div>
@@ -2344,9 +2661,16 @@ async function loadProfile(patientId) {
         <div class="info-item"><label>Address</label><span>${esc(patient.address||'—')}</span></div>
         <div class="info-item"><label>Referral</label><span>${esc(patient.referral||'—')}</span></div>
         <div class="info-item"><label>Emergency Contact</label><span>${esc(patient.emergency||'—')}</span></div>
-        ${patient.location ? `<div class="info-item"><label>Location</label><span>${renderLocBadge(patient.location)}</span></div>` : ''}
+        ${patient.location   ? `<div class="info-item"><label>Location</label><span>${renderLocBadge(patient.location)}</span></div>` : ''}
+        ${patient.diagnosis  ? `<div class="info-item"><label>Diagnosis</label><span style="color:var(--accent2);font-weight:600;">🏷️ ${esc(patient.diagnosis)}</span></div>` : ''}
+        ${patient.counselor  ? `<div class="info-item"><label>Counselor</label><span>👩‍⚕️ ${esc(patient.counselor)}</span></div>` : ''}
+        ${patient.medication ? `<div class="info-item"><label>Medication</label><span>💊 ${esc(patient.medication)}</span></div>` : ''}
+        ${patient.status     ? `<div class="info-item"><label>Status</label><span>${renderStatusBadge(patient.status)}</span></div>` : ''}
       </div>
+      ${patient.consent ? `<div style="margin-top:14px;padding:12px;background:var(--bg3);border-radius:var(--radius-sm);border-left:3px solid var(--accent3);"><div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent3);margin-bottom:4px;">✅ Consent & Clinical Notes</div><div style="font-size:0.85rem;color:var(--text-muted);">${esc(patient.consent)}</div></div>` : ''}
     </div>
+
+    ${(() => { const lastSession = sessions[sessions.length-1]; return lastSession && lastSession.risk === 'High' ? `<div class="card mb-16" style="border-left:4px solid var(--danger);background:var(--danger-bg);"><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:1.3rem;">🚨</span><div><div style="font-weight:700;color:var(--danger);">High Risk — Last Session</div><div style="font-size:0.82rem;color:var(--text-muted);">Last session on ${fmtDate(lastSession.session_date)} was flagged as <strong>High Risk</strong>. Please review immediately.</div></div></div></div>` : ''; })()}
 
     ${patient.complaint ? `
     <div class="card mb-16">
@@ -2460,17 +2784,34 @@ function renderProfileMoodChart(sessions) {
 function renderSessionCard(s) {
   const mood = parseFloat(s.mood_score) || 0;
   const color = mood >= 7 ? '#10b981' : mood >= 4 ? '#f59e0b' : '#ef4444';
+  const riskColor = s.risk === 'High' ? '#ef4444' : s.risk === 'Medium' ? '#f59e0b' : '#10b981';
+
   const nextApptHtml = s.next_date ? `
     <div style="margin-top:12px;padding:10px 13px;background:var(--accent-bg);border-radius:var(--radius-sm);display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
       <span style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);">📅 Next Appointment</span>
       <span style="font-size:0.84rem;font-weight:600;color:var(--text);">${fmtDate(s.next_date)}</span>
       ${s.next_time ? `<span style="font-size:0.8rem;color:var(--text-muted);">🕐 ${s.next_time}</span>` : ''}
     </div>` : '';
+
+  const homeworkHtml = s.homework ? `
+    <div style="margin-top:10px;padding:10px 13px;background:var(--accent3-bg);border-radius:var(--radius-sm);">
+      <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent3);margin-bottom:4px;">📝 Homework / Task</div>
+      <div style="font-size:0.84rem;color:var(--text-muted);">${esc(s.homework)}</div>
+    </div>` : '';
+
+  const screeningHtml = (s.phq9 || s.gad7) ? `
+    <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
+      ${s.phq9 ? `<span style="background:var(--accent-bg);color:var(--accent);font-size:0.75rem;font-weight:700;padding:3px 10px;border-radius:20px;">PHQ-9: ${s.phq9}/27</span>` : ''}
+      ${s.gad7 ? `<span style="background:var(--accent2-bg);color:var(--accent2);font-size:0.75rem;font-weight:700;padding:3px 10px;border-radius:20px;">GAD-7: ${s.gad7}/21</span>` : ''}
+    </div>` : '';
+
   return `
-    <div class="session-card">
+    <div class="session-card" ${s.risk === 'High' ? 'style="border-left:3px solid #ef4444;"' : ''}>
       <div class="session-card-top">
         <span class="session-num-badge">Session #${s.session_number}</span>
-        <div style="display:flex;align-items:center;gap:10px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          ${s.risk ? `<span style="font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:20px;background:${riskColor}18;color:${riskColor};">⚠️ ${s.risk} Risk</span>` : ''}
+          ${s.duration ? `<span style="font-size:0.7rem;color:var(--text-dim);">⏱️ ${s.duration} min</span>` : ''}
           <span class="session-date-label">📅 ${s.session_date}</span>
           <button class="btn btn-ghost btn-sm" style="padding:4px 9px;font-size:0.75rem;" onclick="openEditSession('${esc(s.session_id)}')">✏️ Edit</button>
         </div>
@@ -2480,12 +2821,14 @@ function renderSessionCard(s) {
         <div class="mood-bar-track"><div class="mood-bar-fill" style="width:${mood*10}%;background:${color};"></div></div>
         <span class="mood-score-txt" style="color:${color};">${mood}/10</span>
       </div>
+      ${screeningHtml}
       <div class="soap-grid">
         ${s.subjective  ? `<div class="soap-block"><label>Subjective</label><p>${esc(s.subjective)}</p></div>`  : ''}
         ${s.objective   ? `<div class="soap-block"><label>Objective</label><p>${esc(s.objective)}</p></div>`   : ''}
         ${s.assessment  ? `<div class="soap-block"><label>Assessment</label><p>${esc(s.assessment)}</p></div>` : ''}
         ${s.plan        ? `<div class="soap-block"><label>Plan</label><p>${esc(s.plan)}</p></div>`             : ''}
       </div>
+      ${homeworkHtml}
       ${nextApptHtml}
     </div>
   `;
@@ -2511,6 +2854,11 @@ function openAddSession() {
   ['sf_subjective','sf_objective','sf_assessment','sf_plan'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('sf_next_date').value = '';
   document.getElementById('sf_next_time').value = '';
+  document.getElementById('sf_risk').value = '';
+  document.getElementById('sf_duration').value = '';
+  document.getElementById('sf_phq9').value = '';
+  document.getElementById('sf_gad7').value = '';
+  document.getElementById('sf_homework').value = '';
   document.getElementById('sessionFormError').style.display = 'none';
   const btn = document.getElementById('btnSaveSession');
   btn.textContent = '💾 Save Session';
@@ -2539,6 +2887,11 @@ function openEditSession(sessionId) {
   document.getElementById('sf_plan').value = session.plan || '';
   document.getElementById('sf_next_date').value = session.next_date || '';
   document.getElementById('sf_next_time').value = session.next_time || '';
+  document.getElementById('sf_risk').value      = session.risk      || '';
+  document.getElementById('sf_duration').value  = session.duration  || '';
+  document.getElementById('sf_phq9').value      = session.phq9      || '';
+  document.getElementById('sf_gad7').value      = session.gad7      || '';
+  document.getElementById('sf_homework').value  = session.homework  || '';
   document.getElementById('sessionFormError').style.display = 'none';
   APP.currentPatientId = session.patient_id;
   const btn = document.getElementById('btnSaveSession');
@@ -2592,6 +2945,11 @@ async function savePatient() {
     complaint:  document.getElementById('pf_complaint').value.trim(),
     referral:   document.getElementById('pf_referral').value.trim(),
     emergency:  document.getElementById('pf_emergency').value.trim(),
+    diagnosis:  document.getElementById('pf_diagnosis').value.trim(),
+    status:     document.getElementById('pf_status').value.trim(),
+    counselor:  document.getElementById('pf_counselor').value.trim(),
+    medication: document.getElementById('pf_medication').value.trim(),
+    consent:    document.getElementById('pf_consent').value.trim(),
   };
 
   // ── EDIT MODE ──
@@ -2686,7 +3044,8 @@ async function savePatient() {
 
 function clearPatientForm() {
   ['pf_patient_id','pf_location','pf_name','pf_age','pf_gender','pf_phone','pf_email','pf_occupation',
-   'pf_address','pf_complaint','pf_referral','pf_emergency'].forEach(id => {
+   'pf_address','pf_complaint','pf_referral','pf_emergency','pf_diagnosis','pf_status','pf_counselor',
+   'pf_medication','pf_consent'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -2724,6 +3083,11 @@ function openEditPatient(patientId) {
   document.getElementById('pf_complaint').value = patient.complaint || '';
   document.getElementById('pf_referral').value  = patient.referral  || '';
   document.getElementById('pf_emergency').value = patient.emergency || '';
+  document.getElementById('pf_diagnosis').value = patient.diagnosis || '';
+  document.getElementById('pf_status').value    = patient.status    || '';
+  document.getElementById('pf_counselor').value = patient.counselor || '';
+  document.getElementById('pf_medication').value= patient.medication|| '';
+  document.getElementById('pf_consent').value   = patient.consent   || '';
   document.getElementById('btnSavePatient').textContent = '💾 Update Patient';
   openModal('modalPatient');
 }
@@ -2763,6 +3127,11 @@ async function saveSession() {
     plan:         document.getElementById('sf_plan').value.trim(),
     next_date:    document.getElementById('sf_next_date').value || '',
     next_time:    document.getElementById('sf_next_time').value || '',
+    risk:         document.getElementById('sf_risk').value || '',
+    duration:     document.getElementById('sf_duration').value || '',
+    phq9:         document.getElementById('sf_phq9').value || '',
+    gad7:         document.getElementById('sf_gad7').value || '',
+    homework:     document.getElementById('sf_homework').value.trim(),
   };
 
   // ── EDIT MODE ──
@@ -2920,9 +3289,11 @@ function applyFilters() {
   const from = document.getElementById('af_from').value;
   const to   = document.getElementById('af_to').value;
   const pid  = document.getElementById('af_patient').value;
+  const loc  = document.getElementById('af_location')?.value || '';
   let patients = [...APP.patients];
   let sessions = [...APP.sessions];
   if (pid) { patients = patients.filter(p => p.patient_id === pid); sessions = sessions.filter(s => s.patient_id === pid); }
+  if (loc) { patients = patients.filter(p => (p.location||'').includes(loc)); sessions = sessions.filter(s => (s.location||'').includes(loc)); }
   if (from) sessions = sessions.filter(s => s.session_date >= from);
   if (to)   sessions = sessions.filter(s => s.session_date <= to);
   computeAnalytics(patients, sessions);
@@ -2932,6 +3303,8 @@ function resetFilters() {
   document.getElementById('af_from').value = '';
   document.getElementById('af_to').value = '';
   document.getElementById('af_patient').value = '';
+  const locEl = document.getElementById('af_location');
+  if (locEl) locEl.value = '';
   computeAnalytics(APP.patients, APP.sessions);
 }
 
