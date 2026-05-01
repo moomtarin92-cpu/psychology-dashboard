@@ -1202,7 +1202,7 @@ code {
         </div>
         <div class="form-group">
           <label>🏷️ Diagnosis / Label</label>
-          <select id="pf_diagnosis">
+          <select id="pf_diagnosis" onchange="toggleDiagOther(this)">
             <option value="">— Select or type below —</option>
             <option>Anxiety Disorder</option>
             <option>Depression</option>
@@ -1218,10 +1218,11 @@ code {
             <option>Post-Partum Depression</option>
             <option>Other</option>
           </select>
+          <input type="text" id="pf_diagnosis_other" placeholder="Specify diagnosis..." style="display:none;margin-top:6px;" />
         </div>
         <div class="form-group">
           <label>👩‍⚕️ Assigned Counselor</label>
-          <input type="text" id="pf_counselor" value="Moom Tarin Nahar" readonly style="background:var(--bg3);color:var(--text-muted);cursor:not-allowed;" />
+          <input type="text" id="pf_counselor" value="Moom Tarin Nahar" placeholder="Counselor name" />
         </div>
         <input type="hidden" id="pf_status" value="Active" />
         <input type="hidden" id="pf_medication" value="" />
@@ -1391,6 +1392,7 @@ code {
         <div style="position:relative;">
           <input type="text" id="globalSearch" placeholder="🔍 Quick search patient..." 
             oninput="globalSearchHandler(this.value)"
+            onfocus="if(!APP.patients.length) fetchPatients().then(() => { const v = document.getElementById('globalSearch').value; if(v.length>=2) globalSearchHandler(v); })"
             style="font-size:0.8rem;padding:7px 12px;width:200px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg3);color:var(--text);" />
           <div id="globalSearchDrop" style="display:none;position:absolute;top:calc(100% + 6px);right:0;width:280px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);z-index:300;max-height:280px;overflow-y:auto;"></div>
         </div>
@@ -1486,6 +1488,7 @@ code {
                 <th>Gender</th>
                 <th>Phone</th>
                 <th>Location</th>
+                <th>Status</th>
                 <th>Registered</th>
                 <th></th>
               </tr>
@@ -1529,6 +1532,14 @@ code {
           <option value="">All</option>
           <option value="Ad-Din">Ad-Din</option>
           <option value="KUET">KUET</option>
+        </select>
+        <label>Status:</label>
+        <select id="statusFilter" onchange="filterPatients()" style="max-width:130px;">
+          <option value="">All</option>
+          <option>Active</option>
+          <option>On Hold</option>
+          <option>Inactive</option>
+          <option>Discharged</option>
         </select>
         <button class="btn btn-secondary btn-sm" onclick="loadPatients()">↻ Refresh</button>
       </div>
@@ -1874,6 +1885,10 @@ function handleRequest(e) {
       result = addSession(e.parameter);
     } else if (action === 'updateSession') {
       result = updateSession(e.parameter);
+    } else if (action === 'deletePatient') {
+      result = deletePatient(e.parameter);
+    } else if (action === 'deleteSession') {
+      result = deleteSession(e.parameter);
     } else {
       result = { error: 'Unknown action: ' + action };
     }
@@ -1939,8 +1954,14 @@ function getSessions(patientId) {
 
 function getNextPatientId() {
   var sheet = getSheet('Patients');
-  var count = Math.max(sheet.getLastRow(), 1);
-  return 'PSY-' + String(count).padStart(4, '0');
+  var data = sheet.getDataRange().getValues();
+  var maxNum = 0;
+  for (var i = 1; i < data.length; i++) {
+    var id = String(data[i][0] || '');
+    var match = id.match(/PSY-(\d+)/);
+    if (match) { var n = parseInt(match[1], 10); if (n > maxNum) maxNum = n; }
+  }
+  return 'PSY-' + String(maxNum + 1).padStart(4, '0');
 }
 
 function getNextSessionNumber(patientId) {
@@ -2024,6 +2045,30 @@ function updateSession(p) {
       sheet.getRange(row,15).setValue(p.gad7         !== undefined ? p.gad7         : data[i][14]);
       sheet.getRange(row,16).setValue(p.homework     !== undefined ? p.homework     : data[i][15]);
       return { success: true, session_id: p.session_id, message: 'Session updated.' };
+    }
+  }
+  return { success: false, error: 'Session not found: ' + p.session_id };
+}
+
+function deletePatient(p) {
+  var sheet = getSheet('Patients');
+  var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][0]) === String(p.patient_id)) {
+      sheet.deleteRow(i + 1);
+      return { success: true, patient_id: p.patient_id, message: 'Patient deleted.' };
+    }
+  }
+  return { success: false, error: 'Patient not found: ' + p.patient_id };
+}
+
+function deleteSession(p) {
+  var sheet = getSheet('Sessions');
+  var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][0]) === String(p.session_id)) {
+      sheet.deleteRow(i + 1);
+      return { success: true, session_id: p.session_id, message: 'Session deleted.' };
     }
   }
   return { success: false, error: 'Session not found: ' + p.session_id };
@@ -2313,6 +2358,7 @@ async function loadAppointments() {
   const locVal    = document.getElementById('appt_loc')?.value || '';
 
   const today = new Date(); today.setHours(0,0,0,0);
+  const todayLocalStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD in local time
   const weekEnd = new Date(today); weekEnd.setDate(weekEnd.getDate() + 7);
 
   let appts = sessions
@@ -2325,7 +2371,7 @@ async function loadAppointments() {
     .filter(s => s.patient);
 
   if (filterVal === 'upcoming') appts = appts.filter(s => s.apptDate >= today);
-  else if (filterVal === 'today') appts = appts.filter(s => s.next_date === today.toISOString().slice(0,10));
+  else if (filterVal === 'today') appts = appts.filter(s => s.next_date === todayLocalStr);
   else if (filterVal === 'week')  appts = appts.filter(s => s.apptDate >= today && s.apptDate <= weekEnd);
 
   if (locVal) appts = appts.filter(s => (s.patient.location||'').includes(locVal));
@@ -2418,7 +2464,7 @@ async function refreshDashboard() {
     fetchAllSessions(true),
   ]);
 
-  const todayStr = today.toISOString().slice(0, 10);
+  const todayStr = new Date().toLocaleDateString('en-CA'); // local YYYY-MM-DD
   const todaySessions = sessions.filter(s => s.session_date === todayStr);
   const moodScores = sessions.map(s => parseFloat(s.mood_score)).filter(n => !isNaN(n));
   const avgMood = moodScores.length
@@ -2438,7 +2484,7 @@ async function refreshDashboard() {
 }
 
 function renderTodayAppointments(patients, sessions) {
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = new Date().toLocaleDateString('en-CA'); // local YYYY-MM-DD
   const todayAppts = sessions
     .filter(s => s.next_date === todayStr)
     .map(s => ({ ...s, patient: patients.find(p => p.patient_id === s.patient_id) }))
@@ -2468,7 +2514,7 @@ function renderTodayAppointments(patients, sessions) {
 function renderRecentPatients(patients) {
   const tbody = document.getElementById('dash_recentBody');
   if (!patients.length) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">👤</div><p>No patients yet.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">👤</div><p>No patients yet.</p></div></td></tr>`;
     return;
   }
   tbody.innerHTML = patients.map(p => `
@@ -2479,6 +2525,7 @@ function renderRecentPatients(patients) {
       <td>${esc(p.phone)}</td>
       <td>${renderLocBadge(p.location)}</td>
       <td>${renderStatusBadge(p.status)}</td>
+      <td>${fmtDate(p.timestamp)}</td>
       <td><button class="btn btn-ghost btn-sm" onclick="navigate('profile',{patientId:'${p.patient_id}'})">View →</button></td>
     </tr>
   `).join('');
@@ -2527,7 +2574,10 @@ function renderPatientsTable(list) {
       <td>${esc(p.phone)}</td>
       <td>${renderLocBadge(p.location)}</td>
       <td>${fmtDate(p.timestamp)}</td>
-      <td><button class="btn btn-secondary btn-sm" onclick="navigate('profile',{patientId:'${p.patient_id}'})">View Profile</button></td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-sm" onclick="navigate('profile',{patientId:'${p.patient_id}'})">View</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDeletePatient('${p.patient_id}','${esc(p.name)}')">🗑</button>
+      </td>
     </tr>
   `).join('');
 }
@@ -2791,6 +2841,7 @@ function renderSessionCard(s) {
           ${s.duration ? `<span style="font-size:0.7rem;color:var(--text-dim);">⏱️ ${s.duration} min</span>` : ''}
           <span class="session-date-label">📅 ${s.session_date}</span>
           <button class="btn btn-ghost btn-sm" style="padding:4px 9px;font-size:0.75rem;" onclick="openEditSession('${esc(s.session_id)}')">✏️ Edit</button>
+          <button class="btn btn-danger btn-sm" style="padding:4px 9px;font-size:0.75rem;" onclick="confirmDeleteSession('${esc(s.session_id)}','${s.session_number}')">🗑</button>
         </div>
       </div>
       <div class="mood-bar-row">
@@ -2877,16 +2928,73 @@ function openEditSession(sessionId) {
 }
 
 function generateReportFor() {
+  APP._pendingReportPatientId = APP.currentPatientId;
   navigate('reports');
-  setTimeout(() => {
-    const sel = document.getElementById('r_patient');
-    if (sel && APP.currentPatientId) sel.value = APP.currentPatientId;
-  }, 200);
 }
 
 /* ============================================================
-   SAVE / UPDATE PATIENT
+   DELETE PATIENT / SESSION
    ============================================================ */
+function confirmDeletePatient(patientId, name) {
+  if (!confirm(`⚠️ Delete patient "${name}" (${patientId})?\n\nThis will permanently remove the patient record. Sessions in Google Sheets are not auto-deleted. This cannot be undone.`)) return;
+  deletePatient(patientId);
+}
+
+async function deletePatient(patientId) {
+  // Remove from memory
+  APP.patients = APP.patients.filter(p => p.patient_id !== patientId);
+  const di = DEMO_PATIENTS.findIndex(p => p.patient_id === patientId);
+  if (di !== -1) DEMO_PATIENTS.splice(di, 1);
+
+  if (APP.apiUrl) {
+    try {
+      const result = await apiCall({ action: 'deletePatient', patient_id: patientId });
+      if (result && result.success) {
+        toast(`🗑 Patient ${patientId} deleted.`, 'success');
+      } else {
+        toast(`Removed locally. Server: ${result?.error || 'unknown'}`, 'warn');
+      }
+    } catch (err) {
+      toast(`Removed locally. API error: ${err.message}`, 'warn');
+    }
+  } else {
+    toast(`🗑 Patient ${patientId} deleted (demo mode).`, 'success');
+  }
+
+  if (document.getElementById('page-patients').classList.contains('active')) renderPatientsTable(APP.patients);
+}
+
+function confirmDeleteSession(sessionId, sessionNumber) {
+  if (!confirm(`⚠️ Delete Session #${sessionNumber}?\n\nThis cannot be undone.`)) return;
+  deleteSession(sessionId);
+}
+
+async function deleteSession(sessionId) {
+  const session = APP.sessions.find(s => s.session_id === sessionId);
+  // Remove from memory
+  APP.sessions = APP.sessions.filter(s => s.session_id !== sessionId);
+  const di = DEMO_SESSIONS.findIndex(s => s.session_id === sessionId);
+  if (di !== -1) DEMO_SESSIONS.splice(di, 1);
+
+  if (APP.apiUrl) {
+    try {
+      const result = await apiCall({ action: 'deleteSession', session_id: sessionId });
+      if (result && result.success) {
+        toast(`🗑 Session deleted.`, 'success');
+      } else {
+        toast(`Removed locally. Server: ${result?.error || 'unknown'}`, 'warn');
+      }
+    } catch (err) {
+      toast(`Removed locally. API error: ${err.message}`, 'warn');
+    }
+  } else {
+    toast(`🗑 Session deleted (demo mode).`, 'success');
+  }
+
+  if (session && APP.currentPatientId === session.patient_id) loadProfile(APP.currentPatientId);
+}
+
+
 async function savePatient() {
   const editingId = document.getElementById('pf_patient_id').value.trim();
   const isEdit    = !!editingId;
@@ -2922,8 +3030,8 @@ async function savePatient() {
     complaint:  document.getElementById('pf_complaint').value.trim(),
     referral:   document.getElementById('pf_referral').value.trim(),
     emergency:  document.getElementById('pf_emergency').value.trim(),
-    diagnosis:  document.getElementById('pf_diagnosis').value.trim(),
-    status:     document.getElementById('pf_status').value.trim(),
+    diagnosis:  (function(){ const sel = document.getElementById('pf_diagnosis').value.trim(); return sel === 'Other' ? (document.getElementById('pf_diagnosis_other').value.trim() || 'Other') : sel; })(),
+    status:     document.getElementById('pf_status').value.trim() || 'Active',
     counselor:  document.getElementById('pf_counselor').value.trim(),
     medication: document.getElementById('pf_medication').value.trim(),
     consent:    document.getElementById('pf_consent').value.trim(),
@@ -3022,10 +3130,12 @@ async function savePatient() {
 function clearPatientForm() {
   ['pf_patient_id','pf_location','pf_name','pf_age','pf_gender','pf_phone','pf_email','pf_occupation',
    'pf_address','pf_complaint','pf_referral','pf_emergency','pf_diagnosis',
-   'pf_consent'].forEach(id => {
+   'pf_status','pf_medication','pf_consent'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  const diagOther = document.getElementById('pf_diagnosis_other');
+  if (diagOther) { diagOther.value = ''; diagOther.style.display = 'none'; }
   document.getElementById('patientFormError').style.display = 'none';
 }
 
@@ -3035,10 +3145,22 @@ function openPatientModal() {
   document.getElementById('patientModalTitle').textContent = 'Add New Patient';
   document.getElementById('patientModalSubtitle').textContent = 'Patient ID will be auto-generated by the system';
   document.getElementById('btnSavePatient').textContent = '💾 Save Patient';
+  document.getElementById('pf_counselor').value = 'Moom Tarin Nahar';
   const lastLoc = localStorage.getItem('lastLocation');
   const sel = document.getElementById('pf_location');
   if (sel && lastLoc) sel.value = lastLoc;
   openModal('modalPatient');
+}
+
+function toggleDiagOther(sel) {
+  const other = document.getElementById('pf_diagnosis_other');
+  if (sel.value === 'Other') {
+    other.style.display = '';
+    other.focus();
+  } else {
+    other.style.display = 'none';
+    other.value = '';
+  }
 }
 
 // Opens Edit Patient modal pre-filled with existing data
@@ -3060,7 +3182,17 @@ function openEditPatient(patientId) {
   document.getElementById('pf_complaint').value = patient.complaint || '';
   document.getElementById('pf_referral').value  = patient.referral  || '';
   document.getElementById('pf_emergency').value = patient.emergency || '';
-  document.getElementById('pf_diagnosis').value = patient.diagnosis || '';
+  const knownDiags = ['','Anxiety Disorder','Depression','PTSD','OCD','Bipolar Disorder','Schizophrenia','Social Anxiety','Panic Disorder','Grief / Bereavement','Stress / Burnout','Adjustment Disorder','Post-Partum Depression','Other'];
+  const dSel = document.getElementById('pf_diagnosis');
+  const dOther = document.getElementById('pf_diagnosis_other');
+  if (knownDiags.includes(patient.diagnosis || '')) {
+    dSel.value = patient.diagnosis || '';
+    dOther.style.display = 'none';
+  } else {
+    dSel.value = 'Other';
+    dOther.value = patient.diagnosis || '';
+    dOther.style.display = '';
+  }
   document.getElementById('pf_status').value    = patient.status    || '';
   document.getElementById('pf_counselor').value = patient.counselor || '';
   document.getElementById('pf_medication').value= patient.medication|| '';
@@ -3271,8 +3403,8 @@ function applyFilters() {
   let sessions = [...APP.sessions];
   if (pid) { patients = patients.filter(p => p.patient_id === pid); sessions = sessions.filter(s => s.patient_id === pid); }
   if (loc) { patients = patients.filter(p => (p.location||'').includes(loc)); sessions = sessions.filter(s => (s.location||'').includes(loc)); }
-  if (from) sessions = sessions.filter(s => s.session_date >= from);
-  if (to)   sessions = sessions.filter(s => s.session_date <= to);
+  if (from) { sessions = sessions.filter(s => s.session_date >= from); patients = patients.filter(p => !p.timestamp || p.timestamp.slice(0,10) >= from); }
+  if (to)   { sessions = sessions.filter(s => s.session_date <= to);   patients = patients.filter(p => !p.timestamp || p.timestamp.slice(0,10) <= to); }
   computeAnalytics(patients, sessions);
 }
 
@@ -3289,8 +3421,17 @@ function resetFilters() {
    REPORTS
    ============================================================ */
 function initReports() {
-  if (!APP.patients.length) fetchPatients().then(populateReportSel);
-  else populateReportSel();
+  const targetId = APP._pendingReportPatientId || null;
+  APP._pendingReportPatientId = null;
+  if (!APP.patients.length) {
+    fetchPatients().then(() => {
+      populateReportSel();
+      if (targetId) document.getElementById('r_patient').value = targetId;
+    });
+  } else {
+    populateReportSel();
+    if (targetId) document.getElementById('r_patient').value = targetId;
+  }
 }
 
 function populateReportSel() {
@@ -3510,9 +3651,25 @@ async function downloadPDF() {
     const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
-    const pdfW = pdf.internal.pageSize.getWidth();
-    const pdfH = (canvas.height * pdfW) / canvas.width;
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
+    const pdfW  = pdf.internal.pageSize.getWidth();
+    const pdfH  = pdf.internal.pageSize.getHeight();
+    const ratio = canvas.width / pdfW;
+    const pageHeightPx = pdfH * ratio;
+    const totalPages   = Math.ceil(canvas.height / pageHeightPx);
+
+    for (let page = 0; page < totalPages; page++) {
+      if (page > 0) pdf.addPage();
+      const srcY   = page * pageHeightPx;
+      const srcH   = Math.min(pageHeightPx, canvas.height - srcY);
+      const sliceCanvas = document.createElement('canvas');
+      sliceCanvas.width  = canvas.width;
+      sliceCanvas.height = srcH;
+      sliceCanvas.getContext('2d').drawImage(canvas, 0, srcY, canvas.width, srcH, 0, 0, canvas.width, srcH);
+      const sliceData = sliceCanvas.toDataURL('image/png');
+      const sliceH = (srcH / ratio);
+      pdf.addImage(sliceData, 'PNG', 0, 0, pdfW, sliceH);
+    }
+
     pdf.save(`PsychCare_${document.getElementById('r_patient').value}_${new Date().toISOString().slice(0,10)}.pdf`);
     toast('PDF downloaded!', 'success');
   } catch(e) {
@@ -3526,10 +3683,28 @@ function downloadDocx() {
     return;
   }
   try {
-    const content = document.querySelector('.report-container')?.innerHTML;
-    if (!content) { toast('No report to export. Generate a report first.', 'error'); return; }
+    const reportEl = document.querySelector('.report-container');
+    if (!reportEl) { toast('No report to export. Generate a report first.', 'error'); return; }
 
-    // Wrap in full HTML with embedded styles for Word compatibility
+    // Replace live canvas with a static base64 PNG so it exports into Word
+    const chartCanvas = document.getElementById('reportMoodChart');
+    let canvasPlaceholder = null;
+    if (chartCanvas) {
+      const imgEl = document.createElement('img');
+      imgEl.src = chartCanvas.toDataURL('image/png');
+      imgEl.style.width = '100%';
+      imgEl.style.maxHeight = '180px';
+      chartCanvas.parentNode.replaceChild(imgEl, chartCanvas);
+      canvasPlaceholder = { img: imgEl, parent: imgEl.parentNode };
+    }
+
+    const content = reportEl.innerHTML;
+
+    // Restore canvas after grabbing innerHTML
+    if (canvasPlaceholder) {
+      canvasPlaceholder.parent.replaceChild(chartCanvas, canvasPlaceholder.img);
+    }
+
     const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8">
     <style>
       body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #1f2937; margin: 0; }
@@ -3561,6 +3736,7 @@ function downloadDocx() {
       .signature-name { font-weight: bold; font-size: 9.5pt; }
       .signature-title { font-size: 8pt; color: #6b7280; }
       .report-footer-bar { margin-top: 28px; border-top: 1px solid #e5e7eb; padding-top: 10px; font-size: 8pt; color: #d1d5db; display: flex; justify-content: space-between; }
+      img { max-width: 100%; }
     </style></head><body>${content}</body></html>`;
 
     const blob = htmlDocx.asBlob(fullHtml);
